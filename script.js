@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // To use Grist: set window.GRIST_PRICES_URL before this script (e.g. to your Netlify function URL).
     const FALLBACK_PRICING_DATA = [
         // Pixel 2 series – 64 / 128 GB
-        { model: 'Pixel 2', storage: '64GB', condition: 'New', price: null },
+        { model: 'Pixel 2', storage: '64GB', condition: 'New', code: null },
         { model: 'Pixel 2', storage: '64GB', condition: 'Used', price: null },
         { model: 'Pixel 2', storage: '128GB', condition: 'New', price: null },
         { model: 'Pixel 2', storage: '128GB', condition: 'Used', price: null },
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Pixel 10 series – from comparison table, excluding 1TB
         { model: 'Pixel 10', storage: '128GB', condition: 'New', code: 'B1031' },
         { model: 'Pixel 10', storage: '128GB', condition: 'Used', price: null },
-        { model: 'Pixel 10', storage: '256GB', condition: 'New', price: null },
+        { model: 'Pixel 10', storage: '256GB', condition: 'New', code: 'B1035' },
         { model: 'Pixel 10', storage: '256GB', condition: 'Used', price: null },
         { model: 'Pixel 10 Pro', storage: '128GB', condition: 'New', price: null },
         { model: 'Pixel 10 Pro', storage: '128GB', condition: 'Used', price: null },
