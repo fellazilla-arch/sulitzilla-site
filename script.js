@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { model: 'Pixel 9a', storage: '256GB', condition: 'Used', price: null },
 
         // Pixel 10 series – from comparison table, excluding 1TB
-        { model: 'Pixel 10', storage: '128GB', condition: 'New', price: null },
+        { model: 'Pixel 10', storage: '128GB', condition: 'New', code: 'B1031' },
         { model: 'Pixel 10', storage: '128GB', condition: 'Used', price: null },
         { model: 'Pixel 10', storage: '256GB', condition: 'New', price: null },
         { model: 'Pixel 10', storage: '256GB', condition: 'Used', price: null },
