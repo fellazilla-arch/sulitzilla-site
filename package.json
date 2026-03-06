@@ -1,0 +1,10 @@
+{
+  "name": "sulitzilla-site",
+  "private": true,
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
