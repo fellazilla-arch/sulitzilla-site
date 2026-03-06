@@ -217,6 +217,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const pricingListEl = document.getElementById('pricing-list');
     const pricingEmptyStateEl = document.getElementById('pricing-empty-state');
+    const pricingLoadingEl = document.getElementById('pricing-loading');
+
+    function showPricingLoader() {
+        if (pricingLoadingEl) pricingLoadingEl.hidden = false;
+    }
+    function hidePricingLoader() {
+        if (pricingLoadingEl) pricingLoadingEl.hidden = true;
+    }
 
     function renderPricingList(pricingData) {
         if (!pricingListEl || !pricingEmptyStateEl) return;
@@ -347,6 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function loadPrices(forceRefresh) {
+        showPricingLoader();
         let data = FALLBACK_PRICING_DATA;
         const url = window.GRIST_PRICES_URL;
         if (url) {
@@ -360,6 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const list = JSON.parse(cached);
                         if (Array.isArray(list)) {
                             data = mergePricesFromList(list);
+                            hidePricingLoader();
                             renderPricingList(data);
                             scheduleHourlyRefresh();
                             return;
@@ -382,6 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (e) {}
         }
+        hidePricingLoader();
         renderPricingList(data);
         scheduleHourlyRefresh();
     }

@@ -4,7 +4,7 @@
  *
  * Env vars: GRIST_API_KEY, GRIST_DOC_ID, GRIST_TABLE. Optional: GRIST_BASE (default grist.sulitzilla.com/api).
  * Local: copy server/.env.example to server/.env and run: cd server && npm install && npm start
- * Then open the site on http://localhost:5500; it will call http://localhost:3001/api/prices.
+ * Then open the site on http://localhost:5500; it will call http://localhost:5500/api/prices.
  */
 const express = require('express');
 const path = require('path');
@@ -61,7 +61,11 @@ app.get('/api/prices', async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     res.json(list);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('[Grist /api/prices]', err.message, err.cause || '');
+    res.status(500).json({
+      error: err.message,
+      cause: err.cause ? String(err.cause) : undefined,
+    });
   }
 });
 
