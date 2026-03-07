@@ -3,63 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sulitzilla</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Google Pixel Price List – Sulitzilla</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <div class="mobile-menu-overlay"></div>
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-left">
                 <div class="logo">
-                    <img src="logo.png" alt="Sulitzilla" />
+                    <a href="/"><img src="/logo.png" alt="Sulitzilla" /></a>
                 </div>
-                <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="close-icon">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
-                </button>
-                <ul class="nav-links">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/prices/">Phones</a></li>
-                    <li><a href="#">Fi Wireless</a></li>
-                    <li><a href="#">Watches & Trackers</a></li>
-                    <li><a href="#">Earbuds</a></li>
-                    <li><a href="#">Smart Home</a></li>
-                    <li><a href="#">Tablets</a></li>
-                    <li><a href="#">Accessories</a></li>
-                    <li><a href="#">Offers</a></li>
-                    <li><a href="#">Support</a></li>
-                </ul>
-            </div>
-            <div class="nav-right">
-                <button class="icon-button" aria-label="Search">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/>
-                    </svg>
-                </button>
-                <button class="icon-button" aria-label="Shopping Cart">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/>
-                    </svg>
-                </button>
             </div>
         </div>
     </nav>
 
     <main class="main-content">
         <section class="pricing-header">
-            <h1 class="pricing-title">Sulitzilla</h1>
-            <p class="pricing-subtitle">Our product line</p>
-            <p><a href="/prices/">Pixel price list</a></p>
+            <h1 class="pricing-title">Google Pixel Price List</h1>
+            <p id="pricing-last-updated" class="pricing-last-updated" aria-live="polite"></p>
+            <button type="button" id="refresh-prices-btn" class="refresh-prices-btn hidden" aria-hidden="true">Refresh prices</button>
+        </section>
+
+        <p class="pricing-warranty-note">All orders come with a free case, screen protector or tempered glass, and Sulitzilla's 30-day warranty.</p>
+
+        <section class="pricing-list-section" aria-label="Pixel price list">
+            <div id="pricing-loading" class="pricing-loading" hidden aria-live="polite">
+                <div class="pricing-loading-spinner" aria-hidden="true"></div>
+                <span class="pricing-loading-text">Loading prices…</span>
+            </div>
+            <div id="pricing-list" class="pricing-list" aria-live="polite"></div>
+            <p id="pricing-empty-state" class="pricing-empty" hidden>No models available.</p>
         </section>
     </main>
 
-    <script src="script.js"></script>
+    <script>window.GRIST_PRICES_URL = '/api/prices';</script>
+    <script src="/script.js"></script>
 </body>
 </html>

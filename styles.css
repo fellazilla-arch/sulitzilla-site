@@ -16,7 +16,13 @@ body {
 }
 
 .pricing-header {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .pricing-title {
@@ -24,6 +30,20 @@ body {
     font-weight: 600;
     color: #0a1929;
     margin-bottom: 4px;
+}
+
+.pricing-last-updated {
+    font-size: 0.875rem;
+    color: #5f6368;
+    margin: 0 0 8px 0;
+}
+
+.pricing-warranty-note {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #5f6368;
+    margin: 0 auto 50px auto;
+    max-width: 560px;
 }
 
 .pricing-subtitle {
@@ -340,7 +360,7 @@ body {
 
 @media (min-width: 600px) {
     .main-content {
-        padding: 96px 24px 48px;
+        padding: 55px 24px 48px;
     }
 
     .pricing-filters {
@@ -439,6 +459,16 @@ body {
 
 .nav-links li a:hover {
     color: #90caf9;
+}
+
+/* Placeholder nav items – not yet active */
+.nav-links a.nav-link--coming-soon {
+    color: rgba(255, 255, 255, 0.4);
+    cursor: default;
+    pointer-events: none;
+}
+.nav-links a.nav-link--coming-soon:hover {
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .nav-right {

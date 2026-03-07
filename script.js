@@ -327,6 +327,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const CACHE_MAX_AGE_MS = 60 * 60 * 1000; // 1 hour
     var hourlyRefreshTimer = null;
 
+    function setPricingLastUpdated(timestamp) {
+        const el = document.getElementById('pricing-last-updated');
+        if (!el) return;
+        if (timestamp == null || timestamp === '') {
+            el.textContent = '';
+            return;
+        }
+        const d = new Date(typeof timestamp === 'number' ? timestamp : parseInt(timestamp, 10));
+        if (Number.isNaN(d.getTime())) {
+            el.textContent = '';
+            return;
+        }
+        el.textContent = 'Last updated: ' + d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
     function mergePricesFromList(list) {
         if (!Array.isArray(list) || list.length === 0) return FALLBACK_PRICING_DATA;
         const priceByCode = {};
@@ -370,6 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (Array.isArray(list)) {
                             data = mergePricesFromList(list);
                             hidePricingLoader();
+                            setPricingLastUpdated(cachedAt);
                             renderPricingList(data);
                             scheduleHourlyRefresh();
                             return;
@@ -384,8 +400,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     const list = Array.isArray(json) ? json : (json && json.data);
                     if (Array.isArray(list) && list.length > 0) {
                         try {
+                            const now = Date.now();
                             localStorage.setItem(CACHE_KEY, JSON.stringify(list));
-                            localStorage.setItem(CACHE_KEY + '_at', String(Date.now()));
+                            localStorage.setItem(CACHE_KEY + '_at', String(now));
+                            setPricingLastUpdated(now);
                         } catch (e) {}
                         data = mergePricesFromList(list);
                     }
