@@ -204,21 +204,20 @@ body {
     position: absolute;
     top: 12px;
     right: 12px;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: #5f6368;
-    background: none;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: #1976d2;
+    background: #e5edff;
     border: none;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 999px;
 }
 
 .good-vs-excellent-close:hover {
-    background: #f1f3f4;
-    color: #0a1929;
+    background: #d7e7ff;
+    color: #0b5394;
 }
 
 /* ExtraCare popup */
