@@ -24,7 +24,34 @@
             <button type="button" id="refresh-prices-btn" class="refresh-prices-btn hidden" aria-hidden="true">Refresh prices</button>
         </section>
 
-        <p class="pricing-warranty-note">All orders come with a free case, screen protector or tempered glass, and Sulitzilla's 30-day warranty.</p>
+        <p class="pricing-warranty-note">All orders come with a free case, screen protector/tempered glass, and our 30-day warranty. <button type="button" class="extracare-trigger" id="extracare-trigger" aria-haspopup="dialog" aria-expanded="false"><span class="extracare-trigger-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span> Upgrade your warranty.</button></p>
+
+        <div id="extracare-overlay" class="extracare-overlay" hidden aria-hidden="true">
+            <div class="extracare-modal" role="dialog" aria-labelledby="extracare-title" aria-modal="true">
+                <button type="button" class="extracare-close" aria-label="Close">×</button>
+                <h2 id="extracare-title" class="extracare-modal-title">ExtraCare</h2>
+                <p>Want more protection? Add ExtraCare for ₱1,490 to extend your warranty to one year and get access to Google's Official US Service Center.</p>
+            </div>
+        </div>
+
+        <div class="good-vs-excellent-trigger-wrapper">
+            <button type="button" class="good-vs-excellent-trigger" id="good-vs-excellent-trigger" aria-haspopup="dialog" aria-expanded="false">How do we grade our used units?</button>
+        </div>
+
+        <div id="good-vs-excellent-overlay" class="good-vs-excellent-overlay" hidden aria-hidden="true">
+            <div class="good-vs-excellent-modal" role="dialog" aria-labelledby="good-vs-excellent-title" aria-modal="true">
+                <button type="button" class="good-vs-excellent-close" aria-label="Close">×</button>
+                <h2 id="good-vs-excellent-title" class="good-vs-excellent-modal-title">Good vs Excellent</h2>
+                <div class="preloved-block preloved-excellent">
+                    <h3 class="preloved-block-title">Excellent</h3>
+                    <p>Very light hairline scratches not easily visible and not noticeable with the screen on. Usually you would need to shine a light on the screen to see them. The back &amp; frame are very smooth with only minimal dents or scratches, if any. We put more emphasis on the front screen condition over the back; so if the screen looks very smooth, but there's a bit more denting on the back and sides, the phone may still be called "Excellent".</p>
+                </div>
+                <div class="preloved-block preloved-good">
+                    <h3 class="preloved-block-title">Good</h3>
+                    <p>Light screen scratches; some may be felt by your nail. Possible dents on the frame and back, but overall in decent shape and still very presentable. We put more emphasis on the condition of the screen, so if the back is very smooth but the screen has multiple scratches, the unit will be considered "Good".</p>
+                </div>
+            </div>
+        </div>
 
         <section class="pricing-list-section" aria-label="Pixel price list">
             <div id="pricing-loading" class="pricing-loading" hidden aria-live="polite">
