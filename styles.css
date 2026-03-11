@@ -904,6 +904,27 @@ body {
     gap: 16px;
 }
 
+.nav-message-link {
+    font-size: 0.8rem;
+    color: #ffffff;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(144, 202, 249, 0.16);
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.nav-message-link:hover {
+    background-color: rgba(144, 202, 249, 0.28);
+}
+
+.nav-message-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
 .icon-button {
     background: none;
     border: none;
