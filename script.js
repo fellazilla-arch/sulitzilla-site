@@ -590,11 +590,6 @@ document.addEventListener('DOMContentLoaded', function() {
         pricingEmptyStateEl.hidden = true;
         pricingListEl.innerHTML = '';
 
-        const noteEl = document.createElement('p');
-        noteEl.className = 'pricing-excellent-note';
-        noteEl.textContent = 'Add ₱1,000 to the Used price for Excellent condition.';
-        pricingListEl.appendChild(noteEl);
-
         const tableWrapper = document.createElement('div');
         tableWrapper.className = 'pricing-table-wrapper';
 
@@ -603,11 +598,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
-        ['Model', 'Storage', 'New', 'Used'].forEach(text => {
-            const th = document.createElement('th');
-            th.textContent = text;
-            headerRow.appendChild(th);
+
+        const modelTh = document.createElement('th');
+        modelTh.textContent = 'Model';
+        headerRow.appendChild(modelTh);
+
+        const storageTh = document.createElement('th');
+        storageTh.textContent = 'Storage';
+        headerRow.appendChild(storageTh);
+
+        const newTh = document.createElement('th');
+        newTh.textContent = 'New';
+        headerRow.appendChild(newTh);
+
+        const usedTh = document.createElement('th');
+        const usedLabel = document.createElement('span');
+        usedLabel.textContent = 'Used';
+        usedLabel.className = 'pricing-table-head-label';
+        const usedIcon = document.createElement('button');
+        usedIcon.type = 'button';
+        usedIcon.className = 'pricing-table-head-icon';
+        usedIcon.setAttribute('aria-label', 'How we grade used units');
+        usedIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="8"></line><line x1="12" y1="12" x2="12" y2="16"></line></svg>';
+        usedIcon.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (goodVsExcellentTrigger) {
+                goodVsExcellentTrigger.click();
+            }
         });
+        usedTh.appendChild(usedLabel);
+        usedTh.appendChild(usedIcon);
+        headerRow.appendChild(usedTh);
         thead.appendChild(headerRow);
         table.appendChild(thead);
 

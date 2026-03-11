@@ -127,6 +127,32 @@ body {
     margin: 0 0 14px 0;
 }
 
+.good-vs-excellent-modal-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #374151;
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+}
+
+.good-vs-excellent-modal-note-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: #1976d2;
+    margin-top: 2px;
+}
+
+.good-vs-excellent-modal-note-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
 .preloved-block {
     padding: 12px 14px;
     border-radius: 8px;
@@ -423,12 +449,6 @@ body {
     display: block;
 }
 
-.pricing-excellent-note {
-    font-size: 0.8rem;
-    color: #5f6368;
-    margin: 0 0 8px 2px;
-}
-
 .pricing-table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -446,12 +466,6 @@ body {
 
 .pricing-table thead {
     background-color: #e5edff;
-}
-
-.pricing-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
 }
 
 .pricing-table th,
@@ -485,6 +499,29 @@ body {
     font-weight: 600;
     font-size: 0.8rem;
     color: #374151;
+}
+
+.pricing-table-head-label {
+    vertical-align: middle;
+}
+
+.pricing-table-head-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    width: 14px;
+    height: 14px;
+    color: #1976d2;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.pricing-table-head-icon svg {
+    width: 100%;
+    height: 100%;
 }
 
 .pricing-table td {
