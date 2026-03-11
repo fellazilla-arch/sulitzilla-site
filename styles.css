@@ -12,7 +12,7 @@ body {
 .main-content {
     max-width: 1120px;
     margin: 0 auto;
-    padding: 88px 20px 40px;
+    padding: 64px 20px 40px;
 }
 
 .pricing-header {
@@ -45,6 +45,45 @@ body {
     color: #5f6368;
     margin: 0 auto 50px auto;
     max-width: 770px;
+}
+
+.pricing-warranty-note-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.warranty-inclusions-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: inherit;
+    color: #1976d2;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.warranty-inclusions-link:hover {
+    color: #1565c0;
+}
+
+.warranty-inclusions-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.warranty-inclusions-icon svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
 }
 
 .good-vs-excellent-trigger-wrapper {
@@ -154,7 +193,8 @@ body {
 }
 
 @media (max-width: 400px) {
-    .good-vs-excellent-modal {
+    .good-vs-excellent-modal,
+    .extracare-modal {
         padding-top: 32px;
     }
 }
@@ -296,6 +336,8 @@ body {
     margin: 0;
     line-height: 1.45;
 }
+
+/* Inclusions popup uses the standard ExtraCare modal padding; no special wrapping needed */
 
 .extracare-close {
     position: absolute;

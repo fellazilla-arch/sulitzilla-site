@@ -119,6 +119,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Inclusions popup
+    const inclusionsTrigger = document.getElementById('inclusions-trigger');
+    const inclusionsOverlay = document.getElementById('inclusions-overlay');
+    const inclusionsClose = inclusionsOverlay && inclusionsOverlay.querySelector('.extracare-close');
+    if (inclusionsTrigger && inclusionsOverlay) {
+        function openInclusions() {
+            inclusionsOverlay.hidden = false;
+            inclusionsOverlay.setAttribute('aria-hidden', 'false');
+            inclusionsTrigger.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeInclusions() {
+            inclusionsOverlay.hidden = true;
+            inclusionsOverlay.setAttribute('aria-hidden', 'true');
+            inclusionsTrigger.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+        inclusionsTrigger.addEventListener('click', openInclusions);
+        inclusionsOverlay.addEventListener('click', function(e) {
+            if (e.target === inclusionsOverlay) closeInclusions();
+        });
+        if (inclusionsClose) inclusionsClose.addEventListener('click', closeInclusions);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !inclusionsOverlay.hidden) closeInclusions();
+        });
+    }
+
     // Fallback pricing data (used when Grist is not configured or fetch fails).
     // To use Grist: set window.GRIST_PRICES_URL before this script (e.g. to your Netlify function URL).
     // For Used variants: the price from Grist (by CODE) is the Good price; Excellent = Good + this amount.
