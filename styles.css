@@ -153,6 +153,12 @@ body {
     height: 100%;
 }
 
+@media (max-width: 400px) {
+    .good-vs-excellent-modal {
+        padding-top: 32px;
+    }
+}
+
 .preloved-block {
     padding: 12px 14px;
     border-radius: 8px;
