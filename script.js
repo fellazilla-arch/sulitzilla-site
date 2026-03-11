@@ -535,8 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     model: item.model,
                     storage: item.storage,
                     newPrice: null,
-                    usedGoodPrice: null,
-                    usedExcellentPrice: null
+                    usedPrice: null
                 };
                 rowsByKey.set(key, row);
             }
@@ -552,13 +551,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (item.condition === 'New') {
                 row.newPrice = priceNum;
             } else if (item.condition === 'Used') {
-                row.usedGoodPrice = priceNum;
-                row.usedExcellentPrice = priceNum + USED_EXCELLENT_ADDITION_PHP;
+                // "Used" column shows the Good condition price.
+                row.usedPrice = priceNum;
             }
         });
 
         let rows = Array.from(rowsByKey.values()).filter(row =>
-            row.newPrice !== null || row.usedGoodPrice !== null || row.usedExcellentPrice !== null
+            row.newPrice !== null || row.usedPrice !== null
         );
 
         if (!rows.length) {
@@ -591,6 +590,11 @@ document.addEventListener('DOMContentLoaded', function() {
         pricingEmptyStateEl.hidden = true;
         pricingListEl.innerHTML = '';
 
+        const noteEl = document.createElement('p');
+        noteEl.className = 'pricing-excellent-note';
+        noteEl.textContent = 'Add ₱1,000 to the Used price for Excellent condition.';
+        pricingListEl.appendChild(noteEl);
+
         const tableWrapper = document.createElement('div');
         tableWrapper.className = 'pricing-table-wrapper';
 
@@ -599,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
-        ['Model', 'Storage', 'New', 'Good', 'Excellent'].forEach(text => {
+        ['Model', 'Storage', 'New', 'Used'].forEach(text => {
             const th = document.createElement('th');
             th.textContent = text;
             headerRow.appendChild(th);
@@ -628,23 +632,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             tr.appendChild(newCell);
 
-            const goodCell = document.createElement('td');
-            if (row.usedGoodPrice !== null) {
-                goodCell.textContent = `₱${row.usedGoodPrice.toLocaleString('en-PH')}`;
+            const usedCell = document.createElement('td');
+            if (row.usedPrice !== null) {
+                usedCell.textContent = `₱${row.usedPrice.toLocaleString('en-PH')}`;
             } else {
-                goodCell.textContent = '—';
-                goodCell.className = 'price-missing';
+                usedCell.textContent = '—';
+                usedCell.className = 'price-missing';
             }
-            tr.appendChild(goodCell);
-
-            const excellentCell = document.createElement('td');
-            if (row.usedExcellentPrice !== null) {
-                excellentCell.textContent = `₱${row.usedExcellentPrice.toLocaleString('en-PH')}`;
-            } else {
-                excellentCell.textContent = '—';
-                excellentCell.className = 'price-missing';
-            }
-            tr.appendChild(excellentCell);
+            tr.appendChild(usedCell);
 
             tbody.appendChild(tr);
         });
