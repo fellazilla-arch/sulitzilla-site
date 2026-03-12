@@ -492,7 +492,21 @@ body {
 }
 
 .pricing-list {
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+@media (min-width: 720px) {
+    .pricing-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1040px) {
+    .pricing-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 .pricing-table-wrapper {

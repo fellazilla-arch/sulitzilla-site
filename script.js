@@ -163,11 +163,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Pixel 3 series – 64 / 128 GB
         { model: 'Pixel 3', storage: '64GB', condition: 'New', code: 'CODE: ' },
-        { model: 'Pixel 3', storage: '64GB', condition: 'Used', code: 'B6609' },
+        { model: 'Pixel 3', storage: '64GB', condition: 'Used', code: 'B0042' },
         { model: 'Pixel 3', storage: '128GB', condition: 'New', code: 'CODE: ' },
         { model: 'Pixel 3', storage: '128GB', condition: 'Used', code: 'A1479' },
         { model: 'Pixel 3 XL', storage: '64GB', condition: 'New', code: 'CODE: ' },
-        { model: 'Pixel 3 XL', storage: '64GB', condition: 'Used', code: 'B7726' },
+        { model: 'Pixel 3 XL', storage: '64GB', condition: 'Used', code: 'B0043' },
         { model: 'Pixel 3 XL', storage: '128GB', condition: 'New', code: 'CODE: ' },
         { model: 'Pixel 3 XL', storage: '128GB', condition: 'Used', code: 'A1900' },
 
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { model: 'Pixel 4', storage: '64GB', condition: 'New', code: '' },
         { model: 'Pixel 4', storage: '64GB', condition: 'Used', code: 'A8039' },
         { model: 'Pixel 4', storage: '128GB', condition: 'New', code: 'CODE: ' },
-        { model: 'Pixel 4', storage: '128GB', condition: 'Used', code: 'B9945' },
+        { model: 'Pixel 4', storage: '128GB', condition: 'Used', code: 'B0044' },
         { model: 'Pixel 4 XL', storage: '64GB', condition: 'New', code: 'CODE: ' },
         { model: 'Pixel 4 XL', storage: '64GB', condition: 'Used', code: 'A1424' },
         { model: 'Pixel 4 XL', storage: '128GB', condition: 'New', code: 'CODE: ' },
@@ -432,55 +432,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (variant.condition === 'Used') {
-                const gradesEl = document.createElement('div');
-                gradesEl.className = 'variant-used-grades';
+            const priceEl = document.createElement('div');
+            priceEl.className = 'variant-price';
 
-                const goodEl = document.createElement('div');
-                goodEl.className = 'variant-grade variant-grade-good';
-                const goodLabel = document.createElement('span');
-                goodLabel.className = 'variant-grade-label';
-                goodLabel.textContent = 'Good';
-                goodEl.appendChild(goodLabel);
-                const goodPrice = document.createElement('span');
-                goodPrice.className = 'variant-grade-price';
-                if (priceNum !== null && !Number.isNaN(priceNum)) {
-                    goodPrice.textContent = `₱${priceNum.toLocaleString('en-PH')}`;
+            if (hasPrice) {
+                if (typeof variant.price === 'number') {
+                    priceEl.textContent = `₱${variant.price.toLocaleString('en-PH')}`;
+                } else {
+                    priceEl.textContent = `₱${variant.price}`;
                 }
-                goodEl.appendChild(goodPrice);
-                gradesEl.appendChild(goodEl);
-
-                const excellentEl = document.createElement('div');
-                excellentEl.className = 'variant-grade variant-grade-excellent';
-                const excellentLabel = document.createElement('span');
-                excellentLabel.className = 'variant-grade-label';
-                excellentLabel.textContent = 'Excellent';
-                excellentEl.appendChild(excellentLabel);
-                const excellentPrice = document.createElement('span');
-                excellentPrice.className = 'variant-grade-price';
-                if (priceNum !== null && !Number.isNaN(priceNum)) {
-                    excellentPrice.textContent = `₱${(priceNum + USED_EXCELLENT_ADDITION_PHP).toLocaleString('en-PH')}`;
-                }
-                excellentEl.appendChild(excellentPrice);
-                gradesEl.appendChild(excellentEl);
-
-                rowEl.appendChild(mainEl);
-                rowEl.appendChild(gradesEl);
-            } else {
-                const priceEl = document.createElement('div');
-                priceEl.className = 'variant-price';
-
-                if (hasPrice) {
-                    if (typeof variant.price === 'number') {
-                        priceEl.textContent = `₱${variant.price.toLocaleString('en-PH')}`;
-                    } else {
-                        priceEl.textContent = `₱${variant.price}`;
-                    }
-                }
-
-                rowEl.appendChild(mainEl);
-                rowEl.appendChild(priceEl);
             }
+
+            rowEl.appendChild(mainEl);
+            rowEl.appendChild(priceEl);
 
             bodyEl.appendChild(rowEl);
         });
@@ -551,22 +515,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderPricingList(pricingData) {
         if (!pricingListEl || !pricingEmptyStateEl) return;
 
-        // Aggregate variants into table rows keyed by model + storage.
-        const rowsByKey = new Map();
+        // Build variants per model, skipping rows without a valid price.
+        const variantsByModel = new Map();
 
         pricingData.forEach(item => {
-            const key = item.model + '||' + item.storage;
-            let row = rowsByKey.get(key);
-            if (!row) {
-                row = {
-                    model: item.model,
-                    storage: item.storage,
-                    newPrice: null,
-                    usedPrice: null
-                };
-                rowsByKey.set(key, row);
-            }
-
             const hasPrice = item.price !== null && item.price !== undefined && item.price !== '';
             const priceNum = hasPrice && typeof item.price === 'number'
                 ? item.price
@@ -575,137 +527,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (item.condition === 'New') {
-                row.newPrice = priceNum;
-            } else if (item.condition === 'Used') {
-                // "Used" column shows the Good condition price.
-                row.usedPrice = priceNum;
+            const model = item.model;
+            if (!variantsByModel.has(model)) {
+                variantsByModel.set(model, []);
             }
+            variantsByModel.get(model).push({
+                model: item.model,
+                storage: item.storage,
+                condition: item.condition,
+                code: item.code,
+                price: priceNum
+            });
         });
 
-        let rows = Array.from(rowsByKey.values()).filter(row =>
-            row.newPrice !== null || row.usedPrice !== null
-        );
+        let models = Array.from(variantsByModel.entries())
+            .map(([model, variants]) => ({ model, variants }))
+            .filter(entry => entry.variants.length > 0);
 
-        if (!rows.length) {
+        if (!models.length) {
             pricingEmptyStateEl.hidden = false;
             pricingListEl.innerHTML = '';
             return;
         }
 
-        // Sort by model release (newest → oldest), then by storage.
-        rows.sort((a, b) => {
+        // Sort models by release (newest → oldest) using MODEL_ORDER_NEWEST_TO_OLDEST.
+        models.sort((a, b) => {
             const idxA = MODEL_ORDER_NEWEST_TO_OLDEST.indexOf(a.model);
             const idxB = MODEL_ORDER_NEWEST_TO_OLDEST.indexOf(b.model);
             const rankA = idxA === -1 ? Number.MAX_SAFE_INTEGER : idxA;
             const rankB = idxB === -1 ? Number.MAX_SAFE_INTEGER : idxB;
-            if (rankA !== rankB) return rankA - rankB;
-
-            const parseStorage = (s) => {
-                const n = parseInt(s, 10);
-                return Number.isNaN(n) ? null : n;
-            };
-            const sa = parseStorage(a.storage);
-            const sb = parseStorage(b.storage);
-            if (sa !== null && sb !== null && sa !== sb) return sa - sb;
-            if (a.storage !== b.storage) {
-                return String(a.storage).localeCompare(String(b.storage));
-            }
-            return 0;
+            return rankA - rankB;
         });
 
         pricingEmptyStateEl.hidden = true;
         pricingListEl.innerHTML = '';
 
-        const tableWrapper = document.createElement('div');
-        tableWrapper.className = 'pricing-table-wrapper';
-
-        const table = document.createElement('table');
-        table.className = 'pricing-table';
-
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-
-        const modelTh = document.createElement('th');
-        modelTh.textContent = 'Model';
-        headerRow.appendChild(modelTh);
-
-        const storageTh = document.createElement('th');
-        storageTh.textContent = 'Storage';
-        headerRow.appendChild(storageTh);
-
-        const newTh = document.createElement('th');
-        newTh.textContent = 'New';
-        headerRow.appendChild(newTh);
-
-        const usedTh = document.createElement('th');
-        const usedLabel = document.createElement('span');
-        usedLabel.textContent = 'Used';
-        usedLabel.className = 'pricing-table-head-label';
-        const usedIcon = document.createElement('button');
-        usedIcon.type = 'button';
-        usedIcon.className = 'pricing-table-head-icon';
-        usedIcon.setAttribute('aria-label', 'How we grade used units');
-        usedIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="8"></line><line x1="12" y1="12" x2="12" y2="16"></line></svg>';
-        usedIcon.addEventListener('click', function (e) {
-            e.stopPropagation();
-            if (goodVsExcellentTrigger) {
-                goodVsExcellentTrigger.click();
-            }
-        });
-        usedTh.appendChild(usedLabel);
-        usedTh.appendChild(usedIcon);
-        headerRow.appendChild(usedTh);
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        const tbody = document.createElement('tbody');
-        rows.forEach(row => {
-            const tr = document.createElement('tr');
-
-            const modelCell = document.createElement('td');
-            modelCell.textContent = row.model;
-            tr.appendChild(modelCell);
-
-            const storageCell = document.createElement('td');
-            storageCell.textContent = row.storage;
-            tr.appendChild(storageCell);
-
-            const newCell = document.createElement('td');
-            if (row.newPrice !== null) {
-                newCell.textContent = `₱${row.newPrice.toLocaleString('en-PH')}`;
-            } else {
-                newCell.textContent = '—';
-                newCell.className = 'price-missing';
-            }
-            tr.appendChild(newCell);
-
-            const usedCell = document.createElement('td');
-            if (row.usedPrice !== null) {
-                usedCell.textContent = `₱${row.usedPrice.toLocaleString('en-PH')}`;
-            } else {
-                usedCell.textContent = '—';
-                usedCell.className = 'price-missing';
-            }
-            tr.appendChild(usedCell);
-
-            tbody.appendChild(tr);
+        const fragment = document.createDocumentFragment();
+        models.forEach(entry => {
+            const groupEl = createModelGroupElement(entry.model, entry.variants);
+            if (groupEl) fragment.appendChild(groupEl);
         });
 
-        table.appendChild(tbody);
-        tableWrapper.appendChild(table);
-        pricingListEl.appendChild(tableWrapper);
-
-        const footerEl = document.createElement('div');
-        footerEl.className = 'pricing-table-footer';
-        const footerLink = document.createElement('a');
-        footerLink.href = 'https://m.me/sulitzilla';
-        footerLink.target = '_blank';
-        footerLink.rel = 'noopener noreferrer';
-        footerLink.className = 'model-footer-link';
-        footerLink.innerHTML = 'Message us <span class="model-footer-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c0 4.418 3.582 8 8 8 1.335 0 2.59-.324 3.7-.9L20 20l-.9-4.3A7.963 7.963 0 0 0 20 12c0-4.418-3.582-8-8-8S4 7.582 4 12z"></path><path d="m8.5 13.5 2.5-3 2.5 3 2.5-3"></path></svg></span>';
-        footerEl.appendChild(footerLink);
-        pricingListEl.appendChild(footerEl);
+        pricingListEl.appendChild(fragment);
     }
 
     const CACHE_KEY = 'sulitzilla_prices';
