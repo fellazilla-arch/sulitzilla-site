@@ -449,19 +449,6 @@ document.addEventListener('DOMContentLoaded', function() {
             bodyEl.appendChild(rowEl);
         });
 
-        const footerEl = document.createElement('div');
-        footerEl.className = 'model-footer';
-
-        const footerLink = document.createElement('a');
-        footerLink.href = 'https://m.me/sulitzilla';
-        footerLink.target = '_blank';
-        footerLink.rel = 'noopener noreferrer';
-        footerLink.className = 'model-footer-link';
-        footerLink.innerHTML = 'Message us <span class="model-footer-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c0 4.418 3.582 8 8 8 1.335 0 2.59-.324 3.7-.9L20 20l-.9-4.3A7.963 7.963 0 0 0 20 12c0-4.418-3.582-8-8-8S4 7.582 4 12z"></path><path d="m8.5 13.5 2.5-3 2.5 3 2.5-3"></path></svg></span>';
-
-        footerEl.appendChild(footerLink);
-        bodyEl.appendChild(footerEl);
-
         headerButton.addEventListener('click', () => {
             const isExpanded = headerButton.getAttribute('aria-expanded') === 'true';
             const nextExpanded = !isExpanded;
@@ -541,7 +528,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         let models = Array.from(variantsByModel.entries())
-            .map(([model, variants]) => ({ model, variants }))
+            .map(([model, variants]) => {
+                // Sort so New variants appear before Used within each model,
+                // and then by storage size (where possible) for a stable order.
+                variants.sort((a, b) => {
+                    const condA = a.condition === 'New' ? 0 : 1;
+                    const condB = b.condition === 'New' ? 0 : 1;
+                    if (condA !== condB) return condA - condB;
+
+                    const numA = parseInt(String(a.storage).replace(/\D/g, ''), 10);
+                    const numB = parseInt(String(b.storage).replace(/\D/g, ''), 10);
+                    if (!Number.isNaN(numA) && !Number.isNaN(numB) && numA !== numB) {
+                        return numA - numB;
+                    }
+                    return String(a.storage).localeCompare(String(b.storage));
+                });
+                return { model, variants };
+            })
             .filter(entry => entry.variants.length > 0);
 
         if (!models.length) {
