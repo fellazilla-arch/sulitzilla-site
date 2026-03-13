@@ -62,6 +62,21 @@
                     </span>
                     What are the inclusions?
                 </button>
+                <button
+                    type="button"
+                    class="warranty-inclusions-link"
+                    id="payment-methods-trigger"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                >
+                    <span class="warranty-inclusions-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                    </span>
+                    Payment Methods
+                </button>
             </span>
         </p>
 
@@ -78,6 +93,15 @@
                 <button type="button" class="extracare-close" aria-label="Close">Close</button>
                 <h2 id="inclusions-title" class="extracare-modal-title">What are the inclusions?</h2>
                 <p>All phones come with a case, screen protector or tempered glass, plus a 30-day warranty and free LBC shipping with insurance. New phones will also include a charger set.</p>
+            </div>
+        </div>
+
+        <div id="payment-methods-overlay" class="extracare-overlay" hidden aria-hidden="true">
+            <div class="extracare-modal" role="dialog" aria-labelledby="payment-methods-title" aria-modal="true">
+                <button type="button" class="extracare-close" aria-label="Close">Close</button>
+                <h2 id="payment-methods-title" class="extracare-modal-title">Payment Methods</h2>
+                <p>Our payment methods include COD, COP, GCash, bank transfer, and credit card, and QR Ph.</p>
+                <p>For installments, we offer BillEase and SPayLater.</p>
             </div>
         </div>
 

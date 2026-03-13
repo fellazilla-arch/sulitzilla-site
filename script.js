@@ -146,6 +146,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Payment Methods popup
+    const paymentMethodsTrigger = document.getElementById('payment-methods-trigger');
+    const paymentMethodsOverlay = document.getElementById('payment-methods-overlay');
+    const paymentMethodsClose = paymentMethodsOverlay && paymentMethodsOverlay.querySelector('.extracare-close');
+    if (paymentMethodsTrigger && paymentMethodsOverlay) {
+        function openPaymentMethods() {
+            paymentMethodsOverlay.hidden = false;
+            paymentMethodsOverlay.setAttribute('aria-hidden', 'false');
+            paymentMethodsTrigger.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden';
+        }
+        function closePaymentMethods() {
+            paymentMethodsOverlay.hidden = true;
+            paymentMethodsOverlay.setAttribute('aria-hidden', 'true');
+            paymentMethodsTrigger.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+        paymentMethodsTrigger.addEventListener('click', openPaymentMethods);
+        paymentMethodsOverlay.addEventListener('click', function(e) {
+            if (e.target === paymentMethodsOverlay) closePaymentMethods();
+        });
+        if (paymentMethodsClose) paymentMethodsClose.addEventListener('click', closePaymentMethods);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !paymentMethodsOverlay.hidden) closePaymentMethods();
+        });
+    }
+
     // Fallback pricing data (used when Grist is not configured or fetch fails).
     // To use Grist: set window.GRIST_PRICES_URL before this script (e.g. to your Netlify function URL).
     // For Used variants: the price from Grist (by CODE) is the Good price; Excellent = Good + this amount.
