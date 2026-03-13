@@ -199,6 +199,18 @@ body {
     }
 }
 
+.good-vs-excellent-modal p.preloved-origin-note {
+    font-size: 0.75rem;
+    color: #1565c0;
+    background-color: #e3f2fd;
+    border-left: 3px solid #1976d2;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 0 0 12px 0;
+    line-height: 1.45;
+    font-style: italic;
+}
+
 .preloved-block {
     padding: 12px 14px;
     border-radius: 8px;
