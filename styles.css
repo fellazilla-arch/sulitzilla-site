@@ -209,6 +209,8 @@ body {
     margin: 0 0 30px 0;
     line-height: 1.45;
     font-style: italic;
+    width: fit-content;
+    transform: none;
 }
 
 .preloved-block {
