@@ -995,6 +995,19 @@ body {
     height: 14px;
 }
 
+.shipping-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    vertical-align: text-bottom;
+}
+
+.shipping-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
 .icon-button {
     background: none;
     border: none;
@@ -1123,6 +1136,10 @@ body {
     .nav-container {
         padding: 0 16px;
     }
+
+    .nav-badge-row {
+        padding: 0 16px 10px;
+    }
     
     .nav-left {
         gap: 16px;
@@ -1196,6 +1213,10 @@ body {
     .nav-container {
         padding: 0 12px;
         height: 56px;
+    }
+
+    .nav-badge-row {
+        padding: 0 12px 8px;
     }
     
     .logo img {
