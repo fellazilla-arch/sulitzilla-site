@@ -647,8 +647,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    async function loadPrices(forceRefresh) {
-        showPricingLoader();
+    async function loadPrices(forceRefresh, isBackgroundRefresh) {
+        if (!isBackgroundRefresh) showPricingLoader();
         let data = FALLBACK_PRICING_DATA;
         const url = window.GRIST_PRICES_URL;
         if (url) {
@@ -696,7 +696,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function scheduleHourlyRefresh() {
         if (hourlyRefreshTimer) clearTimeout(hourlyRefreshTimer);
         hourlyRefreshTimer = setTimeout(function () {
-            loadPrices(true);
+            loadPrices(true, true); // background: keep showing current list, update in place
         }, CACHE_MAX_AGE_MS);
     }
 
@@ -710,14 +710,10 @@ document.addEventListener('DOMContentLoaded', function() {
             refreshBtn.setAttribute('aria-hidden', 'false');
         }
         refreshBtn.addEventListener('click', function () {
-            try {
-                localStorage.removeItem(CACHE_KEY);
-                localStorage.removeItem(CACHE_KEY + '_at');
-            } catch (e) {}
             if (hourlyRefreshTimer) clearTimeout(hourlyRefreshTimer);
             refreshBtn.disabled = true;
             refreshBtn.textContent = 'Updating…';
-            loadPrices(true).then(function () {
+            loadPrices(true, true).then(function () {
                 refreshBtn.disabled = false;
                 refreshBtn.textContent = 'Refresh prices';
             });
