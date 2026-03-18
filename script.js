@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { model: 'Pixel 9', storage: '128GB', condition: 'Used', code: 'B0623' },
         { model: 'Pixel 9', storage: '256GB', condition: 'New', code: 'CODE: ' },
         { model: 'Pixel 9', storage: '256GB', condition: 'Used', code: 'B0439' },
-        { model: 'Pixel 9 Pro', storage: '128GB', condition: 'New', code: 'CODE: ' },
+        { model: 'Pixel 9 Pro', storage: '128GB', condition: 'New', code: 'B2174' },
         { model: 'Pixel 9 Pro', storage: '128GB', condition: 'Used', code: 'B1711' },
         { model: 'Pixel 9 Pro', storage: '256GB', condition: 'New', code: 'B0072' },
         { model: 'Pixel 9 Pro', storage: '256GB', condition: 'Used', code: 'B1907' },
