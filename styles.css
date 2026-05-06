@@ -748,6 +748,66 @@ body {
     gap: 6px;
 }
 
+.variant-used-condition-note {
+    margin: 4px 0 2px;
+    padding: 10px 0 4px;
+}
+
+.variant-used-condition-note__rule {
+    height: 0;
+    border: none;
+    border-top: 1px solid rgba(15, 23, 42, 0.1);
+    margin: 0 0 8px;
+}
+
+.variant-used-condition-note__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.variant-used-condition-note__text {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+.variant-used-condition-note__info {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(25, 118, 210, 0.08);
+    color: #5f7ea8;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.variant-used-condition-note__info:hover {
+    background: rgba(25, 118, 210, 0.14);
+    color: #1976d2;
+}
+
+.variant-used-condition-note__info:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+}
+
+.variant-used-condition-note__info svg {
+    width: 14px;
+    height: 14px;
+}
+
 .variant-row {
     display: flex;
     align-items: center;

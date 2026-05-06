@@ -425,6 +425,9 @@ document.addEventListener('DOMContentLoaded', function() {
         bodyEl.className = 'model-body';
         bodyEl.hidden = true;
 
+        let hasRenderedNew = false;
+        let insertedUsedConditionNote = false;
+
         variants.forEach(variant => {
             const rowEl = document.createElement('div');
             rowEl.className = 'variant-row';
@@ -459,6 +462,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            if (variant.condition === 'Used' && hasRenderedNew && !insertedUsedConditionNote) {
+                insertedUsedConditionNote = true;
+                const noteWrap = document.createElement('div');
+                noteWrap.className = 'variant-used-condition-note';
+                noteWrap.setAttribute('role', 'note');
+                const rule = document.createElement('div');
+                rule.className = 'variant-used-condition-note__rule';
+                const noteRow = document.createElement('div');
+                noteRow.className = 'variant-used-condition-note__row';
+                const noteText = document.createElement('p');
+                noteText.className = 'variant-used-condition-note__text';
+                noteText.textContent =
+                    'The used Pixel prices below are for "Good" condition. For "Excellent" condition, add ₱1,000.';
+                const infoBtn = document.createElement('button');
+                infoBtn.type = 'button';
+                infoBtn.className = 'variant-used-condition-note__info';
+                infoBtn.setAttribute('aria-label', 'How we grade Good vs Excellent used units');
+                infoBtn.setAttribute('title', 'How we grade our used units');
+                infoBtn.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="8"></line><line x1="12" y1="12" x2="12" y2="16"></line></svg>';
+                infoBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const t = document.getElementById('good-vs-excellent-trigger');
+                    if (t) t.click();
+                });
+                noteRow.appendChild(noteText);
+                noteRow.appendChild(infoBtn);
+                noteWrap.appendChild(rule);
+                noteWrap.appendChild(noteRow);
+                bodyEl.appendChild(noteWrap);
+            }
+
             const priceEl = document.createElement('div');
             priceEl.className = 'variant-price';
 
@@ -474,6 +510,10 @@ document.addEventListener('DOMContentLoaded', function() {
             rowEl.appendChild(priceEl);
 
             bodyEl.appendChild(rowEl);
+
+            if (variant.condition === 'New') {
+                hasRenderedNew = true;
+            }
         });
 
         headerButton.addEventListener('click', () => {
