@@ -322,9 +322,9 @@ document.addEventListener('DOMContentLoaded', function() {
         { model: 'Pixel 10 Pro Fold', storage: '512GB', condition: 'New', code: 'B2825' },
         { model: 'Pixel 10 Pro Fold', storage: '512GB', condition: 'Used', code: 'B2824' },
         { model: 'Pixel 10a', storage: '128GB', condition: 'New', code: 'B2030' },
-        { model: 'Pixel 10a', storage: '128GB', condition: 'Used', code: 'CODE: ' },
+        { model: 'Pixel 10a', storage: '128GB', condition: 'Used', code: 'B2810' },
         { model: 'Pixel 10a', storage: '256GB', condition: 'New', code: 'B2171' },
-        { model: 'Pixel 10a', storage: '256GB', condition: 'Used', code: 'CODE: ' }
+        { model: 'Pixel 10a', storage: '256GB', condition: 'Used', code: 'B2811' }
     ];
 
     const pricingListEl = document.getElementById('pricing-list');
