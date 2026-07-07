@@ -121,6 +121,15 @@ function isAuthorizedSync(req) {
   return key === secret;
 }
 
+function isAuthorizedAdminSync(req) {
+  const secret = envTrim('GRIST_SYNC_SECRET');
+  const key = String(req.query.key || req.get('x-sync-key') || '').trim();
+  if (secret) {
+    return key === secret;
+  }
+  return req.query.refresh === '1';
+}
+
 function wantsForceSync(req) {
   return req.query.refresh === '1' && isAuthorizedSync(req);
 }
@@ -322,7 +331,7 @@ app.get('/api/inventory', async (req, res) => {
 });
 
 async function handleAdminSync(req, res) {
-  if (!isAuthorizedSync(req)) {
+  if (!isAuthorizedAdminSync(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
