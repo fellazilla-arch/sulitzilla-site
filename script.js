@@ -1407,6 +1407,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const INVENTORY_CACHE_KEY = 'sulitzilla_inventory';
     const SYNC_CACHE_AT_KEY = 'sulitzilla_sync_at';
     const SERVER_SYNC_AT_KEY = 'sulitzilla_server_sync_at';
+    const BROWSER_CACHE_VERSION_KEY = 'sulitzilla_cache_version';
+    const BROWSER_CACHE_VERSION = '2';
+
+    function ensureBrowserCacheVersion() {
+        try {
+            if (localStorage.getItem(BROWSER_CACHE_VERSION_KEY) === BROWSER_CACHE_VERSION) {
+                return;
+            }
+            localStorage.removeItem(CACHE_KEY);
+            localStorage.removeItem(INVENTORY_CACHE_KEY);
+            localStorage.removeItem(SYNC_CACHE_AT_KEY);
+            localStorage.removeItem(SERVER_SYNC_AT_KEY);
+            localStorage.removeItem(CACHE_KEY + '_at');
+            localStorage.setItem(BROWSER_CACHE_VERSION_KEY, BROWSER_CACHE_VERSION);
+        } catch (e) {}
+    }
 
     function readServerSyncAtCache() {
         return localStorage.getItem(SERVER_SYNC_AT_KEY);
@@ -1463,6 +1479,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             localStorage.setItem(SYNC_CACHE_AT_KEY, at);
             localStorage.setItem(CACHE_KEY + '_at', at);
+            localStorage.setItem(BROWSER_CACHE_VERSION_KEY, BROWSER_CACHE_VERSION);
         } catch (e) {}
     }
 
@@ -1539,20 +1556,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderCachedPricingIfAvailable(serverSyncedAt) {
         try {
             const cached = localStorage.getItem(CACHE_KEY);
-            if (!cached) return false;
+            const inventoryCached = localStorage.getItem(INVENTORY_CACHE_KEY);
+            if (!cached || !inventoryCached) return false;
             const cachedServerAt = readServerSyncAtCache();
-            if (
-                serverSyncedAt &&
-                cachedServerAt &&
-                serverSyncedAt !== cachedServerAt
-            ) {
+            if (!serverSyncedAt || !cachedServerAt || serverSyncedAt !== cachedServerAt) {
                 return false;
             }
             const list = JSON.parse(cached);
-            if (!Array.isArray(list)) return false;
+            const inventoryList = JSON.parse(inventoryCached);
+            if (!Array.isArray(list) || !Array.isArray(inventoryList)) return false;
             const data = mergePricesFromList(list);
-            const inventoryByModel = buildInventoryByModel(readInventoryCache());
-            setPricingLastUpdated(cachedServerAt || readSyncCacheTimestamp());
+            const inventoryByModel = buildInventoryByModel(inventoryList);
+            setPricingLastUpdated(cachedServerAt);
             renderPricingList(data, inventoryByModel);
             return true;
         } catch (e) {
@@ -1561,6 +1576,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function loadPrices(forceRefresh, isBackgroundRefresh) {
+        ensureBrowserCacheVersion();
         if (!isBackgroundRefresh) showPricingLoader();
 
         let data = FALLBACK_PRICING_DATA;
@@ -1576,7 +1592,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let serverSyncAt = null;
         if (!forceRefresh) {
             serverSyncAt = await fetchServerSyncAt();
-            if (serverSyncAt && renderCachedPricingIfAvailable(serverSyncAt)) {
+            if (renderCachedPricingIfAvailable(serverSyncAt)) {
                 hidePricingLoader();
                 return;
             }
