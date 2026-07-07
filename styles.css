@@ -1571,20 +1571,101 @@ body {
     }
 }
 
-@media (max-width: 520px) {
-    .inventory-table {
-        overflow-x: auto;
+@media (max-width: 599px) {
+    .stock-overlay {
+        padding: 10px;
+        align-items: flex-end;
     }
 
-    .inventory-unit-row {
-        grid-template-columns: 4rem minmax(6rem, 1.2fr) minmax(9.5rem, 1.6fr) 5.75rem 7.5rem;
-        gap: 12px;
-        padding: 0 12px;
-        min-width: 360px;
+    .stock-modal {
+        max-height: 92vh;
+        border-radius: 14px 14px 0 0;
     }
 
-    .inventory-unit-price {
-        font-size: 0.875rem;
+    .stock-modal-title {
+        padding: 16px 52px 12px 16px;
+        font-size: 1rem;
+    }
+
+    .stock-modal-body {
+        padding: 12px 14px 18px;
+    }
+
+    .stock-panel .inventory-table {
+        border: none;
+        border-radius: 0;
+        overflow: visible;
+        background: transparent;
+    }
+
+    .stock-panel .inventory-table__header {
+        display: none;
+    }
+
+    .stock-panel .inventory-table__body {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .stock-panel .inventory-unit-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            'storage price'
+            'color status'
+            'condition condition';
+        gap: 8px 12px;
+        min-width: 0;
+        min-height: 0;
+        padding: 12px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .stock-panel .inventory-table__body .inventory-unit-row:last-child {
+        border-bottom: none;
+    }
+
+    .stock-panel .inventory-unit-row:hover {
+        background: #fff;
+    }
+
+    .stock-panel .inventory-unit-storage-col {
+        grid-area: storage;
+        align-self: center;
+        font-size: 0.9375rem;
+    }
+
+    .stock-panel .inventory-unit-price {
+        grid-area: price;
+        align-self: center;
+        font-size: 1rem;
+    }
+
+    .stock-panel .inventory-unit-color-col {
+        grid-area: color;
+        align-self: center;
+        min-width: 0;
+    }
+
+    .stock-panel .inventory-unit-color-name {
+        white-space: normal;
+    }
+
+    .stock-panel .inventory-unit-status {
+        grid-area: status;
+        align-self: center;
+    }
+
+    .stock-panel .inventory-unit-condition-col {
+        grid-area: condition;
+    }
+
+    .stock-panel .status-pill-eta {
+        white-space: normal;
+        text-align: right;
     }
 }
 
