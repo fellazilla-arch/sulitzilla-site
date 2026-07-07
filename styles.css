@@ -1599,7 +1599,7 @@ body {
     }
 
     .stock-panel .inventory-table__header {
-        display: none;
+        display: none !important;
     }
 
     .stock-panel .inventory-table__body {
@@ -1608,7 +1608,7 @@ body {
         gap: 10px;
     }
 
-    .stock-panel .inventory-unit-row {
+    .stock-panel .inventory-table__body .inventory-unit-row {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         grid-template-areas:
@@ -1628,38 +1628,38 @@ body {
         border-bottom: none;
     }
 
-    .stock-panel .inventory-unit-row:hover {
+    .stock-panel .inventory-table__body .inventory-unit-row:hover {
         background: #fff;
     }
 
-    .stock-panel .inventory-unit-storage-col {
+    .stock-panel .inventory-table__body .inventory-unit-storage-col {
         grid-area: storage;
         align-self: center;
         font-size: 0.9375rem;
     }
 
-    .stock-panel .inventory-unit-price {
+    .stock-panel .inventory-table__body .inventory-unit-price {
         grid-area: price;
         align-self: center;
         font-size: 1rem;
     }
 
-    .stock-panel .inventory-unit-color-col {
+    .stock-panel .inventory-table__body .inventory-unit-color-col {
         grid-area: color;
         align-self: center;
         min-width: 0;
     }
 
-    .stock-panel .inventory-unit-color-name {
+    .stock-panel .inventory-table__body .inventory-unit-color-name {
         white-space: normal;
     }
 
-    .stock-panel .inventory-unit-status {
+    .stock-panel .inventory-table__body .inventory-unit-status {
         grid-area: status;
         align-self: center;
     }
 
-    .stock-panel .inventory-unit-condition-col {
+    .stock-panel .inventory-table__body .inventory-unit-condition-col {
         grid-area: condition;
     }
 
