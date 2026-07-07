@@ -414,6 +414,8 @@ body {
 .stock-modal-body {
     padding: 16px 24px 24px;
     overflow-y: auto;
+    container-type: inline-size;
+    container-name: stock-modal-body;
 }
 
 .stock-modal-close {
@@ -1590,7 +1592,10 @@ body {
     .stock-modal-body {
         padding: 12px 14px 18px;
     }
+}
 
+/* Card layout when the modal body is too narrow for the table (viewport or resized window). */
+@container stock-modal-body (max-width: 700px) {
     .stock-panel .inventory-table {
         border: none;
         border-radius: 0;
