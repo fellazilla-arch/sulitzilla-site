@@ -33,7 +33,7 @@ Default port is **5500** (not 3000). Override with `PORT=5501 npm start` if 5500
 
 Without the secret, `?refresh=1` alone does not force a server sync.
 
-Prices and stock also cache in the browser for 24 hours per visitor; your manual sync updates the server immediately, but someone who already loaded the page today may not see changes until their cache expires or they load the site fresh.
+Prices and stock also cache in the browser only as an offline fallback; each visit fetches fresh data from the server.
 
 ## Production vs local
 

@@ -1406,8 +1406,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const CACHE_KEY = 'sulitzilla_prices';
     const INVENTORY_CACHE_KEY = 'sulitzilla_inventory';
     const SYNC_CACHE_AT_KEY = 'sulitzilla_sync_at';
-    const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // once per day (prices + stock together)
-    var dailyRefreshTimer = null;
 
     function getSyncKeyFromUrl() {
         try {
@@ -1458,7 +1456,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const url = withRefreshParam(window.GRIST_INVENTORY_URL, forceRefresh);
         if (!url) return [];
         try {
-            const r = await fetch(url);
+            const r = await fetch(url, { cache: 'no-store' });
             if (!r.ok) return [];
             const json = await r.json();
             const list = Array.isArray(json) ? json : (json && json.data);
@@ -1513,78 +1511,82 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    async function loadPrices(forceRefresh, isBackgroundRefresh) {
-        if (!isBackgroundRefresh) showPricingLoader();
-        let data = FALLBACK_PRICING_DATA;
-        let inventoryByModel = buildInventoryByModel(readInventoryCache());
-        const url = window.GRIST_PRICES_URL;
-        if (url) {
-            var useCache = forceRefresh !== true;
-            if (useCache) {
-                try {
-                    const cached = localStorage.getItem(CACHE_KEY);
-                    const cachedAt = readSyncCacheTimestamp();
-                    const age = cachedAt ? Date.now() - parseInt(cachedAt, 10) : CACHE_MAX_AGE_MS + 1;
-                    if (cached && age < CACHE_MAX_AGE_MS) {
-                        const list = JSON.parse(cached);
-                        if (Array.isArray(list)) {
-                            data = mergePricesFromList(list);
-                            inventoryByModel = buildInventoryByModel(readInventoryCache());
-                            hidePricingLoader();
-                            setPricingLastUpdated(cachedAt);
-                            renderPricingList(data, inventoryByModel);
-                            scheduleDailyRefresh();
-                            return;
-                        }
-                    }
-                } catch (e) {}
-            }
-            try {
-                const priceUrl = withRefreshParam(url, forceRefresh);
-                const pricePromise = fetch(priceUrl).then(function (r) {
-                    if (!r.ok) return null;
-                    return r.json();
-                });
-                const inventoryPromise = fetchInventoryList(forceRefresh);
-                const results = await Promise.all([pricePromise, inventoryPromise]);
-                const json = results[0];
-                const invList = results[1];
-                inventoryByModel = buildInventoryByModel(invList);
-                const list = json
-                    ? Array.isArray(json)
-                        ? json
-                        : json && json.data
-                    : null;
-                const pricesList = Array.isArray(list) && list.length > 0 ? list : null;
-                if (pricesList || (Array.isArray(invList) && invList.length > 0)) {
-                    const now = Date.now();
-                    let pricesToStore = pricesList;
-                    if (!pricesToStore) {
-                        try {
-                            const cachedPrices = localStorage.getItem(CACHE_KEY);
-                            pricesToStore = cachedPrices ? JSON.parse(cachedPrices) : [];
-                        } catch (e) {
-                            pricesToStore = [];
-                        }
-                    }
-                    saveSyncCache(pricesToStore, invList, now);
-                    setPricingLastUpdated(now);
-                }
-                if (pricesList) {
-                    data = mergePricesFromList(pricesList);
-                }
-            } catch (e) {}
+    function renderCachedPricingIfAvailable() {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            const cachedAt = readSyncCacheTimestamp();
+            if (!cached) return false;
+            const list = JSON.parse(cached);
+            if (!Array.isArray(list)) return false;
+            const data = mergePricesFromList(list);
+            const inventoryByModel = buildInventoryByModel(readInventoryCache());
+            setPricingLastUpdated(cachedAt);
+            renderPricingList(data, inventoryByModel);
+            return true;
+        } catch (e) {
+            return false;
         }
-        hidePricingLoader();
-        renderPricingList(data, inventoryByModel);
-        scheduleDailyRefresh();
     }
 
-    function scheduleDailyRefresh() {
-        if (dailyRefreshTimer) clearTimeout(dailyRefreshTimer);
-        dailyRefreshTimer = setTimeout(function () {
-            loadPrices(true, true); // background: keep showing current list, update in place
-        }, CACHE_MAX_AGE_MS);
+    async function loadPrices(forceRefresh, isBackgroundRefresh) {
+        if (!isBackgroundRefresh) showPricingLoader();
+
+        let data = FALLBACK_PRICING_DATA;
+        let inventoryByModel = buildInventoryByModel(readInventoryCache());
+        let showedCache = false;
+
+        if (!forceRefresh && !isBackgroundRefresh) {
+            showedCache = renderCachedPricingIfAvailable();
+            if (showedCache) hidePricingLoader();
+        }
+
+        const url = window.GRIST_PRICES_URL;
+        if (!url) {
+            if (!showedCache) {
+                hidePricingLoader();
+                renderPricingList(data, inventoryByModel);
+            }
+            return;
+        }
+
+        try {
+            const priceUrl = withRefreshParam(url, forceRefresh);
+            const pricePromise = fetch(priceUrl, { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) return null;
+                return r.json();
+            });
+            const inventoryPromise = fetchInventoryList(forceRefresh);
+            const results = await Promise.all([pricePromise, inventoryPromise]);
+            const json = results[0];
+            const invList = results[1];
+            inventoryByModel = buildInventoryByModel(invList);
+            const list = json
+                ? Array.isArray(json)
+                    ? json
+                    : json && json.data
+                : null;
+            const pricesList = Array.isArray(list) && list.length > 0 ? list : null;
+            if (pricesList || (Array.isArray(invList) && invList.length > 0)) {
+                const now = Date.now();
+                let pricesToStore = pricesList;
+                if (!pricesToStore) {
+                    try {
+                        const cachedPrices = localStorage.getItem(CACHE_KEY);
+                        pricesToStore = cachedPrices ? JSON.parse(cachedPrices) : [];
+                    } catch (e) {
+                        pricesToStore = [];
+                    }
+                }
+                saveSyncCache(pricesToStore, invList, now);
+                setPricingLastUpdated(now);
+            }
+            if (pricesList) {
+                data = mergePricesFromList(pricesList);
+            }
+        } catch (e) {}
+
+        hidePricingLoader();
+        renderPricingList(data, inventoryByModel);
     }
 
     loadPrices(false);
@@ -1598,7 +1600,6 @@ document.addEventListener('DOMContentLoaded', function() {
             refreshBtn.setAttribute('aria-hidden', 'false');
         }
         refreshBtn.addEventListener('click', function () {
-            if (dailyRefreshTimer) clearTimeout(dailyRefreshTimer);
             refreshBtn.disabled = true;
             refreshBtn.textContent = 'Updating…';
             loadPrices(true, true).then(function () {

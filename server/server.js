@@ -310,6 +310,7 @@ app.get('/api/prices', async (req, res) => {
     const records = await getGristRecords(force);
     const list = records.map((rec) => mapRecord(rec.fields || {}));
     res.set('Access-Control-Allow-Origin', '*');
+    res.set('Cache-Control', 'no-store');
     res.json(list);
   } catch (err) {
     sendGristError(res, err, '/api/prices');
@@ -324,6 +325,7 @@ app.get('/api/inventory', async (req, res) => {
       .map((rec) => mapInventoryRecord(rec.fields || {}))
       .filter(Boolean);
     res.set('Access-Control-Allow-Origin', '*');
+    res.set('Cache-Control', 'no-store');
     res.json(list);
   } catch (err) {
     sendGristError(res, err, '/api/inventory');
