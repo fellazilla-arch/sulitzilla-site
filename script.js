@@ -897,12 +897,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const line1 = document.createElement('span');
         line1.className = 'stock-incoming-used-note__line';
-        line1.textContent = 'Incoming used units are priced at Good condition.';
+        line1.appendChild(document.createTextNode('Incoming '));
+        const usedBadge = document.createElement('span');
+        usedBadge.className = 'tag tag--condition-used';
+        usedBadge.textContent = 'Used';
+        line1.appendChild(usedBadge);
+        line1.appendChild(document.createTextNode(' units are priced at Good condition.'));
 
         const line2 = document.createElement('span');
         line2.className = 'stock-incoming-used-note__line';
-        line2.textContent =
-            'Final price may be ₱1,000 higher if graded as Excellent after arrival.';
+        line2.appendChild(document.createTextNode('Final price may be ₱1,000 higher if graded as '));
+        const excellentBadge = document.createElement('span');
+        excellentBadge.className = 'tag tag--excellent';
+        excellentBadge.textContent = 'Excellent';
+        line2.appendChild(excellentBadge);
+        line2.appendChild(document.createTextNode(' after arrival.'));
 
         note.appendChild(line1);
         note.appendChild(line2);

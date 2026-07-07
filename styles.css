@@ -467,6 +467,11 @@ body {
     display: block;
 }
 
+.stock-incoming-used-note .tag {
+    vertical-align: middle;
+    margin: 0 2px;
+}
+
 .stock-panel .inventory-table {
     margin-top: 4px;
 }
