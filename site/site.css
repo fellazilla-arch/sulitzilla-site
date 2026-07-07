@@ -1,0 +1,158 @@
+/* Sulitzilla marketing site (WIP) — separate from price-list styles.css */
+
+.site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #0a1929;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.site-nav__inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.site-nav__logo img {
+    display: block;
+    height: 28px;
+    width: auto;
+}
+
+.site-nav__links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 0.9rem;
+}
+
+.site-nav__links a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+}
+
+.site-nav__links a:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.site-main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 20px 64px;
+}
+
+.site-dev-badge {
+    display: inline-block;
+    margin-bottom: 28px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    color: #5f6368;
+    background: #f1f3f4;
+    border-radius: 999px;
+}
+
+.site-dev-badge code {
+    font-size: 0.85em;
+    color: #0a1929;
+}
+
+.site-hero__title {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: #0a1929;
+    margin-bottom: 16px;
+}
+
+.site-hero__lead {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: #5f6368;
+    margin-bottom: 28px;
+}
+
+.site-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.site-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.site-btn--primary {
+    background: #1976d2;
+    color: #fff;
+}
+
+.site-btn--primary:hover {
+    background: #1565c0;
+}
+
+.site-btn--secondary {
+    background: #fff;
+    color: #1976d2;
+    border-color: #1976d2;
+}
+
+.site-btn--secondary:hover {
+    background: #e8f0fe;
+}
+
+.site-section {
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid #e8eaed;
+}
+
+.site-section__title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #0a1929;
+    margin-bottom: 12px;
+}
+
+.site-section__text {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #5f6368;
+    margin-bottom: 16px;
+}
+
+.site-checklist {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #5f6368;
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.site-checklist a {
+    color: #1976d2;
+}
+
+.site-footer {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    font-size: 0.8rem;
+    color: #9aa0a6;
+    text-align: center;
+}

@@ -32,7 +32,7 @@
         <section class="pricing-header">
             <h1 class="pricing-title">Google Pixel Price List</h1>
             <p id="pricing-last-updated" class="pricing-last-updated" aria-live="polite"></p>
-            <button type="button" id="refresh-prices-btn" class="refresh-prices-btn hidden" aria-hidden="true">Refresh prices</button>
+            <button type="button" id="refresh-prices-btn" class="refresh-prices-btn hidden" aria-hidden="true">Refresh prices &amp; stock</button>
         </section>
 
         <p class="pricing-warranty-note">
@@ -143,6 +143,14 @@
             </div>
         </div>
 
+        <div id="stock-overlay" class="stock-overlay" hidden aria-hidden="true">
+            <div class="stock-modal" role="dialog" aria-labelledby="stock-modal-title" aria-modal="true">
+                <button type="button" class="stock-modal-close" aria-label="Close">Close</button>
+                <h2 id="stock-modal-title" class="stock-modal-title"></h2>
+                <div id="stock-modal-body" class="stock-modal-body"></div>
+            </div>
+        </div>
+
         <section class="pricing-list-section" aria-label="Pixel price list">
             <div id="pricing-loading" class="pricing-loading" hidden aria-live="polite">
                 <div class="pricing-loading-spinner" aria-hidden="true"></div>
@@ -153,7 +161,11 @@
         </section>
     </main>
 
-    <script>window.GRIST_PRICES_URL = '/api/prices';</script>
+    <script>
+        window.GRIST_PRICES_URL = '/api/prices';
+        window.GRIST_INVENTORY_URL = '/api/inventory';
+    </script>
+    <script src="/pixel-catalog.js"></script>
     <script src="/script.js"></script>
 </body>
 </html>

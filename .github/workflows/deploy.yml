@@ -14,10 +14,22 @@ jobs:
         run: mkdir -p ~/.ssh && ssh-keyscan -H 139.59.231.34 >> ~/.ssh/known_hosts
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GRIST_SYNC_SECRET: ${{ secrets.GRIST_SYNC_SECRET }}
         with:
           host: 139.59.231.34
           username: root
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: GRIST_SYNC_SECRET
           script: |
-            cd /var/www/sulitzilla && git pull && pm2 restart sulitzilla
+            cd /var/www/sulitzilla && git pull
+            cd server && npm install
+            if [ -n "$GRIST_SYNC_SECRET" ]; then
+              if grep -q '^GRIST_SYNC_SECRET=' .env 2>/dev/null; then
+                sed -i "s/^GRIST_SYNC_SECRET=.*/GRIST_SYNC_SECRET=$GRIST_SYNC_SECRET/" .env
+              else
+                echo "GRIST_SYNC_SECRET=$GRIST_SYNC_SECRET" >> .env
+              fi
+            fi
+            pm2 restart sulitzilla
           script_stop: true

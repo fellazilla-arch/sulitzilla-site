@@ -1,34 +1,46 @@
-# Run the site and prices API locally (localhost:5500 + 3001)
+# Run locally
 
-## 1. Start the prices API (port 3001)
+One Node server serves the price list, the WIP site at `/site`, and the Grist prices API.
+
+## Start
 
 ```bash
 cd server
-cp .env.example .env
-# Edit .env: set GRIST_API_KEY, GRIST_DOC_ID, GRIST_TABLE (see GRIST_PUBLIC_SITE_GUIDE.md)
-npm install
+cp .env.example .env   # first time only — set GRIST_API_KEY, GRIST_DOC_ID, GRIST_TABLE
+npm install            # first time only
 npm start
 ```
 
-Leave this running. You should see: `Prices API listening on port 3001`.
+Default port is **5500** (not 3000). Override with `PORT=5501 npm start` if 5500 is busy.
 
-## 2. Serve the site (port 5500)
+## URLs
 
-From the **project root** (sulitzilla-site), not inside `server/`:
+| Page | URL |
+|------|-----|
+| **Pixel price list** (same as live sulitzilla.com) | http://localhost:5500/ |
+| **New site** (work in progress) | http://localhost:5500/site/ |
+| **Prices API** | http://localhost:5500/api/prices |
+| **Inventory API** | http://localhost:5500/api/inventory |
 
-```bash
-python3 -m http.server 5500
-```
+## Grist sync (prices + stock)
 
-Or use Live Server in VS Code / Cursor and set the port to 5500.
+**Automatic (deployed site):** The Node server syncs from Grist **once per day at 6:00 PM** (`Asia/Manila`). This runs on your **hosting server** (e.g. DigitalOcean) — your computer does **not** need to be on. The server only needs to stay running (or restart and sync on boot, then schedule the next 6pm).
 
-## 3. Open the site
+**Manual sync (you only):** Set `GRIST_SYNC_SECRET` in `server/.env`, then either:
 
-In your browser go to: **http://localhost:5500**
+- **API (bookmark or curl):** `https://yoursite.com/api/admin/sync?key=YOUR_SECRET` — returns JSON confirming sync time and record count.
+- **Price list UI:** `https://yoursite.com/?refresh=1&key=YOUR_SECRET` — shows **Refresh prices & stock** (hidden from normal visitors).
 
-The page will load prices from **http://localhost:3001/api/prices** automatically (no change needed in the code). If the API is running and your `.env` has the right Grist keys, you should see real prices for any variant that has a `code` in script.js (e.g. B1113 → ₱7,990).
+Without the secret, `?refresh=1` alone does not force a server sync.
+
+Prices and stock also cache in the browser for 24 hours per visitor; your manual sync updates the server immediately, but someone who already loaded the page today may not see changes until their cache expires or they load the site fresh.
+
+## Production vs local
+
+- **sulitzilla.com/** stays the price list until you deliberately switch the homepage.
+- **/site/** is a preview area for the full site; it has `noindex` so search engines shouldn’t pick it up if it’s deployed early.
 
 ## Troubleshooting
 
-- **Still “Set price”** – Open DevTools → Network, reload, and check the request to `localhost:3001/api/prices`. If it fails (CORS, 404, 500), fix the API or env vars. If it returns JSON, check that it includes `{ "code": "B1113", "price": 7990 }` (or similar).
-- **CORS** – The API sends `Access-Control-Allow-Origin: *`, so localhost:5500 can call localhost:3001.
+- **“Set price” / empty models** — Check http://localhost:5500/api/prices returns JSON, not an error. Confirm `server/.env` Grist keys.
+- **Port in use** — `PORT=5501 npm start` or stop the other process on 5500.
