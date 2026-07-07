@@ -1406,6 +1406,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const CACHE_KEY = 'sulitzilla_prices';
     const INVENTORY_CACHE_KEY = 'sulitzilla_inventory';
     const SYNC_CACHE_AT_KEY = 'sulitzilla_sync_at';
+    const SERVER_SYNC_AT_KEY = 'sulitzilla_server_sync_at';
+
+    function readServerSyncAtCache() {
+        return localStorage.getItem(SERVER_SYNC_AT_KEY);
+    }
+
+    function saveServerSyncAt(syncedAt) {
+        if (syncedAt == null || syncedAt === '') return;
+        try {
+            localStorage.setItem(SERVER_SYNC_AT_KEY, String(syncedAt));
+            localStorage.setItem(SYNC_CACHE_AT_KEY, String(syncedAt));
+        } catch (e) {}
+    }
+
+    async function fetchServerSyncAt() {
+        const url = window.GRIST_SYNC_STATUS_URL || '/api/sync-status';
+        try {
+            const r = await fetch(url, { cache: 'no-store' });
+            if (!r.ok) return null;
+            const json = await r.json();
+            return json && json.syncedAt != null ? String(json.syncedAt) : null;
+        } catch (e) {
+            return null;
+        }
+    }
 
     function getSyncKeyFromUrl() {
         try {
@@ -1511,16 +1536,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function renderCachedPricingIfAvailable() {
+    function renderCachedPricingIfAvailable(serverSyncedAt) {
         try {
             const cached = localStorage.getItem(CACHE_KEY);
-            const cachedAt = readSyncCacheTimestamp();
             if (!cached) return false;
+            const cachedServerAt = readServerSyncAtCache();
+            if (
+                serverSyncedAt &&
+                cachedServerAt &&
+                serverSyncedAt !== cachedServerAt
+            ) {
+                return false;
+            }
             const list = JSON.parse(cached);
             if (!Array.isArray(list)) return false;
             const data = mergePricesFromList(list);
             const inventoryByModel = buildInventoryByModel(readInventoryCache());
-            setPricingLastUpdated(cachedAt);
+            setPricingLastUpdated(cachedServerAt || readSyncCacheTimestamp());
             renderPricingList(data, inventoryByModel);
             return true;
         } catch (e) {
@@ -1533,20 +1565,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let data = FALLBACK_PRICING_DATA;
         let inventoryByModel = buildInventoryByModel(readInventoryCache());
-        let showedCache = false;
+        const url = window.GRIST_PRICES_URL;
 
-        if (!forceRefresh && !isBackgroundRefresh) {
-            showedCache = renderCachedPricingIfAvailable();
-            if (showedCache) hidePricingLoader();
+        if (!url) {
+            hidePricingLoader();
+            renderPricingList(data, inventoryByModel);
+            return;
         }
 
-        const url = window.GRIST_PRICES_URL;
-        if (!url) {
-            if (!showedCache) {
+        let serverSyncAt = null;
+        if (!forceRefresh) {
+            serverSyncAt = await fetchServerSyncAt();
+            if (serverSyncAt && renderCachedPricingIfAvailable(serverSyncAt)) {
                 hidePricingLoader();
-                renderPricingList(data, inventoryByModel);
+                return;
             }
-            return;
         }
 
         try {
@@ -1566,8 +1599,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     : json && json.data
                 : null;
             const pricesList = Array.isArray(list) && list.length > 0 ? list : null;
+            if (!serverSyncAt) {
+                serverSyncAt = await fetchServerSyncAt();
+            }
             if (pricesList || (Array.isArray(invList) && invList.length > 0)) {
-                const now = Date.now();
                 let pricesToStore = pricesList;
                 if (!pricesToStore) {
                     try {
@@ -1577,13 +1612,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         pricesToStore = [];
                     }
                 }
-                saveSyncCache(pricesToStore, invList, now);
-                setPricingLastUpdated(now);
+                saveSyncCache(pricesToStore, invList, serverSyncAt || Date.now());
+                if (serverSyncAt) saveServerSyncAt(serverSyncAt);
+                setPricingLastUpdated(serverSyncAt || Date.now());
             }
             if (pricesList) {
                 data = mergePricesFromList(pricesList);
             }
-        } catch (e) {}
+        } catch (e) {
+            if (!forceRefresh && renderCachedPricingIfAvailable()) {
+                hidePricingLoader();
+                return;
+            }
+        }
 
         hidePricingLoader();
         renderPricingList(data, inventoryByModel);

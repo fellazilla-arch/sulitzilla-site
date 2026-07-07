@@ -304,6 +304,24 @@ function sendGristError(res, err, label) {
   });
 }
 
+app.get('/api/sync-status', async (req, res) => {
+  try {
+    if (!isGristCacheFresh() && !gristCache.records) {
+      await refreshGristCache(false);
+    }
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Cache-Control', 'no-store');
+    res.json({
+      syncedAt: gristCache.fetchedAt || null,
+      syncedAtLocal: gristCache.fetchedAt
+        ? formatNextSyncInTimeZone(gristCache.fetchedAt)
+        : null,
+    });
+  } catch (err) {
+    sendGristError(res, err, '/api/sync-status');
+  }
+});
+
 app.get('/api/prices', async (req, res) => {
   try {
     const force = wantsForceSync(req);
