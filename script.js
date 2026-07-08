@@ -68,28 +68,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Good vs Excellent popup
     const goodVsExcellentTrigger = document.getElementById('good-vs-excellent-trigger');
     const goodVsExcellentOverlay = document.getElementById('good-vs-excellent-overlay');
-    const goodVsExcellentClose = goodVsExcellentOverlay && goodVsExcellentOverlay.querySelector('.good-vs-excellent-close');
-    if (goodVsExcellentTrigger && goodVsExcellentOverlay) {
-        function openGoodVsExcellent() {
-            goodVsExcellentOverlay.hidden = false;
-            goodVsExcellentOverlay.setAttribute('aria-hidden', 'false');
-            goodVsExcellentTrigger.setAttribute('aria-expanded', 'true');
-            document.body.style.overflow = 'hidden';
+    const goodVsExcellentClose =
+        goodVsExcellentOverlay && goodVsExcellentOverlay.querySelector('.good-vs-excellent-close');
+
+    function setGoodVsExcellentExpanded(isExpanded) {
+        if (goodVsExcellentTrigger) {
+            goodVsExcellentTrigger.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
         }
-        function closeGoodVsExcellent() {
-            goodVsExcellentOverlay.hidden = true;
-            goodVsExcellentOverlay.setAttribute('aria-hidden', 'true');
-            goodVsExcellentTrigger.setAttribute('aria-expanded', 'false');
+        document.querySelectorAll('.stock-incoming-used-note__grade-link').forEach(function (btn) {
+            btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        });
+    }
+
+    function openGoodVsExcellentOverlay() {
+        if (!goodVsExcellentOverlay) return;
+        goodVsExcellentOverlay.hidden = false;
+        goodVsExcellentOverlay.setAttribute('aria-hidden', 'false');
+        setGoodVsExcellentExpanded(true);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeGoodVsExcellentOverlay() {
+        if (!goodVsExcellentOverlay) return;
+        goodVsExcellentOverlay.hidden = true;
+        goodVsExcellentOverlay.setAttribute('aria-hidden', 'true');
+        setGoodVsExcellentExpanded(false);
+        const stockOverlay = document.getElementById('stock-overlay');
+        const softOverlay = document.getElementById('soft-unlocked-overlay');
+        if (
+            (!stockOverlay || stockOverlay.hidden) &&
+            (!softOverlay || softOverlay.hidden)
+        ) {
             document.body.style.overflow = '';
         }
-        goodVsExcellentTrigger.addEventListener('click', openGoodVsExcellent);
-        goodVsExcellentOverlay.addEventListener('click', function(e) {
-            if (e.target === goodVsExcellentOverlay) closeGoodVsExcellent();
+    }
+
+    if (goodVsExcellentTrigger && goodVsExcellentOverlay) {
+        goodVsExcellentTrigger.addEventListener('click', openGoodVsExcellentOverlay);
+        goodVsExcellentOverlay.addEventListener('click', function (e) {
+            if (e.target === goodVsExcellentOverlay) closeGoodVsExcellentOverlay();
         });
-        if (goodVsExcellentClose) goodVsExcellentClose.addEventListener('click', closeGoodVsExcellent);
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && !goodVsExcellentOverlay.hidden) closeGoodVsExcellent();
-        });
+        if (goodVsExcellentClose) {
+            goodVsExcellentClose.addEventListener('click', closeGoodVsExcellentOverlay);
+        }
     }
 
     // ExtraCare popup
@@ -171,6 +192,31 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && !paymentMethodsOverlay.hidden) closePaymentMethods();
         });
+    }
+
+    const softUnlockedOverlay = document.getElementById('soft-unlocked-overlay');
+    const softUnlockedClose =
+        softUnlockedOverlay && softUnlockedOverlay.querySelector('.extracare-close');
+    function openSoftUnlockedOverlay() {
+        if (!softUnlockedOverlay) return;
+        softUnlockedOverlay.hidden = false;
+        softUnlockedOverlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSoftUnlockedOverlay() {
+        if (!softUnlockedOverlay) return;
+        softUnlockedOverlay.hidden = true;
+        softUnlockedOverlay.setAttribute('aria-hidden', 'true');
+        const stockOverlay = document.getElementById('stock-overlay');
+        if (!stockOverlay || stockOverlay.hidden) {
+            document.body.style.overflow = '';
+        }
+    }
+    if (softUnlockedOverlay) {
+        softUnlockedOverlay.addEventListener('click', function(e) {
+            if (e.target === softUnlockedOverlay) closeSoftUnlockedOverlay();
+        });
+        if (softUnlockedClose) softUnlockedClose.addEventListener('click', closeSoftUnlockedOverlay);
     }
 
     // Fallback pricing data (used when Grist is not configured or fetch fails).
@@ -354,7 +400,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         if (stockModalCloseEl) stockModalCloseEl.addEventListener('click', closeStockModal);
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && !stockOverlayEl.hidden) closeStockModal();
+            if (e.key !== 'Escape') return;
+            if (softUnlockedOverlay && !softUnlockedOverlay.hidden) {
+                closeSoftUnlockedOverlay();
+                return;
+            }
+            if (goodVsExcellentOverlay && !goodVsExcellentOverlay.hidden) {
+                closeGoodVsExcellentOverlay();
+                return;
+            }
+            if (!stockOverlayEl.hidden) closeStockModal();
         });
     }
 
@@ -634,8 +689,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function createSoftUnlockedBadge() {
         const badge = document.createElement('span');
-        badge.className = 'tag tag--soft';
-        badge.textContent = 'Soft';
+        badge.className = 'tag tag--soft tag--soft-with-help';
+
+        const label = document.createElement('span');
+        label.className = 'tag--soft-label';
+        label.textContent = 'Soft';
+        badge.appendChild(label);
+
+        const helpBtn = document.createElement('button');
+        helpBtn.type = 'button';
+        helpBtn.className = 'tag-help-trigger';
+        helpBtn.setAttribute('aria-label', 'What does Soft unlocked mean?');
+        helpBtn.textContent = '?';
+        helpBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openSoftUnlockedOverlay();
+        });
+        badge.appendChild(helpBtn);
         return badge;
     }
 
@@ -891,9 +962,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function createStockIncomingUsedNote() {
-        const note = document.createElement('p');
+        const note = document.createElement('div');
         note.className = 'stock-incoming-used-note';
         note.setAttribute('role', 'note');
+
+        const header = document.createElement('div');
+        header.className = 'stock-incoming-used-note__header';
+
+        const gradeLink = document.createElement('button');
+        gradeLink.type = 'button';
+        gradeLink.className = 'stock-incoming-used-note__grade-link';
+        gradeLink.textContent = 'How do we grade used units?';
+        gradeLink.setAttribute('aria-haspopup', 'dialog');
+        gradeLink.setAttribute('aria-expanded', 'false');
+        gradeLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openGoodVsExcellentOverlay();
+        });
+        header.appendChild(gradeLink);
+        note.appendChild(header);
 
         const line1 = document.createElement('span');
         line1.className = 'stock-incoming-used-note__line';

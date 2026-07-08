@@ -141,7 +141,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
+    z-index: 2200;
     padding: 16px;
 }
 
@@ -351,6 +351,49 @@ body {
     line-height: 1.45;
 }
 
+.extracare-modal p + p {
+    margin-top: 10px;
+}
+
+.soft-unlocked-overlay {
+    z-index: 2200;
+}
+
+.tag--soft-with-help {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 4px;
+}
+
+.tag-help-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(109, 40, 217, 0.16);
+    color: #6d28d9;
+    font-size: 0.55rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.tag-help-trigger:hover {
+    background: rgba(109, 40, 217, 0.28);
+}
+
+.tag-help-trigger:focus-visible {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 1px;
+}
+
 /* Inclusions popup uses the standard ExtraCare modal padding; no special wrapping needed */
 
 .extracare-close {
@@ -461,6 +504,35 @@ body {
     background: #f8fafc;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
+}
+
+.stock-incoming-used-note__header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 6px;
+}
+
+.stock-incoming-used-note__grade-link {
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #1976d2;
+    cursor: pointer;
+    text-align: right;
+    line-height: 1.3;
+}
+
+.stock-incoming-used-note__grade-link:hover {
+    color: #1565c0;
+    text-decoration: underline;
+}
+
+.stock-incoming-used-note__grade-link:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+    border-radius: 4px;
 }
 
 .stock-incoming-used-note__line {
@@ -1676,6 +1748,18 @@ body {
     .stock-panel .status-pill-eta {
         white-space: normal;
         text-align: right;
+    }
+}
+
+/* On wider modals, keep condition badges in one row. */
+@container stock-modal-body (min-width: 701px) {
+    .stock-panel .inventory-table__body .inventory-unit-condition-col {
+        flex-wrap: nowrap;
+        gap: 4px;
+    }
+
+    .stock-panel .inventory-table__body .inventory-unit-condition-col .tag {
+        white-space: nowrap;
     }
 }
 
