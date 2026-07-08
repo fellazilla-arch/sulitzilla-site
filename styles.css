@@ -510,6 +510,7 @@ body {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 0;
+    align-items: flex-start;
 }
 
 .stock-incoming-used-note__grade-link {
@@ -521,7 +522,8 @@ body {
     color: #1976d2;
     cursor: pointer;
     text-align: right;
-    line-height: 1.3;
+    line-height: 1;
+    margin: 0;
 }
 
 .stock-incoming-used-note__grade-link:hover {
