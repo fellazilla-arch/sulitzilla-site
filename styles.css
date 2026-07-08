@@ -495,6 +495,18 @@ body {
     gap: 12px;
 }
 
+.stock-incoming-used-top-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.stock-incoming-used-grade-link-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 14px 2px 14px;
+}
+
 .stock-incoming-used-note {
     margin: 0;
     padding: 10px 14px;

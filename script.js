@@ -966,23 +966,6 @@ document.addEventListener('DOMContentLoaded', function() {
         note.className = 'stock-incoming-used-note';
         note.setAttribute('role', 'note');
 
-        const header = document.createElement('div');
-        header.className = 'stock-incoming-used-note__header';
-
-        const gradeLink = document.createElement('button');
-        gradeLink.type = 'button';
-        gradeLink.className = 'stock-incoming-used-note__grade-link';
-        gradeLink.textContent = 'How do we grade used units?';
-        gradeLink.setAttribute('aria-haspopup', 'dialog');
-        gradeLink.setAttribute('aria-expanded', 'false');
-        gradeLink.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openGoodVsExcellentOverlay();
-        });
-        header.appendChild(gradeLink);
-        note.appendChild(header);
-
         const line1 = document.createElement('span');
         line1.className = 'stock-incoming-used-note__line';
         line1.appendChild(document.createTextNode('Incoming '));
@@ -1035,7 +1018,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (unitRows.length) {
             if (hasIncomingUsedRows(unitRows)) {
-                panel.appendChild(createStockIncomingUsedNote());
+                const topWrapper = document.createElement('div');
+                topWrapper.className = 'stock-incoming-used-top-wrapper';
+
+                const gradeLinkRow = document.createElement('div');
+                gradeLinkRow.className = 'stock-incoming-used-grade-link-row';
+
+                const gradeLink = document.createElement('button');
+                gradeLink.type = 'button';
+                gradeLink.className = 'stock-incoming-used-note__grade-link';
+                gradeLink.textContent = 'How do we grade used units?';
+                gradeLink.setAttribute('aria-haspopup', 'dialog');
+                gradeLink.setAttribute('aria-expanded', 'false');
+                gradeLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openGoodVsExcellentOverlay();
+                });
+
+                gradeLinkRow.appendChild(gradeLink);
+                topWrapper.appendChild(gradeLinkRow);
+                topWrapper.appendChild(createStockIncomingUsedNote());
+                panel.appendChild(topWrapper);
             }
             panel.appendChild(createInventoryTable(unitRows, [], 'new'));
         } else {
