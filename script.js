@@ -1018,28 +1018,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (unitRows.length) {
             if (hasIncomingUsedRows(unitRows)) {
-                const topWrapper = document.createElement('div');
-                topWrapper.className = 'stock-incoming-used-top-wrapper';
-
-                const gradeLinkRow = document.createElement('div');
-                gradeLinkRow.className = 'stock-incoming-used-grade-link-row';
-
-                const gradeLink = document.createElement('button');
-                gradeLink.type = 'button';
-                gradeLink.className = 'stock-incoming-used-note__grade-link';
-                gradeLink.textContent = 'How do we grade used units?';
-                gradeLink.setAttribute('aria-haspopup', 'dialog');
-                gradeLink.setAttribute('aria-expanded', 'false');
-                gradeLink.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openGoodVsExcellentOverlay();
-                });
-
-                gradeLinkRow.appendChild(gradeLink);
-                topWrapper.appendChild(gradeLinkRow);
-                topWrapper.appendChild(createStockIncomingUsedNote());
-                panel.appendChild(topWrapper);
+                panel.appendChild(createStockIncomingUsedNote());
             }
             panel.appendChild(createInventoryTable(unitRows, [], 'new'));
         } else {
