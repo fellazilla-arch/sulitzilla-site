@@ -507,10 +507,12 @@ body {
 }
 
 .stock-incoming-used-note__header {
-    display: flex;
+    /* Shrink to the text width; avoids weird vertical spacing when the container is full-width. */
+    display: inline-flex;
     justify-content: flex-end;
-    margin-bottom: 0;
     align-items: flex-start;
+    margin: 0 0 0 auto;
+    width: fit-content;
 }
 
 .stock-incoming-used-note__grade-link {
@@ -524,6 +526,7 @@ body {
     text-align: right;
     line-height: 1;
     margin: 0;
+    display: inline-block;
 }
 
 .stock-incoming-used-note__grade-link:hover {
@@ -539,6 +542,7 @@ body {
 
 .stock-incoming-used-note__line {
     display: block;
+    margin: 0;
 }
 
 .stock-incoming-used-note .tag {
