@@ -687,6 +687,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return badge;
     }
 
+    // Match Grist STORAGE Choice fill/text colors (Master_List.STORAGE choiceOptions).
+    function createStorageBadge(storage) {
+        const label = String(storage || '').trim() || '—';
+        const key = label.replace(/\s+/g, '').toUpperCase();
+        const badge = document.createElement('span');
+        badge.className = 'tag tag--storage';
+        if (key === '64GB') badge.classList.add('tag--storage-64');
+        else if (key === '128GB') badge.classList.add('tag--storage-128');
+        else if (key === '256GB') badge.classList.add('tag--storage-256');
+        else if (key === '512GB') badge.classList.add('tag--storage-512');
+        else badge.classList.add('tag--storage-default');
+        badge.textContent = label;
+        return badge;
+    }
+
     function createSoftUnlockedBadge() {
         const badge = document.createElement('span');
         badge.className = 'tag tag--soft tag--soft-with-help';
@@ -829,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const storageCol = document.createElement('div');
         storageCol.className = 'inventory-unit-storage-col';
-        storageCol.textContent = storage;
+        storageCol.appendChild(createStorageBadge(storage));
         rowEl.appendChild(storageCol);
 
         const colorCol = document.createElement('div');
@@ -882,7 +897,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const storageCol = document.createElement('div');
         storageCol.className = 'inventory-unit-storage-col';
-        storageCol.textContent = storage;
+        storageCol.appendChild(createStorageBadge(storage));
         rowEl.appendChild(storageCol);
 
         rowEl.appendChild(createPlaceholderCell('inventory-unit-color-col inventory-unit-color-col--empty'));

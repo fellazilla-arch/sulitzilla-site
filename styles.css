@@ -813,6 +813,43 @@ body {
     color: #6d28d9;
 }
 
+/* STORAGE badges — colors from Grist Master_List.STORAGE choiceOptions */
+.tag--storage {
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    border-color: transparent;
+}
+
+.tag--storage-64 {
+    background-color: #e5e7eb;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.tag--storage-128 {
+    background-color: #98fd90;
+    color: #0a1929;
+    border-color: #6fd468;
+}
+
+.tag--storage-256 {
+    background-color: #084794;
+    color: #fff;
+    border-color: #063a78;
+}
+
+.tag--storage-512 {
+    background-color: #bc77fc;
+    color: #fff;
+    border-color: #a55eef;
+}
+
+.tag--storage-default {
+    background-color: #f3f4f6;
+    color: #374151;
+    border-color: #e5e7eb;
+}
+
 .tag--excellent {
     border-color: #7aa8e8;
     background-color: #8db9f2;
@@ -1168,10 +1205,8 @@ body {
 }
 
 .inventory-unit-storage-col {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #0a1929;
-    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
     white-space: nowrap;
 }
 
@@ -1723,7 +1758,10 @@ body {
     .stock-panel .inventory-table__body .inventory-unit-storage-col {
         grid-area: storage;
         align-self: center;
-        font-size: 0.9375rem;
+    }
+
+    .stock-panel .inventory-table__body .inventory-unit-storage-col .tag--storage {
+        font-size: 0.8125rem;
     }
 
     .stock-panel .inventory-table__body .inventory-unit-price {
