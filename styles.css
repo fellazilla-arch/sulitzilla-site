@@ -172,8 +172,10 @@ body {
     gap: 8px;
     font-size: 0.9rem;
     color: #374151;
-    margin: 0 0 10px 0;
+    margin: 0 0 16px 0;
+    padding: 0 0 14px 0;
     line-height: 1.5;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .good-vs-excellent-modal-note-icon {
@@ -1408,6 +1410,41 @@ body {
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
+}
+
+.model-header-actions-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.model-fiveg-info {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 1px 6px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #1976d2;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.model-fiveg-info:hover {
+    background: #e5e7eb;
+    color: #1565c0;
+}
+
+.model-fiveg-info:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
 }
 
 .view-stock-link {

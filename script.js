@@ -219,6 +219,31 @@ document.addEventListener('DOMContentLoaded', function() {
         if (softUnlockedClose) softUnlockedClose.addEventListener('click', closeSoftUnlockedOverlay);
     }
 
+    const fiveGCompatOverlay = document.getElementById('fiveg-compat-overlay');
+    const fiveGCompatClose =
+        fiveGCompatOverlay && fiveGCompatOverlay.querySelector('.extracare-close');
+    function openFiveGCompatOverlay() {
+        if (!fiveGCompatOverlay) return;
+        fiveGCompatOverlay.hidden = false;
+        fiveGCompatOverlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeFiveGCompatOverlay() {
+        if (!fiveGCompatOverlay) return;
+        fiveGCompatOverlay.hidden = true;
+        fiveGCompatOverlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+    if (fiveGCompatOverlay) {
+        fiveGCompatOverlay.addEventListener('click', function (e) {
+            if (e.target === fiveGCompatOverlay) closeFiveGCompatOverlay();
+        });
+        if (fiveGCompatClose) fiveGCompatClose.addEventListener('click', closeFiveGCompatOverlay);
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !fiveGCompatOverlay.hidden) closeFiveGCompatOverlay();
+        });
+    }
+
     // Fallback pricing data (used when Grist is not configured or fetch fails).
     // To use Grist: set window.GRIST_PRICES_URL before this script (e.g. to your Netlify function URL).
     // For Used variants: the price from Grist (by CODE) is the Good price; Excellent = Good + this amount.
@@ -1076,6 +1101,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function modelShowsLimitedFiveGNote(modelName) {
+        const name = String(modelName || '').trim();
+        // Pixel 6 series, Pixel 5 series, and Pixel 4a 5G only — not regular 4a or older, not 7+.
+        if (/^Pixel 4a 5G$/i.test(name)) return true;
+        if (/^Pixel 6(a)?$/i.test(name) || /^Pixel 6 Pro$/i.test(name)) return true;
+        if (/^Pixel 5(a)?$/i.test(name)) return true;
+        return false;
+    }
+
+    function createFiveGInfoButton() {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'model-fiveg-info';
+        btn.setAttribute('aria-haspopup', 'dialog');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-label', '5G compatibility information');
+        btn.textContent = '5G Info';
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openFiveGCompatOverlay();
+        });
+        return btn;
+    }
+
     function createModelGroupElement(modelName, variants, inventoryUnits) {
         inventoryUnits = inventoryUnits || [];
 
@@ -1186,7 +1237,13 @@ document.addEventListener('DOMContentLoaded', function() {
             imageEl.setAttribute('aria-expanded', String(isModelBodyExpanded()));
         });
 
-        headerText.appendChild(titleToggle);
+        const titleRow = document.createElement('div');
+        titleRow.className = 'model-header-title-row';
+        headerText.appendChild(titleRow);
+        titleRow.appendChild(titleToggle);
+
+        const actionsRow = document.createElement('div');
+        actionsRow.className = 'model-header-actions-row';
 
         if (hasStock) {
             const viewStockBtn = document.createElement('button');
@@ -1200,13 +1257,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
                 openStockFromHeader(viewStockBtn);
             });
-            headerText.appendChild(viewStockBtn);
+            actionsRow.appendChild(viewStockBtn);
         } else {
             const restockBadge = document.createElement('span');
             restockBadge.className = 'model-restock-badge';
             restockBadge.textContent = 'Restocking soon';
-            headerText.appendChild(restockBadge);
+            actionsRow.appendChild(restockBadge);
         }
+
+        if (modelShowsLimitedFiveGNote(modelName)) {
+            actionsRow.appendChild(createFiveGInfoButton());
+        }
+
+        headerText.appendChild(actionsRow);
 
         headerEl.appendChild(imageEl);
         headerEl.appendChild(headerText);
