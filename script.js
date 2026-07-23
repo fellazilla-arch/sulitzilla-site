@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Pixel 7 series
         { model: 'Pixel 7', storage: '128GB', condition: 'New', code: 'A9406' },
         { model: 'Pixel 7', storage: '128GB', condition: 'Used', code: 'A6444' },
-        { model: 'Pixel 7', storage: '256GB', condition: 'New', code: 'CODE: ' },
+        { model: 'Pixel 7', storage: '256GB', condition: 'New', code: 'A4236' },
         { model: 'Pixel 7', storage: '256GB', condition: 'Used', code: 'A6446' },
         { model: 'Pixel 7 Pro', storage: '128GB', condition: 'New', code: 'B1586' },
         { model: 'Pixel 7 Pro', storage: '128GB', condition: 'Used', code: 'A6608' },
