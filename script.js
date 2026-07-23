@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Pixel 8 series
         { model: 'Pixel 8', storage: '128GB', condition: 'New', code: 'B2169' },
         { model: 'Pixel 8', storage: '128GB', condition: 'Used', code: 'B1112' },
-        { model: 'Pixel 8', storage: '256GB', condition: 'New', code: 'CODE: ' },
+        { model: 'Pixel 8', storage: '256GB', condition: 'New', code: 'A4607' },
         { model: 'Pixel 8', storage: '256GB', condition: 'Used', code: 'A7474' },
         { model: 'Pixel 8 Pro', storage: '128GB', condition: 'New', code: 'B0025' },
         { model: 'Pixel 8 Pro', storage: '128GB', condition: 'Used', code: 'B0979' },
