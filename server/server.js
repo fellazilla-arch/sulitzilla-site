@@ -240,7 +240,8 @@ function mapInventoryRecord(fields) {
   if (fields.DO_NOT_COUNT) return null;
 
   const notes = String(fields.NOTES ?? '').trim();
-  if (/reserved/i.test(notes)) return null;
+  // Hide active reservations. Matches "reserve" and "reserved"; not "REESERVED" (Grist typo when a hold is canceled).
+  if (/reserve/i.test(notes)) return null;
 
   const statusRaw = String(fields.STATUS ?? '').trim().toUpperCase();
   if (!INVENTORY_ALLOWED_STATUSES.has(statusRaw)) return null;
