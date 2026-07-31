@@ -1,7 +1,7 @@
 /**
  * Prices API for sulitzilla.com (DigitalOcean or local).
  * GET /api/prices → fetches Grist table, returns [{ code, price }, ...].
- * GET /api/inventory → available Pixel units [{ model, storage, color, condition, grade, availability, hasIssue }, ...].
+ * GET /api/inventory → available Pixel units [{ model, storage, color, condition, grade, availability, hasIssue, video? }, ...].
  * Grist data is cached server-side and refreshed daily at 6pm (Asia/Manila) on the server.
  * Manual sync: POST /api/admin/sync?key=YOUR_GRIST_SYNC_SECRET (set in server/.env).
  *
@@ -252,6 +252,9 @@ function mapInventoryRecord(fields) {
   const grade = String(fields.GRADE ?? '').trim();
   const hasIssue = /issue/i.test(grade);
 
+  const videoRaw = String(fields.VIDEO ?? '').trim();
+  const video = /^https?:\/\//i.test(videoRaw) ? videoRaw : null;
+
   return {
     model,
     storage: String(fields.STORAGE ?? '').trim(),
@@ -260,6 +263,7 @@ function mapInventoryRecord(fields) {
     grade: grade || null,
     availability: INVENTORY_STATUS_LABELS[statusRaw],
     hasIssue,
+    video,
   };
 }
 

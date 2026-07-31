@@ -759,6 +759,52 @@ document.addEventListener('DOMContentLoaded', function() {
         return chip;
     }
 
+    function isUnitInStock(unit) {
+        return String(unit.availability || '') === 'In Stock';
+    }
+
+    function unitHasVideo(unit) {
+        return /^https?:\/\//i.test(String(unit.video || '').trim());
+    }
+
+    function createUnitVideoLink(unit) {
+        const url = String(unit.video || '').trim();
+        const link = document.createElement('a');
+        link.className = 'unit-video-link';
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.setAttribute('aria-label', 'View video of this unit (opens in new tab)');
+
+        const icon = document.createElement('span');
+        icon.className = 'unit-video-link__icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<circle cx="12" cy="12" r="10"></circle>' +
+            '<polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"></polygon>' +
+            '</svg>';
+        link.appendChild(icon);
+
+        const label = document.createElement('span');
+        label.className = 'unit-video-link__label';
+        label.textContent = 'Video';
+        link.appendChild(label);
+
+        return link;
+    }
+
+    function appendUsedGradeBadge(conditionCol, unit, sectionType) {
+        if (sectionType !== 'used') return;
+        const gradeChip = createGradeChip(unit);
+        if (gradeChip) conditionCol.appendChild(gradeChip);
+    }
+
+    function appendUnitVideoLinkIfNeeded(conditionCol, unit, sectionType) {
+        if (sectionType !== 'used' || !isUnitInStock(unit) || !unitHasVideo(unit)) return;
+        conditionCol.appendChild(createUnitVideoLink(unit));
+    }
+
     function getUsedConditionExtra(unit) {
         const match = String(unit.condition || '')
             .trim()
@@ -889,16 +935,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const conditionCol = document.createElement('div');
         conditionCol.className = 'inventory-unit-condition-col';
         conditionCol.appendChild(createConditionBadge(sectionType));
-        if (sectionType === 'used') {
-            const gradeChip = createGradeChip(unit);
-            if (gradeChip) conditionCol.appendChild(gradeChip);
-        }
+        appendUsedGradeBadge(conditionCol, unit, sectionType);
         if (isSoftUnlocked(unit.condition)) {
             conditionCol.appendChild(createSoftUnlockedBadge());
         }
         if (entry.quantity > 1) {
             conditionCol.appendChild(createQuantityBadge(entry.quantity));
         }
+        appendUnitVideoLinkIfNeeded(conditionCol, unit, sectionType);
         rowEl.appendChild(conditionCol);
 
         const priceEl = document.createElement('div');

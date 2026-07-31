@@ -1042,6 +1042,51 @@ body {
     flex-shrink: 0;
 }
 
+.unit-video-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #1565c0;
+    background: #e8f2ff;
+    border: 1px solid #c5d9f5;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.unit-video-link__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 0;
+}
+
+.unit-video-link__icon svg {
+    width: 11px;
+    height: 11px;
+    display: block;
+}
+
+.unit-video-link__label {
+    line-height: 1.35;
+}
+
+.unit-video-link:hover {
+    background: #d8e9ff;
+    color: #0d47a1;
+}
+
+.unit-video-link:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 1px;
+}
+
 .model-section--new,
 .model-section--used {
     margin: 0;
