@@ -17,6 +17,31 @@ function getLib() {
 }
 
 /**
+ * @param {unknown} err
+ */
+function rewriteConnectError(err) {
+  const msg = err && /** @type {any} */ (err).message ? String(/** @type {any} */ (err).message) : String(err);
+  const lower = msg.toLowerCase();
+  if (/no services found/i.test(msg)) {
+    return new Error(
+      'This printer is not a NIIMBOT (or macOS already holds the Bluetooth link). ' +
+        'Forget/disconnect CT221B / Clabel in macOS Bluetooth settings first. ' +
+        'Clabel and Xprinter need a different print driver — this page currently speaks NIIMBOT only.'
+    );
+  }
+  if (/timeout waiting response/i.test(msg) || /waited for \d+/i.test(msg)) {
+    return new Error(
+      'Connected over Bluetooth, but the printer did not speak the NIIMBOT protocol (common with Xprinter / Clabel). ' +
+        'This app’s print engine is NIIMBOT-only right now. Xprinter (TSPL) can be added next if you want.'
+    );
+  }
+  if (/user cancelled|canceled|cancelled/i.test(lower)) {
+    return new Error('Bluetooth pairing cancelled.');
+  }
+  return err instanceof Error ? err : new Error(msg);
+}
+
+/**
  * @param {object} [config]
  * @param {string} [config.printTaskName] - e.g. B1, D110, B21_V1; auto if omitted
  * @param {'left'|'top'} [config.printDirection]
@@ -65,12 +90,18 @@ export function createNiimbotPrintEngine(config = {}) {
       client.on('connect', () => {
         connected = true;
       });
-      await client.connect();
+      try {
+        await client.connect();
+      } catch (err) {
+        client = null;
+        connected = false;
+        throw rewriteConnectError(err);
+      }
       connected = true;
       try {
         await client.fetchPrinterInfo?.();
       } catch {
-        /* optional */
+        /* optional — many non-NIIMBOT devices fail here */
       }
     },
     async disconnect() {

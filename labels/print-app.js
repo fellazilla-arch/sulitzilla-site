@@ -97,8 +97,8 @@ function getRenderOptions() {
 
 function updatePrinterStatus() {
   els.printer.textContent = printer.isConnected()
-    ? 'Printer: connected (NIIMBOT)'
-    : 'Printer: disconnected';
+    ? 'Printer: connected (NIIMBOT protocol)'
+    : 'Printer: disconnected · needs NIIMBOT (Clabel/Xprinter not supported yet)';
   els.connect.textContent = printer.isConnected() ? 'Disconnect' : 'Connect Printer';
 }
 
@@ -310,7 +310,7 @@ async function runPrint(labels) {
   try {
     if (!printer.isConnected()) await printer.connect();
     updatePrinterStatus();
-    const result = await printer.print(labels, {
+        const result = await printer.print(labels, {
       ...getRenderOptions(),
       onProgress(p) {
         if (p.status === 'printing') {
@@ -334,7 +334,11 @@ async function runPrint(labels) {
       result.failed ? 'warn' : 'info'
     );
   } catch (err) {
-    showMessage(err.message || String(err), 'error');
+    const raw = err && err.message ? err.message : String(err);
+    const msg = /timeout waiting response/i.test(raw)
+      ? 'Print timed out — this printer is not speaking NIIMBOT (Xprinter/Clabel need a different driver).'
+      : raw;
+    showMessage(msg, 'error');
   } finally {
     els.print.dataset.busy = '0';
     updatePrinterStatus();
