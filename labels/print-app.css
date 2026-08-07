@@ -60,6 +60,14 @@
   max-width: 140px;
 }
 
+.settings .check {
+  gap: 6px;
+}
+
+.settings input[type="checkbox"] {
+  width: auto;
+}
+
 .field-status {
   display: flex;
   flex-wrap: wrap;

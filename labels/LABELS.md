@@ -1,12 +1,8 @@
 # Sulitzilla inventory label printing
 
-**Primary workflow (recommended):** paste rows from Grist into a standalone page — no custom widget, no iframe freezes.
-
-**Paste printer (use this):** `https://grist.sulitzilla.com/print/`  
-**Aliases:** `https://sulitzilla.com/print/`, `https://sulitzilla.com/labels/`  
-**Local:** `http://localhost:5500/print/`
-
-See [DEPLOY-PRINT.md](DEPLOY-PRINT.md) to wire nginx on `grist.sulitzilla.com`.
+**Paste printer:** https://grist.sulitzilla.com/print/  
+**Aliases:** https://sulitzilla.com/print/ , https://sulitzilla.com/labels/  
+**Local:** http://localhost:5500/print/
 
 ---
 
@@ -20,77 +16,56 @@ The paste page auto-detects which page you copied from:
 | **Amazon Arrived** | Code, Brand, Product, Variant·Flavor, Count/Size |
 | **Taobao Arrived** | Code, Brand, Product, Color, Storage |
 
-Everything else (status, notes, prices, tracking, URLs, …) is dropped.
-
-1. Start the server locally (or use the deployed site):
-
-   ```bash
-   cd server && npm start
-   ```
-
-2. Open **Chrome**: [http://localhost:5500/labels/](http://localhost:5500/labels/)
-
-3. In Grist, select the cells you want labeled (include the **header row** if you can — `CODE`, `BRAND`, etc.).
-
-4. Copy → paste into the text box → **Load paste**.
-
-5. Check column map (Code / Brand / Product / Variation / Count·Size) if auto-detect is wrong.
-
-6. **Connect Printer** → pick NIIMBOT → **Print Labels**.
-
-You can also paste a single column of codes only.
-
-Shortcut: **⌘/Ctrl + Enter** in the paste box runs Load paste.
+Everything else (status, notes, prices, tracking, URLs, …) is dropped. Currency values never print.
 
 ---
 
-## Why not the Grist custom widget?
+## Printer: Xprinter (recommended)
 
-Grist’s `onRecords` often sends the **entire inventory table** into the widget. Rendering that freezes Chrome. The paste page avoids Grist’s iframe entirely and only processes what you copy.
+Default engine is **Xprinter (TSPL)** — works with open thermal label stock (no NIIMBOT RFID lock-in).
 
-The custom widget under `labels/widget/` remains for later experiments once Select By / selection APIs are reliable for your doc.
+### USB (preferred)
+
+1. Open **Chrome** → https://grist.sulitzilla.com/print/
+2. Close **Open Label+**, Clabel apps, or anything else using the printer COM port.
+3. Plug in the **XP-460B** (or other TSPL Xprinter) by USB.
+4. Set **Printer** to **Xprinter (TSPL)**.
+5. Set **W×H** to match the loaded labels (e.g. 50×30).
+6. Click **Connect USB** → choose the printer port.
+7. Paste rows from Grist → **Print Labels**.
+
+If the label is blank or reversed, check **Invert bitmap**. If feed is wrong, adjust **Gap** (mm) or try continuous (`Gap 0` by setting gap to 0 — uses `GAP 0 mm,0`).
+
+### Bluetooth
+
+Use **Connect Bluetooth** if USB is unavailable. USB is more reliable for XP-460B.
+
+### NIIMBOT
+
+Still available under Printer → NIIMBOT (Bluetooth only). Most NIIMBOT models expect proprietary RFID label rolls.
+
+**Clabel / Open Label+** cannot be driven from this page.
 
 ---
 
 ## Architecture
 
 ```
-Paste (from Grist) → Label Engine → Print Engine → NIIMBOT
+Paste (from Grist) → Label Engine → Print Engine → Xprinter (TSPL) or NIIMBOT
 ```
 
 | Layer | Path | Role |
 |--------|------|------|
-| Paste UI | `labels/index.html`, `print-app.js` | Paste, map columns, preview, print |
-| Parser | `labels/paste-parse.js` | TSV/CSV + header autodetect |
-| Label Engine | `labels/label-engine.js` | Format lines; omit empty fields; canvas |
-| Print Engine | `labels/print/` | NIIMBOT Web Bluetooth adapter |
-| Vendor | `labels/vendor/niimbluelib.min.js` | `@mmote/niimbluelib` |
-
----
-
-## Label layout
-
-```
-{{Code}}
-{{Brand}} {{Product}}
-{{Variation}}
-{{CountOrSize}}
-```
-
-Blank optional fields are omitted. Rows without **Code** are skipped.
-
-Default size: **50×30 mm @ 203 dpi** (adjustable on the page).
-
----
-
-## Chrome + NIIMBOT
-
-- Use **Google Chrome** (or Edge) on desktop.
-- Page must be **HTTPS** (production) or **http://localhost** (dev).
-- Keep the printer on and in range; leave Print task on **Auto** unless a specific model needs `B1` / `D110` / etc.
+| Paste UI | `labels/index.html`, `print-app.js` | Paste, map, preview, print |
+| Parser | `labels/paste-parse.js` | View layouts + strip junk |
+| Label Engine | `labels/label-engine.js` | Format + canvas |
+| TSPL | `labels/print/tspl.js` | Bitmap job builder |
+| Xprinter | `labels/print/xprinter-engine.js` | Web Serial + Web Bluetooth |
+| NIIMBOT | `labels/print/niimbot-engine.js` | Web Bluetooth (legacy) |
 
 ---
 
 ## Deploy
 
-Static files under `labels/`, served by `server/server.js`. After deploy: `https://sulitzilla.com/labels/`.
+Static files under `labels/`, served at `/print/` and `/labels/` by `server/server.js`.  
+Nginx on `grist.sulitzilla.com` proxies `/print/` → Node (see [DEPLOY-PRINT.md](DEPLOY-PRINT.md)).

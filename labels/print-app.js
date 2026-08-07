@@ -1,5 +1,5 @@
 /**
- * Paste → preview → NIIMBOT print (no Grist widget required).
+ * Paste → preview → Xprinter (TSPL) / NIIMBOT print.
  */
 
 import {
@@ -13,12 +13,17 @@ import {
   rowsToLabelFields,
 } from './paste-parse.js';
 import { createNiimbotPrintEngine } from './print/niimbot-engine.js';
+import { createXprinterPrintEngine } from './print/xprinter-engine.js';
 
 const STORAGE_KEY = 'sulitzilla-label-print-job';
 const MAX_CANVAS = 60;
 const MAX_PRINT = 200;
 
-const printer = createNiimbotPrintEngine();
+const xprinter = createXprinterPrintEngine();
+const niimbot = createNiimbotPrintEngine();
+
+/** @type {'xprinter'|'niimbot'} */
+let engineId = 'xprinter';
 
 /** @type {import('./label-engine.js').FormattedLabel[]} */
 let currentReady = [];
@@ -41,7 +46,9 @@ let columnMap = {
 const els = {
   paste: document.getElementById('paste-input'),
   parse: document.getElementById('btn-parse'),
-  connect: document.getElementById('btn-connect'),
+  connectUsb: document.getElementById('btn-connect-usb'),
+  connectBt: document.getElementById('btn-connect-bt'),
+  disconnect: document.getElementById('btn-disconnect'),
   print: document.getElementById('btn-print'),
   reprint: document.getElementById('btn-reprint'),
   clear: document.getElementById('btn-clear'),
@@ -59,10 +66,14 @@ const els = {
     Variation: document.getElementById('map-variation'),
     CountOrSize: document.getElementById('map-count'),
   },
+  engine: document.getElementById('opt-engine'),
   width: document.getElementById('opt-width'),
   height: document.getElementById('opt-height'),
   dpi: document.getElementById('opt-dpi'),
+  gap: document.getElementById('opt-gap'),
+  invert: document.getElementById('opt-invert'),
   task: document.getElementById('opt-task'),
+  taskWrap: document.getElementById('niimbot-task-wrap'),
 };
 
 const FIELD_LABELS = {
@@ -72,6 +83,10 @@ const FIELD_LABELS = {
   Variation: 'Variation',
   CountOrSize: 'Count/Size',
 };
+
+function activePrinter() {
+  return engineId === 'niimbot' ? niimbot : xprinter;
+}
 
 function showMessage(text, kind = 'info') {
   if (!text) {
@@ -92,25 +107,51 @@ function getRenderOptions() {
     dpi: Number(els.dpi.value) || DEFAULT_LABEL_OPTIONS.dpi,
     paddingMm: DEFAULT_LABEL_OPTIONS.paddingMm,
     printTaskName: els.task.value || undefined,
+    gapMm: Number(els.gap.value),
+    invert: !!els.invert.checked,
   };
 }
 
+function updateEngineUi() {
+  engineId = els.engine.value === 'niimbot' ? 'niimbot' : 'xprinter';
+  els.taskWrap.hidden = engineId !== 'niimbot';
+  els.connectUsb.hidden = engineId !== 'xprinter';
+  els.connectBt.textContent =
+    engineId === 'xprinter' ? 'Connect Bluetooth' : 'Connect NIIMBOT';
+  updatePrinterStatus();
+  updateActionState();
+}
+
 function updatePrinterStatus() {
-  els.printer.textContent = printer.isConnected()
-    ? 'Printer: connected (NIIMBOT protocol)'
-    : 'Printer: disconnected · needs NIIMBOT (Clabel/Xprinter not supported yet)';
-  els.connect.textContent = printer.isConnected() ? 'Disconnect' : 'Connect Printer';
+  const p = activePrinter();
+  if (!p.isConnected()) {
+    els.printer.textContent =
+      engineId === 'xprinter'
+        ? 'Printer: disconnected · Xprinter — use Connect USB'
+        : 'Printer: disconnected · NIIMBOT Bluetooth';
+  } else if (engineId === 'xprinter') {
+    const t = typeof p.getTransport === 'function' ? p.getTransport() : null;
+    els.printer.textContent =
+      t === 'bluetooth' ? 'Printer: connected (Xprinter Bluetooth)' : 'Printer: connected (Xprinter USB)';
+  } else {
+    els.printer.textContent = 'Printer: connected (NIIMBOT)';
+  }
 }
 
 function updateActionState() {
   const busy = els.print.dataset.busy === '1';
+  const p = activePrinter();
+  const connected = p.isConnected();
   els.print.disabled = busy || !currentReady.length || currentReady.length > MAX_PRINT;
   els.reprint.disabled = busy || !lastJob.length;
-  els.connect.disabled = busy;
+  els.connectUsb.disabled = busy || engineId !== 'xprinter';
+  els.connectBt.disabled = busy;
+  els.disconnect.disabled = busy || !connected;
+  els.engine.disabled = busy || connected;
 }
 
-function updateFieldStatus(columnMap) {
-  const map = columnMap || {};
+function updateFieldStatus(mapIn) {
+  const map = mapIn || {};
   els.fieldStatus.hidden = false;
   els.fieldStatus.innerHTML = '';
   Object.keys(FIELD_LABELS).forEach((field) => {
@@ -195,7 +236,6 @@ function loadPaste() {
     return;
   }
 
-  // Replace paste box with cleaned TSV (only kept columns).
   els.paste.value = toCleanTsv(filtered);
 
   parsed = { headers: filtered.headers, rows: filtered.rows };
@@ -279,18 +319,43 @@ function renderPreviews(labels) {
   els.previewList.appendChild(frag);
 }
 
-async function connectOrDisconnect() {
+/**
+ * @param {'serial'|'bluetooth'} transport
+ */
+async function connectPrinter(transport) {
+  const p = activePrinter();
   try {
-    if (printer.isConnected()) {
-      await printer.disconnect();
-      showMessage('Printer disconnected.', 'info');
+    if (engineId === 'xprinter') {
+      showMessage(
+        transport === 'serial'
+          ? 'Pick the Xprinter USB serial port in the browser prompt…'
+          : 'Pick the Xprinter in the Bluetooth prompt…',
+        'info'
+      );
+      await p.connect({ transport });
+      showMessage(
+        transport === 'serial' ? 'Xprinter connected over USB.' : 'Xprinter connected over Bluetooth.',
+        'info'
+      );
     } else {
       showMessage('Choose your NIIMBOT in the browser prompt…', 'info');
-      await printer.connect();
-      showMessage('Printer connected.', 'info');
+      await p.connect();
+      showMessage('NIIMBOT connected.', 'info');
     }
   } catch (err) {
-    showMessage(err.message || String(err), 'error');
+    showMessage(err && err.message ? err.message : String(err), 'error');
+  }
+  updatePrinterStatus();
+  updateActionState();
+}
+
+async function disconnectPrinter() {
+  try {
+    await xprinter.disconnect();
+    await niimbot.disconnect();
+    showMessage('Printer disconnected.', 'info');
+  } catch (err) {
+    showMessage(err && err.message ? err.message : String(err), 'error');
   }
   updatePrinterStatus();
   updateActionState();
@@ -305,16 +370,24 @@ async function runPrint(labels) {
     showMessage(`Refusing to print ${labels.length} (max ${MAX_PRINT}).`, 'error');
     return;
   }
+  const p = activePrinter();
   els.print.dataset.busy = '1';
   updateActionState();
   try {
-    if (!printer.isConnected()) await printer.connect();
-    updatePrinterStatus();
-        const result = await printer.print(labels, {
-      ...getRenderOptions(),
-      onProgress(p) {
-        if (p.status === 'printing') {
-          showMessage(p.message || `Printing ${p.index + 1}/${p.total}…`, 'info');
+    if (!p.isConnected()) {
+      if (engineId === 'xprinter') {
+        await p.connect({ transport: 'serial' });
+      } else {
+        await p.connect();
+      }
+      updatePrinterStatus();
+    }
+    const opts = getRenderOptions();
+    const result = await p.print(labels, {
+      ...opts,
+      onProgress(prog) {
+        if (prog.status === 'printing') {
+          showMessage(prog.message || `Printing ${prog.index + 1}/${prog.total}…`, 'info');
         }
       },
     });
@@ -322,7 +395,7 @@ async function runPrint(labels) {
     try {
       sessionStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ savedAt: Date.now(), options: getRenderOptions(), labels })
+        JSON.stringify({ savedAt: Date.now(), options: opts, labels })
       );
     } catch {
       /* ignore */
@@ -334,11 +407,7 @@ async function runPrint(labels) {
       result.failed ? 'warn' : 'info'
     );
   } catch (err) {
-    const raw = err && err.message ? err.message : String(err);
-    const msg = /timeout waiting response/i.test(raw)
-      ? 'Print timed out — this printer is not speaking NIIMBOT (Xprinter/Clabel need a different driver).'
-      : raw;
-    showMessage(msg, 'error');
+    showMessage(err && err.message ? err.message : String(err), 'error');
   } finally {
     els.print.dataset.busy = '0';
     updatePrinterStatus();
@@ -362,12 +431,33 @@ function clearAll() {
 }
 
 els.parse.addEventListener('click', loadPaste);
-els.connect.addEventListener('click', connectOrDisconnect);
+els.connectUsb.addEventListener('click', () => connectPrinter('serial'));
+els.connectBt.addEventListener('click', async () => {
+  if (engineId === 'niimbot') {
+    try {
+      showMessage('Choose your NIIMBOT in the browser prompt…', 'info');
+      await niimbot.connect();
+      showMessage('NIIMBOT connected.', 'info');
+    } catch (err) {
+      showMessage(err && err.message ? err.message : String(err), 'error');
+    }
+    updatePrinterStatus();
+    updateActionState();
+    return;
+  }
+  await connectPrinter('bluetooth');
+});
+els.disconnect.addEventListener('click', disconnectPrinter);
 els.print.addEventListener('click', () => runPrint(currentReady));
 els.reprint.addEventListener('click', () => runPrint(lastJob));
 els.clear.addEventListener('click', clearAll);
+els.engine.addEventListener('change', async () => {
+  if (xprinter.isConnected() || niimbot.isConnected()) {
+    await disconnectPrinter();
+  }
+  updateEngineUi();
+});
 
-// Auto-strip as soon as you paste (no need to hunt for Load paste).
 els.paste.addEventListener('paste', () => {
   setTimeout(loadPaste, 0);
 });
@@ -393,9 +483,8 @@ Object.values(els.maps).forEach((select) => {
   });
 });
 
-updatePrinterStatus();
-updateActionState();
+updateEngineUi();
 showMessage(
-  'Paste from any Grist view — column layouts can change. Each paste is detected fresh. Only Code is required.',
+  'Default printer is Xprinter (TSPL). Connect USB, paste from Grist, print. Match label W×H to your roll. Use Invert if the print is blank/reversed.',
   'info'
 );

@@ -14,7 +14,9 @@
       <div class="brand">Sulitzilla Labels</div>
       <div class="actions">
         <button type="button" id="btn-parse" class="btn">Load paste</button>
-        <button type="button" id="btn-connect" class="btn">Connect Printer</button>
+        <button type="button" id="btn-connect-usb" class="btn">Connect USB</button>
+        <button type="button" id="btn-connect-bt" class="btn">Connect Bluetooth</button>
+        <button type="button" id="btn-disconnect" class="btn" disabled>Disconnect</button>
         <button type="button" id="btn-print" class="btn btn-primary" disabled>Print Labels</button>
         <button type="button" id="btn-reprint" class="btn" disabled>Reprint Last</button>
         <button type="button" id="btn-clear" class="btn btn-ghost">Clear</button>
@@ -28,15 +30,25 @@
     </section>
 
     <section class="settings">
-      <label>W <input type="number" id="opt-width" min="20" max="100" step="1" value="50" /> mm</label>
-      <label>H <input type="number" id="opt-height" min="10" max="80" step="1" value="30" /> mm</label>
+      <label>Printer
+        <select id="opt-engine">
+          <option value="xprinter" selected>Xprinter (TSPL)</option>
+          <option value="niimbot">NIIMBOT</option>
+        </select>
+      </label>
+      <label>W <input type="number" id="opt-width" min="20" max="120" step="1" value="50" /> mm</label>
+      <label>H <input type="number" id="opt-height" min="10" max="150" step="1" value="30" /> mm</label>
       <label>DPI
         <select id="opt-dpi">
           <option value="203" selected>203</option>
           <option value="300">300</option>
         </select>
       </label>
-      <label>Task
+      <label>Gap <input type="number" id="opt-gap" min="0" max="10" step="0.5" value="2" /> mm</label>
+      <label class="check">
+        <input type="checkbox" id="opt-invert" /> Invert bitmap
+      </label>
+      <label id="niimbot-task-wrap" hidden>NIIMBOT task
         <select id="opt-task">
           <option value="">Auto</option>
           <option value="B1">B1</option>
@@ -52,12 +64,12 @@
 
     <section class="paste-panel">
       <label class="paste-label" for="paste-input">
-        Paste from **Kango Arrived**, **Amazon Arrived**, or **Taobao Arrived**. The app detects which view you pasted and keeps only Code / Brand / Product / Variation / Size.
+        Paste from Kango Arrived, Amazon Arrived, or Taobao Arrived. Prefer <strong>Connect USB</strong> for Xprinter (close Open Label+ / other apps using the port first). Match W×H to your loaded labels.
       </label>
       <textarea
         id="paste-input"
         spellcheck="false"
-        placeholder="Paste any view… e.g. CODE + MODEL + STORAGE, or a wider shipping sheet. Headers optional."
+        placeholder="Paste any view… headers optional."
       ></textarea>
 
       <div class="field-status" id="field-status" hidden></div>
