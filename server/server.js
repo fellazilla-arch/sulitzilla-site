@@ -403,9 +403,8 @@ const labelsStatic = express.static(path.join(__dirname, '..', 'labels'), {
 app.use('/labels', sendLabelStatic, labelsStatic);
 
 // Same app at /print (e.g. https://grist.sulitzilla.com/print/ via nginx).
-app.get('/print', function (req, res) {
-  res.redirect(301, '/print/');
-});
+// Do not use app.get('/print') — Express treats /print and /print/ as the same
+// and would redirect /print/ → /print/ forever. Trailing-slash redirect is in nginx.
 app.use('/print', sendLabelStatic, labelsStatic);
 
 // Serve the static site (index.html, script.js, etc.) from the project root.
