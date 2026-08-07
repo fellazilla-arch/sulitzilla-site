@@ -21,6 +21,7 @@ Default port is **5500** (not 3000). Override with `PORT=5501 npm start` if 5500
 | **New site** (work in progress) | http://localhost:5500/site/ |
 | **Prices API** | http://localhost:5500/api/prices |
 | **Inventory API** | http://localhost:5500/api/inventory |
+| **Label print (paste from Grist)** | http://localhost:5500/labels/ |
 
 ## Grist sync (prices + stock)
 

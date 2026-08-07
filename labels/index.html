@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sulitzilla Label Print</title>
+  <link rel="stylesheet" href="./widget/widget.css" />
+  <link rel="stylesheet" href="./print-app.css" />
+  <script src="./vendor/niimbluelib.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar">
+      <div class="brand">Sulitzilla Labels</div>
+      <div class="actions">
+        <button type="button" id="btn-parse" class="btn">Load paste</button>
+        <button type="button" id="btn-connect" class="btn">Connect Printer</button>
+        <button type="button" id="btn-print" class="btn btn-primary" disabled>Print Labels</button>
+        <button type="button" id="btn-reprint" class="btn" disabled>Reprint Last</button>
+        <button type="button" id="btn-clear" class="btn btn-ghost">Clear</button>
+      </div>
+    </header>
+
+    <section class="status-bar" aria-live="polite">
+      <span id="status-selection">Paste rows from Grist, then Load paste</span>
+      <span class="sep">·</span>
+      <span id="status-printer">Printer: disconnected</span>
+    </section>
+
+    <section class="settings">
+      <label>W <input type="number" id="opt-width" min="20" max="100" step="1" value="50" /> mm</label>
+      <label>H <input type="number" id="opt-height" min="10" max="80" step="1" value="30" /> mm</label>
+      <label>DPI
+        <select id="opt-dpi">
+          <option value="203" selected>203</option>
+          <option value="300">300</option>
+        </select>
+      </label>
+      <label>Task
+        <select id="opt-task">
+          <option value="">Auto</option>
+          <option value="B1">B1</option>
+          <option value="B21_V1">B21_V1</option>
+          <option value="D110">D110</option>
+          <option value="D110_M_V4">D110_M_V4</option>
+          <option value="D11_V1">D11_V1</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="message" id="message" hidden></section>
+
+    <section class="paste-panel">
+      <label class="paste-label" for="paste-input">
+        Paste from **Kango Arrived**, **Amazon Arrived**, or **Taobao Arrived**. The app detects which view you pasted and keeps only Code / Brand / Product / Variation / Size.
+      </label>
+      <textarea
+        id="paste-input"
+        spellcheck="false"
+        placeholder="Paste any view… e.g. CODE + MODEL + STORAGE, or a wider shipping sheet. Headers optional."
+      ></textarea>
+
+      <div class="field-status" id="field-status" hidden></div>
+
+      <div class="map-row" id="map-row" hidden>
+        <span class="map-title">Adjust map</span>
+        <label>Code <select id="map-code"></select></label>
+        <label>Brand <select id="map-brand"></select></label>
+        <label>Product <select id="map-product"></select></label>
+        <label>Variation <select id="map-variation"></select></label>
+        <label>Count/Size <select id="map-count"></select></label>
+      </div>
+    </section>
+
+    <section class="preview-meta" id="preview-meta"></section>
+    <section class="preview-list" id="preview-list"></section>
+  </div>
+
+  <script type="module" src="./print-app.js"></script>
+</body>
+</html>

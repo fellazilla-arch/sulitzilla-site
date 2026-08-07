@@ -386,6 +386,28 @@ app.use(
   })
 );
 
+// Label print widget (Grist custom widget + NIIMBOT Web Bluetooth / Serial).
+function sendLabelStatic(req, res, next) {
+  res.setHeader('Permissions-Policy', 'bluetooth=(self), serial=(self)');
+  res.setHeader('Feature-Policy', 'bluetooth *; serial *');
+  next();
+}
+const labelsStatic = express.static(path.join(__dirname, '..', 'labels'), {
+  maxAge: '1h',
+  etag: true,
+  setHeaders: function (res) {
+    res.setHeader('Permissions-Policy', 'bluetooth=(self), serial=(self)');
+  },
+});
+
+app.use('/labels', sendLabelStatic, labelsStatic);
+
+// Same app at /print (e.g. https://grist.sulitzilla.com/print/ via nginx).
+app.get('/print', function (req, res) {
+  res.redirect(301, '/print/');
+});
+app.use('/print', sendLabelStatic, labelsStatic);
+
 // Serve the static site (index.html, script.js, etc.) from the project root.
 app.use(express.static(path.join(__dirname, '..')));
 
@@ -393,6 +415,8 @@ app.listen(PORT, () => {
   console.log(`Listening on http://localhost:${PORT}`);
   console.log(`  Price list (live at sulitzilla.com): http://localhost:${PORT}/`);
   console.log(`  New site (WIP, local dev):          http://localhost:${PORT}/site/`);
+  console.log(`  Label print:                        http://localhost:${PORT}/print/`);
+  console.log(`  Label print (alias):                http://localhost:${PORT}/labels/`);
   console.log(`  Grist auto-sync:                    daily at ${GRIST_SYNC_HOUR}:${String(GRIST_SYNC_MINUTE).padStart(2, '0')} ${GRIST_SYNC_TIMEZONE}`);
   if (envTrim('GRIST_SYNC_SECRET')) {
     console.log('  Manual sync:                        GET/POST /api/admin/sync?key=…');

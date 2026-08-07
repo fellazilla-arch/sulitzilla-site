@@ -27,7 +27,7 @@ You need two things live: (1) the **site** (HTML/CSS/JS + the **prices** page), 
 
 5. **Domain:** In the app, add a domain: `sulitzilla.com` (and optionally `www.sulitzilla.com`). DigitalOcean will show you the CNAME or A record to add at your DNS provider. Point the domain there.
 
-6. **Deploy.** After deploy, open `https://sulitzilla.com` (home) and `https://sulitzilla.com/prices` (price list). The API will be `https://sulitzilla.com/api/prices`.
+6. **Deploy.** After deploy, open `https://sulitzilla.com` (home) and `https://sulitzilla.com/prices` (price list). The API will be `https://sulitzilla.com/api/prices`. Inventory label widget: `https://sulitzilla.com/labels/widget/` (see [labels/LABELS.md](labels/LABELS.md)).
 
 ---
 

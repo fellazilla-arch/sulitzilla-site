@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sulitzilla Label Print</title>
+  <link rel="stylesheet" href="./widget.css" />
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <script src="../vendor/niimbluelib.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar">
+      <div class="brand">Label Print</div>
+      <div class="actions">
+        <button type="button" id="btn-connect" class="btn">Connect Printer</button>
+        <button type="button" id="btn-print" class="btn btn-primary" disabled>Print Selected Labels</button>
+        <button type="button" id="btn-reprint" class="btn" disabled>Reprint Last Job</button>
+        <button type="button" id="btn-popout" class="btn btn-ghost" title="Open outside Grist for Bluetooth">Pop out</button>
+      </div>
+    </header>
+
+    <section class="status-bar" id="status-bar" aria-live="polite">
+      <span id="status-selection">No rows selected</span>
+      <span class="sep">·</span>
+      <span id="status-printer">Printer: disconnected</span>
+    </section>
+
+    <section class="settings" id="settings">
+      <label>W <input type="number" id="opt-width" min="20" max="100" step="1" value="50" /> mm</label>
+      <label>H <input type="number" id="opt-height" min="10" max="80" step="1" value="30" /> mm</label>
+      <label>DPI
+        <select id="opt-dpi">
+          <option value="203" selected>203</option>
+          <option value="300">300</option>
+        </select>
+      </label>
+      <label>Task
+        <select id="opt-task">
+          <option value="">Auto</option>
+          <option value="B1">B1</option>
+          <option value="B21_V1">B21_V1</option>
+          <option value="D110">D110</option>
+          <option value="D110_M_V4">D110_M_V4</option>
+          <option value="D11_V1">D11_V1</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="message" id="message" hidden></section>
+
+    <section class="preview-meta" id="preview-meta"></section>
+    <section class="preview-list" id="preview-list"></section>
+  </div>
+
+  <script type="module" src="./widget.js"></script>
+</body>
+</html>

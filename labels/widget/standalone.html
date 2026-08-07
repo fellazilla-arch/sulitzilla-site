@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sulitzilla Label Print — Standalone</title>
+  <link rel="stylesheet" href="./widget.css" />
+  <script src="../vendor/niimbluelib.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar">
+      <div class="brand">Label Print · Standalone</div>
+      <div class="actions">
+        <button type="button" id="btn-connect" class="btn">Connect Printer</button>
+        <button type="button" id="btn-print" class="btn btn-primary" disabled>Print Labels</button>
+        <button type="button" id="btn-reprint" class="btn" disabled hidden>Reprint</button>
+        <button type="button" id="btn-popout" class="btn btn-ghost" hidden>Pop out</button>
+      </div>
+    </header>
+
+    <section class="status-bar" id="status-bar" aria-live="polite">
+      <span id="status-selection">Loading job…</span>
+      <span class="sep">·</span>
+      <span id="status-printer">Printer: disconnected</span>
+    </section>
+
+    <section class="settings" id="settings">
+      <label>W <input type="number" id="opt-width" min="20" max="100" step="1" value="50" /> mm</label>
+      <label>H <input type="number" id="opt-height" min="10" max="80" step="1" value="30" /> mm</label>
+      <label>DPI
+        <select id="opt-dpi">
+          <option value="203" selected>203</option>
+          <option value="300">300</option>
+        </select>
+      </label>
+      <label>Task
+        <select id="opt-task">
+          <option value="">Auto</option>
+          <option value="B1">B1</option>
+          <option value="B21_V1">B21_V1</option>
+          <option value="D110">D110</option>
+          <option value="D110_M_V4">D110_M_V4</option>
+          <option value="D11_V1">D11_V1</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="message" id="message" hidden></section>
+    <section class="preview-meta" id="preview-meta"></section>
+    <section class="preview-list" id="preview-list"></section>
+  </div>
+
+  <script type="module">
+    import {
+      formatBatch,
+      renderLabelToCanvas,
+      DEFAULT_LABEL_OPTIONS,
+    } from '../label-engine.js';
+    import { createNiimbotPrintEngine } from '../print/niimbot-engine.js';
+
+    const STORAGE_KEY = 'sulitzilla-label-print-job';
+    const printer = createNiimbotPrintEngine();
+
+    const els = {
+      connect: document.getElementById('btn-connect'),
+      print: document.getElementById('btn-print'),
+      selection: document.getElementById('status-selection'),
+      printer: document.getElementById('status-printer'),
+      message: document.getElementById('message'),
+      previewMeta: document.getElementById('preview-meta'),
+      previewList: document.getElementById('preview-list'),
+      width: document.getElementById('opt-width'),
+      height: document.getElementById('opt-height'),
+      dpi: document.getElementById('opt-dpi'),
+      task: document.getElementById('opt-task'),
+    };
+
+    /** @type {import('../label-engine.js').FormattedLabel[]} */
+    let ready = [];
+
+    function showMessage(text, kind = 'info') {
+      if (!text) {
+        els.message.hidden = true;
+        return;
+      }
+      els.message.hidden = false;
+      els.message.textContent = text;
+      els.message.className = `message ${kind}`;
+    }
+
+    function getRenderOptions() {
+      return {
+        widthMm: Number(els.width.value) || DEFAULT_LABEL_OPTIONS.widthMm,
+        heightMm: Number(els.height.value) || DEFAULT_LABEL_OPTIONS.heightMm,
+        dpi: Number(els.dpi.value) || DEFAULT_LABEL_OPTIONS.dpi,
+        paddingMm: DEFAULT_LABEL_OPTIONS.paddingMm,
+        printTaskName: els.task.value || undefined,
+      };
+    }
+
+    function updatePrinterStatus() {
+      els.printer.textContent = printer.isConnected()
+        ? 'Printer: connected (NIIMBOT)'
+        : 'Printer: disconnected';
+      els.connect.textContent = printer.isConnected() ? 'Disconnect' : 'Connect Printer';
+      els.print.disabled = ready.length === 0;
+    }
+
+    function renderPreviews(labels) {
+      const opts = getRenderOptions();
+      els.previewMeta.textContent = `Preview · ${opts.widthMm}×${opts.heightMm} mm @ ${opts.dpi} dpi`;
+      els.previewList.innerHTML = '';
+      labels.forEach((label, index) => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        const head = document.createElement('div');
+        head.className = 'card-head';
+        head.innerHTML = `<span>#${index + 1}</span><span class="badge ok">Ready</span>`;
+        card.appendChild(head);
+        card.appendChild(renderLabelToCanvas(label, opts));
+        els.previewList.appendChild(card);
+      });
+    }
+
+    function loadJob() {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        els.selection.textContent = 'No job in session — select rows in Grist and click Pop out';
+        showMessage('No labels transferred. Use Pop out from the Grist widget after selecting rows.', 'warn');
+        return;
+      }
+      const data = JSON.parse(raw);
+      if (data.options) {
+        if (data.options.widthMm) els.width.value = String(data.options.widthMm);
+        if (data.options.heightMm) els.height.value = String(data.options.heightMm);
+        if (data.options.dpi) els.dpi.value = String(data.options.dpi);
+        if (data.options.printTaskName) els.task.value = data.options.printTaskName;
+      }
+      const batch = formatBatch(data.labels || []);
+      ready = batch.ready.length ? batch.ready : (data.labels || []).filter((l) => !l.skipped);
+      els.selection.textContent = `${ready.length} label(s) ready`;
+      if (!ready.length) {
+        showMessage('Job has no printable labels.', 'warn');
+        return;
+      }
+      renderPreviews(ready);
+      showMessage('Standalone mode — Bluetooth works here even when blocked inside Grist.', 'info');
+      updatePrinterStatus();
+    }
+
+    els.connect.addEventListener('click', async () => {
+      try {
+        if (printer.isConnected()) {
+          await printer.disconnect();
+          showMessage('Printer disconnected.', 'info');
+        } else {
+          await printer.connect();
+          showMessage('Printer connected.', 'info');
+        }
+      } catch (err) {
+        showMessage(err.message || String(err), 'error');
+      }
+      updatePrinterStatus();
+    });
+
+    els.print.addEventListener('click', async () => {
+      if (!ready.length) return;
+      try {
+        if (!printer.isConnected()) await printer.connect();
+        updatePrinterStatus();
+        const result = await printer.print(ready, {
+          ...getRenderOptions(),
+          onProgress(p) {
+            if (p.status === 'printing') showMessage(p.message || '', 'info');
+          },
+        });
+        showMessage(
+          result.failed
+            ? `Printed ${result.printed}, failed ${result.failed}`
+            : `Printed ${result.printed} label(s).`,
+          result.failed ? 'warn' : 'info'
+        );
+      } catch (err) {
+        showMessage(err.message || String(err), 'error');
+      }
+      updatePrinterStatus();
+    });
+
+    ['change', 'input'].forEach((evt) => {
+      [els.width, els.height, els.dpi].forEach((el) => {
+        el.addEventListener(evt, () => {
+          if (ready.length) renderPreviews(ready);
+        });
+      });
+    });
+
+    loadJob();
+    updatePrinterStatus();
+  </script>
+</body>
+</html>

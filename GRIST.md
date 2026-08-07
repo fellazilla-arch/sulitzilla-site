@@ -12,6 +12,8 @@ The site loads Pixel prices from your Grist table by **CODE**. The browser never
 
 Grist table must have: **CODE** (e.g. B1113), **PRICES** (number). Other columns are ignored by this API.
 
+For **inventory label printing** from Grist (select rows → print NIIMBOT labels), see [labels/LABELS.md](labels/LABELS.md).
+
 ---
 
 ## 2. Run the prices API on DigitalOcean

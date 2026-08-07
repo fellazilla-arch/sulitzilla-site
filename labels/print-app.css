@@ -1,0 +1,92 @@
+.paste-panel {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paste-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+#paste-input {
+  width: 100%;
+  min-height: 120px;
+  max-height: 220px;
+  resize: vertical;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.4;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  background: #fff;
+  color: var(--ink);
+}
+
+#paste-input:focus {
+  outline: 2px solid #b7d7c8;
+  outline-offset: 1px;
+}
+
+.map-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.map-title {
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.map-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+}
+
+.map-row select {
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 6px;
+  background: #fff;
+  max-width: 140px;
+}
+
+.field-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.field-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.field-pill.on {
+  color: var(--ok);
+  background: #eef6f2;
+  border-color: #b7d7c8;
+}
+
+.field-pill.off {
+  color: var(--muted);
+  background: #f3f1ec;
+  opacity: 0.85;
+}
+
+.preview-list {
+  flex: 1;
+}
