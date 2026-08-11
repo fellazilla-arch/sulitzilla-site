@@ -149,7 +149,6 @@ export function createXprinterPrintEngine(config = {}) {
      */
     async connect(opts = {}) {
       const mode = opts.transport || 'serial';
-      await this.disconnect();
 
       if (mode === 'serial') {
         if (typeof navigator === 'undefined' || !navigator.serial) {
@@ -157,24 +156,60 @@ export function createXprinterPrintEngine(config = {}) {
             'Web Serial unavailable. Use Chrome/Edge on desktop, or try Connect Bluetooth.'
           );
         }
+
+        // requestPort first so the click gesture is still valid.
+        let port;
         try {
-          serialPort = await navigator.serial.requestPort();
+          port = await navigator.serial.requestPort();
         } catch (err) {
-          const msg = err && /** @type {any} */ (err).message ? String(/** @type {any} */ (err).message) : String(err);
+          const msg =
+            err && /** @type {any} */ (err).message
+              ? String(/** @type {any} */ (err).message)
+              : String(err);
           if (/cancel|abort/i.test(msg)) throw new Error('USB port selection cancelled.');
+          if (/gesture|activation/i.test(msg)) {
+            throw new Error('Click Connect USB again, then immediately choose XP-460B.');
+          }
           throw new Error(
             msg ||
-              'Could not open USB port. Close Open Label+ / other print apps that may hold the COM port.'
+              'Could not select USB port. Close Open Label+ / other apps that may hold the printer.'
           );
         }
+
+        await disconnectBluetooth();
+        await disconnectSerial();
+
+        // Stale open from a previous attempt on this page.
+        if (port.readable || port.writable) {
+          try {
+            await port.close();
+          } catch {
+            /* ignore */
+          }
+        }
+
         const baud = Number(opts.baudRate) || baudRate;
-        await serialPort.open({
-          baudRate: baud,
-          dataBits: 8,
-          stopBits: 1,
-          parity: 'none',
-          flowControl: 'none',
-        });
+        try {
+          await port.open({
+            baudRate: baud,
+            dataBits: 8,
+            stopBits: 1,
+            parity: 'none',
+            flowControl: 'none',
+          });
+        } catch (err) {
+          const msg =
+            err && /** @type {any} */ (err).message
+              ? String(/** @type {any} */ (err).message)
+              : String(err);
+          throw new Error(
+            'USB port is busy. Close Open Label+ and every other /print tab, unplug the printer 5 seconds, plug in, then Connect USB and select XP-460B again. (' +
+              msg +
+              ')'
+          );
+        }
+
+        serialPort = port;
         serialWriter = serialPort.writable.getWriter();
         transport = 'serial';
         connected = true;
@@ -182,6 +217,7 @@ export function createXprinterPrintEngine(config = {}) {
       }
 
       if (mode === 'bluetooth') {
+        await this.disconnect();
         if (typeof navigator === 'undefined' || !navigator.bluetooth) {
           throw new Error('Web Bluetooth unavailable. Use Chrome on HTTPS, or Connect USB.');
         }
@@ -199,7 +235,10 @@ export function createXprinterPrintEngine(config = {}) {
             ],
           });
         } catch (err) {
-          const msg = err && /** @type {any} */ (err).message ? String(/** @type {any} */ (err).message) : String(err);
+          const msg =
+            err && /** @type {any} */ (err).message
+              ? String(/** @type {any} */ (err).message)
+              : String(err);
           if (/cancel|abort/i.test(msg)) throw new Error('Bluetooth pairing cancelled.');
           throw err instanceof Error ? err : new Error(msg);
         }
