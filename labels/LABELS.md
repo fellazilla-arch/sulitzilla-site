@@ -22,35 +22,30 @@ Everything else (status, notes, prices, tracking, URLs, …) is dropped. Currenc
 
 ---
 
-## Printer: Xprinter (recommended)
+## Printer: Xprinter (TSPL)
 
-Default engine is **Xprinter (TSPL)** — works with open thermal label stock (no NIIMBOT RFID lock-in).
+Uses open thermal label stock (no NIIMBOT RFID lock-in).
 
 ### USB (preferred)
 
 1. Open **Chrome** → https://grist.sulitzilla.com/print/
 2. Close **Open Label+**, Clabel apps, or anything else using the printer COM port.
 3. Plug in the **XP-460B** (or other TSPL Xprinter) by USB.
-4. Set **Printer** to **Xprinter (TSPL)**.
-5. Set **W×H** to match the loaded labels (default **30×20**) — measure the sticker, not the liner.
-6. Click **Connect USB** → choose the printer port.
-7. Paste rows from Grist → **Print Labels**.
+4. Set **W×H** to match the loaded labels (default **30×20**).
+5. Click **Connect USB** → choose the printer port.
+6. Paste rows from Grist → **Print Labels**.
 
 If feed is wrong, adjust **Gap** (mm) or try continuous (Gap `0`).
 
-If text is cut off on one side, use **Offset X / Offset Y** (mm): positive X shifts print right, positive Y shifts down. Typical when half the design falls off the left: try Offset X `2`–`6`.
+If text is cut off on one side, use **Shift right / Shift down** (mm): positive X shifts print right, positive Y shifts down. Typical when half the design falls off the left: try Shift right `2`–`6`.
 
-Long product names wrap to the next line (soft-break around 10 characters when needed). Tune **Code / Product / Count** % if a field still looks too small or large.
+Long product names wrap to the next line (soft-break around 10 characters when needed). Tune **Text size** % if a field still looks too small or large.
 
 Bitmap polarity is always inverted for XP-460B. Resolution is fixed at 203 dpi (standard for this printer).
 
 ### Bluetooth
 
 Use **Connect Bluetooth** if USB is unavailable. USB is more reliable for XP-460B.
-
-### NIIMBOT
-
-Still available under Printer → NIIMBOT (Bluetooth only). Most NIIMBOT models expect proprietary RFID label rolls.
 
 **Clabel / Open Label+** cannot be driven from this page.
 
@@ -59,7 +54,7 @@ Still available under Printer → NIIMBOT (Bluetooth only). Most NIIMBOT models 
 ## Architecture
 
 ```
-Paste (from Grist) → Label Engine → Print Engine → Xprinter (TSPL) or NIIMBOT
+Paste (from Grist) → Label Engine → Print Engine → Xprinter (TSPL)
 ```
 
 | Layer | Path | Role |
@@ -69,7 +64,6 @@ Paste (from Grist) → Label Engine → Print Engine → Xprinter (TSPL) or NIIM
 | Label Engine | `labels/label-engine.js` | Format + canvas |
 | TSPL | `labels/print/tspl.js` | Bitmap job builder |
 | Xprinter | `labels/print/xprinter-engine.js` | Web Serial + Web Bluetooth |
-| NIIMBOT | `labels/print/niimbot-engine.js` | Web Bluetooth (legacy) |
 
 ---
 

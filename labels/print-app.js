@@ -1,5 +1,5 @@
 /**
- * Paste → preview → Xprinter (TSPL) / NIIMBOT print.
+ * Paste → preview → Xprinter (TSPL) print.
  */
 
 import {
@@ -12,7 +12,6 @@ import {
   toCleanTsv,
   rowsToLabelFields,
 } from './paste-parse.js';
-import { createNiimbotPrintEngine } from './print/niimbot-engine.js';
 import { createXprinterPrintEngine } from './print/xprinter-engine.js';
 
 const STORAGE_KEY = 'sulitzilla-label-print-job';
@@ -20,10 +19,6 @@ const MAX_CANVAS = 60;
 const MAX_PRINT = 200;
 
 const xprinter = createXprinterPrintEngine({ invert: true });
-const niimbot = createNiimbotPrintEngine();
-
-/** @type {'xprinter'|'niimbot'} */
-let engineId = 'xprinter';
 
 /** @type {import('./label-engine.js').FormattedLabel[]} */
 let currentReady = [];
@@ -65,7 +60,6 @@ const els = {
     Variation: document.getElementById('map-variation'),
     CountOrSize: document.getElementById('map-count'),
   },
-  engine: document.getElementById('opt-engine'),
   width: document.getElementById('opt-width'),
   height: document.getElementById('opt-height'),
   gap: document.getElementById('opt-gap'),
@@ -88,7 +82,7 @@ const FIELD_LABELS = {
 };
 
 function activePrinter() {
-  return engineId === 'niimbot' ? niimbot : xprinter;
+  return xprinter;
 }
 
 function showMessage(text, kind = 'info') {
@@ -124,29 +118,15 @@ function getRenderOptions() {
   };
 }
 
-function updateEngineUi() {
-  engineId = els.engine.value === 'niimbot' ? 'niimbot' : 'xprinter';
-  els.connectUsb.hidden = engineId !== 'xprinter';
-  els.connectBt.textContent =
-    engineId === 'xprinter' ? 'Connect Bluetooth' : 'Connect NIIMBOT';
-  updatePrinterStatus();
-  updateActionState();
-}
-
 function updatePrinterStatus() {
   const p = activePrinter();
   if (!p.isConnected()) {
-    els.printer.textContent =
-      engineId === 'xprinter'
-        ? 'Printer: disconnected · Xprinter — use Connect USB'
-        : 'Printer: disconnected · NIIMBOT Bluetooth';
-  } else if (engineId === 'xprinter') {
-    const t = typeof p.getTransport === 'function' ? p.getTransport() : null;
-    els.printer.textContent =
-      t === 'bluetooth' ? 'Printer: connected (Xprinter Bluetooth)' : 'Printer: connected (Xprinter USB)';
-  } else {
-    els.printer.textContent = 'Printer: connected (NIIMBOT)';
+    els.printer.textContent = 'Printer: disconnected · Xprinter — use Connect USB';
+    return;
   }
+  const t = typeof p.getTransport === 'function' ? p.getTransport() : null;
+  els.printer.textContent =
+    t === 'bluetooth' ? 'Printer: connected (Xprinter Bluetooth)' : 'Printer: connected (Xprinter USB)';
 }
 
 function updateActionState() {
@@ -155,10 +135,9 @@ function updateActionState() {
   const connected = p.isConnected();
   els.print.disabled = busy || !currentReady.length || currentReady.length > MAX_PRINT;
   els.reprint.disabled = busy || !lastJob.length;
-  els.connectUsb.disabled = busy || engineId !== 'xprinter';
+  els.connectUsb.disabled = busy;
   els.connectBt.disabled = busy;
   els.disconnect.disabled = busy || !connected;
-  els.engine.disabled = busy || connected;
 }
 
 function updateFieldStatus(mapIn) {
@@ -336,23 +315,17 @@ function renderPreviews(labels) {
 async function connectPrinter(transport) {
   const p = activePrinter();
   try {
-    if (engineId === 'xprinter') {
-      showMessage(
-        transport === 'serial'
-          ? 'Pick the Xprinter USB serial port in the browser prompt…'
-          : 'Pick the Xprinter in the Bluetooth prompt…',
-        'info'
-      );
-      await p.connect({ transport });
-      showMessage(
-        transport === 'serial' ? 'Xprinter connected over USB.' : 'Xprinter connected over Bluetooth.',
-        'info'
-      );
-    } else {
-      showMessage('Choose your NIIMBOT in the browser prompt…', 'info');
-      await p.connect();
-      showMessage('NIIMBOT connected.', 'info');
-    }
+    showMessage(
+      transport === 'serial'
+        ? 'Pick the Xprinter USB serial port in the browser prompt…'
+        : 'Pick the Xprinter in the Bluetooth prompt…',
+      'info'
+    );
+    await p.connect({ transport });
+    showMessage(
+      transport === 'serial' ? 'Xprinter connected over USB.' : 'Xprinter connected over Bluetooth.',
+      'info'
+    );
   } catch (err) {
     showMessage(err && err.message ? err.message : String(err), 'error');
   }
@@ -363,7 +336,6 @@ async function connectPrinter(transport) {
 async function disconnectPrinter() {
   try {
     await xprinter.disconnect();
-    await niimbot.disconnect();
     showMessage('Printer disconnected.', 'info');
   } catch (err) {
     showMessage(err && err.message ? err.message : String(err), 'error');
@@ -386,11 +358,7 @@ async function runPrint(labels) {
   updateActionState();
   try {
     if (!p.isConnected()) {
-      if (engineId === 'xprinter') {
-        await p.connect({ transport: 'serial' });
-      } else {
-        await p.connect();
-      }
+      await p.connect({ transport: 'serial' });
       updatePrinterStatus();
     }
     const opts = getRenderOptions();
@@ -442,31 +410,11 @@ function clearAll() {
 }
 
 els.connectUsb.addEventListener('click', () => connectPrinter('serial'));
-els.connectBt.addEventListener('click', async () => {
-  if (engineId === 'niimbot') {
-    try {
-      showMessage('Choose your NIIMBOT in the browser prompt…', 'info');
-      await niimbot.connect();
-      showMessage('NIIMBOT connected.', 'info');
-    } catch (err) {
-      showMessage(err && err.message ? err.message : String(err), 'error');
-    }
-    updatePrinterStatus();
-    updateActionState();
-    return;
-  }
-  await connectPrinter('bluetooth');
-});
+els.connectBt.addEventListener('click', () => connectPrinter('bluetooth'));
 els.disconnect.addEventListener('click', disconnectPrinter);
 els.print.addEventListener('click', () => runPrint(currentReady));
 els.reprint.addEventListener('click', () => runPrint(lastJob));
 els.clear.addEventListener('click', clearAll);
-els.engine.addEventListener('change', async () => {
-  if (xprinter.isConnected() || niimbot.isConnected()) {
-    await disconnectPrinter();
-  }
-  updateEngineUi();
-});
 
 els.paste.addEventListener('paste', () => {
   setTimeout(loadPaste, 0);
@@ -505,7 +453,8 @@ Object.values(els.maps).forEach((select) => {
   });
 });
 
-updateEngineUi();
+updatePrinterStatus();
+updateActionState();
 showMessage(
   'Paste from Grist below. Connect the printer, then Print Labels. Use Label size and Text size if anything looks off.',
   'info'
