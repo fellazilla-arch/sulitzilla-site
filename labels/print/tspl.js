@@ -14,6 +14,7 @@
  * @property {number} [offsetXMm] - shift print right (positive) / left (negative)
  * @property {number} [offsetYMm] - shift print down (positive) / up (negative)
  * @property {number} [dpi]
+ * @property {boolean} [includeSetup] - include SIZE/GAP/DENSITY (default true)
  * @property {'gap'|'none'} [media]
  */
 
@@ -100,22 +101,48 @@ export function buildTsplJob(canvas, options) {
   const x = (Number(options.x) || 0) + mmToDots(options.offsetXMm);
   const y = (Number(options.y) || 0) + mmToDots(options.offsetYMm);
   const media = options.media || 'gap';
+  const includeSetup = options.includeSetup !== false;
 
   const { widthBytes, height, data } = canvasToTsplBitmap(canvas, {
     invert: options.invert,
   });
 
-  const header = [
-    `SIZE ${widthMm} mm,${heightMm} mm\r\n`,
-    media === 'none' ? `GAP 0 mm,0\r\n` : `GAP ${gapMm} mm,0\r\n`,
-    `DENSITY 8\r\n`,
-    `CLS\r\n`,
-    `BITMAP ${x},${y},${widthBytes},${height},0,`,
-  ].join('');
+  const setup = includeSetup
+    ? [
+        `SIZE ${widthMm} mm,${heightMm} mm\r\n`,
+        media === 'none' ? `GAP 0 mm,0\r\n` : `GAP ${gapMm} mm,0\r\n`,
+        `DENSITY 8\r\n`,
+      ].join('')
+    : '';
 
+  const header = `${setup}CLS\r\nBITMAP ${x},${y},${widthBytes},${height},0,`;
   const footer = `\r\nPRINT ${copies}\r\n`;
 
   return concatBytes([ascii(header), data, ascii(footer)]);
+}
+
+/**
+ * Concatenate several label jobs into one continuous TSPL stream.
+ * SIZE/GAP/DENSITY once up front; each label is CLS + BITMAP + PRINT.
+ * @param {HTMLCanvasElement[]} canvases
+ * @param {TsplJobOptions} options
+ * @returns {Uint8Array}
+ */
+export function buildTsplBatch(canvases, options) {
+  const list = Array.isArray(canvases) ? canvases.filter(Boolean) : [];
+  if (!list.length) return new Uint8Array(0);
+
+  /** @type {Uint8Array[]} */
+  const parts = [];
+  list.forEach((canvas, i) => {
+    parts.push(
+      buildTsplJob(canvas, {
+        ...options,
+        includeSetup: i === 0,
+      })
+    );
+  });
+  return concatBytes(parts);
 }
 
 /**

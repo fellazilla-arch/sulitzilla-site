@@ -5,7 +5,7 @@
 
 import { renderLabelToCanvas, DEFAULT_LABEL_OPTIONS } from '../label-engine.js';
 import { makePrintResult } from './print-engine.js';
-import { buildTsplJob, chunkBytes } from './tspl.js';
+import { buildTsplBatch, chunkBytes } from './tspl.js';
 
 /**
  * @param {object} [config]
@@ -32,29 +32,42 @@ export function createXprinterPrintEngine(config = {}) {
   const gapMm = config.gapMm != null ? Number(config.gapMm) : 2;
   const invert = !!config.invert;
   const bleChunkSize = Number(config.bleChunkSize) || 512;
-  const bleChunkDelayMs = Number(config.bleChunkDelayMs) || 20;
+  const bleChunkDelayMs =
+    config.bleChunkDelayMs != null ? Number(config.bleChunkDelayMs) : 2;
 
   function sleep(ms) {
     return new Promise((r) => setTimeout(r, ms));
   }
 
-  async function writeBytes(bytes) {
+  /**
+   * @param {Uint8Array} bytes
+   * @param {{ onProgress?: (p: { sent: number, total: number }) => void }} [opts]
+   */
+  async function writeBytes(bytes, opts = {}) {
     if (!connected) throw new Error('Printer not connected.');
     if (transport === 'serial') {
       if (!serialWriter) throw new Error('USB serial writer missing.');
       await serialWriter.write(bytes);
+      opts.onProgress?.({ sent: bytes.length, total: bytes.length });
       return;
     }
     if (transport === 'bluetooth') {
       if (!bleChar) throw new Error('Bluetooth characteristic missing.');
       const chunks = chunkBytes(bytes, bleChunkSize);
+      let sent = 0;
+      const total = bytes.length;
+      const useNoResp = !!(
+        bleChar.properties.writeWithoutResponse && bleChar.writeValueWithoutResponse
+      );
       for (const chunk of chunks) {
         const copy = chunk.slice();
-        if (bleChar.properties.writeWithoutResponse && bleChar.writeValueWithoutResponse) {
+        if (useNoResp) {
           await bleChar.writeValueWithoutResponse(copy);
         } else {
           await bleChar.writeValue(copy);
         }
+        sent += chunk.length;
+        opts.onProgress?.({ sent, total });
         if (bleChunkDelayMs > 0) await sleep(bleChunkDelayMs);
       }
       return;
@@ -303,40 +316,78 @@ export function createXprinterPrintEngine(config = {}) {
       };
 
       const errors = [];
+      options.onProgress?.({
+        index: 0,
+        total: ready.length,
+        status: 'printing',
+        message: `Preparing ${ready.length} label${ready.length === 1 ? '' : 's'}…`,
+      });
+
+      /** @type {HTMLCanvasElement[]} */
+      const canvases = [];
       for (let i = 0; i < ready.length; i++) {
-        const label = ready[i];
-        options.onProgress?.({
-          index: i,
-          total: ready.length,
-          label,
-          status: 'printing',
-          message: `Printing ${i + 1}/${ready.length}`,
-        });
         try {
-          const canvas = renderLabelToCanvas(label, renderOpts);
-          const job = buildTsplJob(canvas, jobOpts);
-          await writeBytes(job);
-          // Brief pause between labels so the printer can feed
-          await sleep(150);
-          options.onProgress?.({
-            index: i,
-            total: ready.length,
-            label,
-            status: 'done',
-          });
+          canvases.push(renderLabelToCanvas(ready[i], renderOpts));
         } catch (err) {
-          const message = err && /** @type {any} */ (err).message
-            ? String(/** @type {any} */ (err).message)
-            : String(err);
+          const message =
+            err && /** @type {any} */ (err).message
+              ? String(/** @type {any} */ (err).message)
+              : String(err);
           errors.push({ index: i, error: message });
           options.onProgress?.({
             index: i,
             total: ready.length,
-            label,
+            label: ready[i],
             status: 'error',
             message,
           });
         }
+      }
+
+      if (!canvases.length) return makePrintResult(ready, errors);
+
+      const payload = buildTsplBatch(canvases, jobOpts);
+      options.onProgress?.({
+        index: 0,
+        total: ready.length,
+        status: 'printing',
+        message: `Sending ${canvases.length} label${canvases.length === 1 ? '' : 's'} to printer…`,
+      });
+
+      try {
+        await writeBytes(payload, {
+          onProgress({ sent, total }) {
+            if (total <= 0) return;
+            const pct = Math.min(100, Math.round((sent / total) * 100));
+            options.onProgress?.({
+              index: Math.min(
+                canvases.length - 1,
+                Math.floor((sent / total) * canvases.length)
+              ),
+              total: ready.length,
+              status: 'printing',
+              message: `Sending… ${pct}%`,
+            });
+          },
+        });
+        options.onProgress?.({
+          index: canvases.length - 1,
+          total: ready.length,
+          status: 'done',
+          message: `Sent ${canvases.length} label${canvases.length === 1 ? '' : 's'}`,
+        });
+      } catch (err) {
+        const message =
+          err && /** @type {any} */ (err).message
+            ? String(/** @type {any} */ (err).message)
+            : String(err);
+        errors.push({ index: 0, error: message });
+        options.onProgress?.({
+          index: 0,
+          total: ready.length,
+          status: 'error',
+          message,
+        });
       }
 
       return makePrintResult(ready, errors);
