@@ -34,9 +34,11 @@ Default engine is **Xprinter (TSPL)** — works with open thermal label stock (n
 6. Click **Connect USB** → choose the printer port.
 7. Paste rows from Grist → **Print Labels**.
 
-If the label is blank or reversed, check **Invert bitmap**. If feed is wrong, adjust **Gap** (mm) or try continuous (`Gap 0` by setting gap to 0 — uses `GAP 0 mm,0`).
+If feed is wrong, adjust **Gap** (mm) or try continuous (Gap `0`).
 
 If text is cut off on one side, use **Offset X / Offset Y** (mm): positive X shifts print right, positive Y shifts down. Typical when half the design falls off the left: try Offset X `2`–`6`.
+
+Bitmap polarity is always inverted for XP-460B. Resolution is fixed at 203 dpi (standard for this printer).
 
 ### Bluetooth
 

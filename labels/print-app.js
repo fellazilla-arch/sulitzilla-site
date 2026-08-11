@@ -19,7 +19,7 @@ const STORAGE_KEY = 'sulitzilla-label-print-job';
 const MAX_CANVAS = 60;
 const MAX_PRINT = 200;
 
-const xprinter = createXprinterPrintEngine();
+const xprinter = createXprinterPrintEngine({ invert: true });
 const niimbot = createNiimbotPrintEngine();
 
 /** @type {'xprinter'|'niimbot'} */
@@ -69,13 +69,9 @@ const els = {
   engine: document.getElementById('opt-engine'),
   width: document.getElementById('opt-width'),
   height: document.getElementById('opt-height'),
-  dpi: document.getElementById('opt-dpi'),
   gap: document.getElementById('opt-gap'),
   offsetX: document.getElementById('opt-offset-x'),
   offsetY: document.getElementById('opt-offset-y'),
-  invert: document.getElementById('opt-invert'),
-  task: document.getElementById('opt-task'),
-  taskWrap: document.getElementById('niimbot-task-wrap'),
 };
 
 const FIELD_LABELS = {
@@ -106,19 +102,17 @@ function getRenderOptions() {
   return {
     widthMm: Number(els.width.value) || DEFAULT_LABEL_OPTIONS.widthMm,
     heightMm: Number(els.height.value) || DEFAULT_LABEL_OPTIONS.heightMm,
-    dpi: Number(els.dpi.value) || DEFAULT_LABEL_OPTIONS.dpi,
+    dpi: DEFAULT_LABEL_OPTIONS.dpi,
     paddingMm: DEFAULT_LABEL_OPTIONS.paddingMm,
-    printTaskName: els.task.value || undefined,
     gapMm: Number(els.gap.value),
     offsetXMm: Number(els.offsetX.value) || 0,
     offsetYMm: Number(els.offsetY.value) || 0,
-    invert: !!els.invert.checked,
+    invert: true,
   };
 }
 
 function updateEngineUi() {
   engineId = els.engine.value === 'niimbot' ? 'niimbot' : 'xprinter';
-  els.taskWrap.hidden = engineId !== 'niimbot';
   els.connectUsb.hidden = engineId !== 'xprinter';
   els.connectBt.textContent =
     engineId === 'xprinter' ? 'Connect Bluetooth' : 'Connect NIIMBOT';
@@ -278,7 +272,7 @@ function loadPaste() {
 function renderPreviews(labels) {
   const opts = getRenderOptions();
   els.previewMeta.textContent = labels.length
-    ? `Preview · ${opts.widthMm}×${opts.heightMm} mm @ ${opts.dpi} dpi`
+    ? `Preview · ${opts.widthMm}×${opts.heightMm} mm`
     : '';
   els.previewList.innerHTML = '';
 
@@ -480,7 +474,7 @@ Object.values(els.maps).forEach((select) => {
 });
 
 ['change', 'input'].forEach((evt) => {
-  [els.width, els.height, els.dpi].forEach((el) => {
+  [els.width, els.height].forEach((el) => {
     el.addEventListener(evt, () => {
       if (currentAll.length) renderPreviews(currentAll);
     });
@@ -489,6 +483,6 @@ Object.values(els.maps).forEach((select) => {
 
 updateEngineUi();
 showMessage(
-  'Default printer is Xprinter (TSPL). Connect USB, paste from Grist, print. Match label W×H to your roll. Use Invert if the print is blank/reversed.',
+  'Default printer is Xprinter (TSPL). Connect USB or Bluetooth, paste from Grist, print. Match label W×H to your roll; use Offset if text is cut off.',
   'info'
 );
