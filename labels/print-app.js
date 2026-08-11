@@ -74,6 +74,7 @@ const els = {
   offsetY: document.getElementById('opt-offset-y'),
   fontCode: document.getElementById('opt-font-code'),
   fontProduct: document.getElementById('opt-font-product'),
+  fontVariation: document.getElementById('opt-font-variation'),
   fontCount: document.getElementById('opt-font-count'),
 };
 
@@ -112,9 +113,10 @@ function getRenderOptions() {
     offsetYMm: Number(els.offsetY.value) || 0,
     invert: true,
     fontScale: {
-      code: (Number(els.fontCode.value) || 100) / 100,
-      product: (Number(els.fontProduct.value) || 100) / 100,
-      count: (Number(els.fontCount.value) || 100) / 100,
+      code: (Number(els.fontCode.value) || 145) / 100,
+      product: (Number(els.fontProduct.value) || 70) / 100,
+      variation: (Number(els.fontVariation.value) || 100) / 100,
+      count: (Number(els.fontCount.value) || 115) / 100,
     },
   };
 }
@@ -482,7 +484,7 @@ Object.values(els.maps).forEach((select) => {
 });
 
 ['change', 'input'].forEach((evt) => {
-  [els.width, els.height, els.fontCode, els.fontProduct, els.fontCount].forEach((el) => {
+  [els.width, els.height, els.fontCode, els.fontProduct, els.fontVariation, els.fontCount].forEach((el) => {
     el.addEventListener(evt, () => {
       if (currentAll.length) renderPreviews(currentAll);
     });
@@ -491,6 +493,6 @@ Object.values(els.maps).forEach((select) => {
 
 updateEngineUi();
 showMessage(
-  'Long product names wrap to the next line. Use Code / Product / Count % to tune text size; Offset if print is cut off.',
+  'Long product names wrap. Defaults: Offset X 6 mm · Code 145% · Product 70% · Variation 100% · Count 115%.',
   'info'
 );

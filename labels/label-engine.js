@@ -11,7 +11,7 @@
  *   heightMm?: number,
  *   dpi?: number,
  *   paddingMm?: number,
- *   fontScale?: { code?: number, product?: number, count?: number }
+ *   fontScale?: { code?: number, product?: number, variation?: number, count?: number }
  * }} LabelRenderOptions
  */
 
@@ -20,7 +20,7 @@ export const DEFAULT_LABEL_OPTIONS = Object.freeze({
   heightMm: 20,
   dpi: 203,
   paddingMm: 1.5,
-  fontScale: Object.freeze({ code: 1, product: 1, count: 1 }),
+  fontScale: Object.freeze({ code: 1.45, product: 0.7, variation: 1, count: 1.15 }),
 });
 
 /**
@@ -167,6 +167,13 @@ function resolveFontScale(options = {}) {
   return {
     code: clampScale(raw.code != null ? raw.code : base.code),
     product: clampScale(raw.product != null ? raw.product : base.product),
+    variation: clampScale(
+      raw.variation != null
+        ? raw.variation
+        : base.variation != null
+          ? base.variation
+          : base.product
+    ),
     count: clampScale(raw.count != null ? raw.count : base.count),
   };
 }
@@ -295,7 +302,7 @@ function fitSingleLine(ctx, text, maxWidth, startSize, weight) {
 
 /**
  * @param {LabelFields} fields
- * @param {{ code: number, product: number, count: number }} scale
+ * @param {{ code: number, product: number, variation: number, count: number }} scale
  * @returns {TextBlock[]}
  */
 function buildTextBlocks(fields, scale) {
@@ -334,7 +341,7 @@ function buildTextBlocks(fields, scale) {
       text: variation,
       wrap: true,
       weight: '600',
-      scale: scale.product,
+      scale: scale.variation,
       baseFrac: 0.18,
     });
   }
