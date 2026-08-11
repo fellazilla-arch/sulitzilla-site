@@ -38,6 +38,8 @@ If feed is wrong, adjust **Gap** (mm) or try continuous (Gap `0`).
 
 If text is cut off on one side, use **Offset X / Offset Y** (mm): positive X shifts print right, positive Y shifts down. Typical when half the design falls off the left: try Offset X `2`–`6`.
 
+Long product names wrap to the next line (soft-break around 10 characters when needed). Tune **Code / Product / Count** % if a field still looks too small or large.
+
 Bitmap polarity is always inverted for XP-460B. Resolution is fixed at 203 dpi (standard for this printer).
 
 ### Bluetooth

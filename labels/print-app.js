@@ -72,6 +72,9 @@ const els = {
   gap: document.getElementById('opt-gap'),
   offsetX: document.getElementById('opt-offset-x'),
   offsetY: document.getElementById('opt-offset-y'),
+  fontCode: document.getElementById('opt-font-code'),
+  fontProduct: document.getElementById('opt-font-product'),
+  fontCount: document.getElementById('opt-font-count'),
 };
 
 const FIELD_LABELS = {
@@ -108,6 +111,11 @@ function getRenderOptions() {
     offsetXMm: Number(els.offsetX.value) || 0,
     offsetYMm: Number(els.offsetY.value) || 0,
     invert: true,
+    fontScale: {
+      code: (Number(els.fontCode.value) || 100) / 100,
+      product: (Number(els.fontProduct.value) || 100) / 100,
+      count: (Number(els.fontCount.value) || 100) / 100,
+    },
   };
 }
 
@@ -474,7 +482,7 @@ Object.values(els.maps).forEach((select) => {
 });
 
 ['change', 'input'].forEach((evt) => {
-  [els.width, els.height].forEach((el) => {
+  [els.width, els.height, els.fontCode, els.fontProduct, els.fontCount].forEach((el) => {
     el.addEventListener(evt, () => {
       if (currentAll.length) renderPreviews(currentAll);
     });
@@ -483,6 +491,6 @@ Object.values(els.maps).forEach((select) => {
 
 updateEngineUi();
 showMessage(
-  'Default printer is Xprinter (TSPL). Connect USB or Bluetooth, paste from Grist, print. Match label W×H to your roll; use Offset if text is cut off.',
+  'Long product names wrap to the next line. Use Code / Product / Count % to tune text size; Offset if print is cut off.',
   'info'
 );

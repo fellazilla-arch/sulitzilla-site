@@ -5,13 +5,22 @@
 
 /** @typedef {{ id?: number|string, Code: string, Brand?: string, Product?: string, Variation?: string, CountOrSize?: string }} LabelFields */
 /** @typedef {{ id?: number|string, lines: string[], fields: LabelFields, skipped?: boolean, skipReason?: string }} FormattedLabel */
-/** @typedef {{ widthMm?: number, heightMm?: number, dpi?: number, paddingMm?: number }} LabelRenderOptions */
+/**
+ * @typedef {{
+ *   widthMm?: number,
+ *   heightMm?: number,
+ *   dpi?: number,
+ *   paddingMm?: number,
+ *   fontScale?: { code?: number, product?: number, count?: number }
+ * }} LabelRenderOptions
+ */
 
 export const DEFAULT_LABEL_OPTIONS = Object.freeze({
   widthMm: 50,
   heightMm: 30,
   dpi: 203,
   paddingMm: 1.5,
+  fontScale: Object.freeze({ code: 1, product: 1, count: 1 }),
 });
 
 /**
@@ -150,18 +159,211 @@ export function mmToPx(mm, dpi) {
 }
 
 /**
+ * @param {LabelRenderOptions} [options]
+ */
+function resolveFontScale(options = {}) {
+  const base = DEFAULT_LABEL_OPTIONS.fontScale;
+  const raw = options.fontScale || {};
+  return {
+    code: clampScale(raw.code != null ? raw.code : base.code),
+    product: clampScale(raw.product != null ? raw.product : base.product),
+    count: clampScale(raw.count != null ? raw.count : base.count),
+  };
+}
+
+/**
+ * @param {number} n
+ */
+function clampScale(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v) || v <= 0) return 1;
+  return Math.min(2, Math.max(0.5, v));
+}
+
+/**
+ * Split an overlong token so it can wrap (soft break ~10 chars, still fit width).
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {string} word
+ * @param {number} maxWidth
+ * @param {number} [softLen]
+ */
+function splitLongWord(ctx, word, maxWidth, softLen = 10) {
+  if (!word) return [];
+  if (ctx.measureText(word).width <= maxWidth) return [word];
+
+  const chunks = [];
+  let i = 0;
+  while (i < word.length) {
+    let end = Math.min(i + softLen, word.length);
+    while (end < word.length && ctx.measureText(word.slice(i, end + 1)).width <= maxWidth) {
+      end += 1;
+    }
+    while (end > i + 1 && ctx.measureText(word.slice(i, end)).width > maxWidth) {
+      end -= 1;
+    }
+    // Single glyph still too wide — force one character.
+    if (end <= i) end = i + 1;
+    chunks.push(word.slice(i, end));
+    i = end;
+  }
+  return chunks;
+}
+
+/**
+ * Wrap text to width at word boundaries; long tokens soft-break ~every 10 letters.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {string} text
+ * @param {number} maxWidth
+ * @param {number} fontSize
+ * @param {string} weight
+ * @param {boolean} allowWrap
+ * @returns {string[]}
+ */
+export function wrapTextLines(ctx, text, maxWidth, fontSize, weight, allowWrap) {
+  const font = `${weight} ${fontSize}px "Segoe UI", system-ui, sans-serif`;
+  ctx.font = font;
+  const raw = String(text || '').trim();
+  if (!raw) return [];
+
+  if (!allowWrap) {
+    if (ctx.measureText(raw).width <= maxWidth) return [raw];
+    // Single-line roles: shrink handled by caller; keep as one line for measure.
+    return [raw];
+  }
+
+  const tokens = raw.split(/\s+/).filter(Boolean);
+  /** @type {string[]} */
+  const lines = [];
+  let current = '';
+
+  const flush = () => {
+    if (current) {
+      lines.push(current);
+      current = '';
+    }
+  };
+
+  for (const token of tokens) {
+    const pieces = splitLongWord(ctx, token, maxWidth);
+    for (const piece of pieces) {
+      const next = current ? `${current} ${piece}` : piece;
+      if (ctx.measureText(next).width <= maxWidth) {
+        current = next;
+      } else {
+        flush();
+        if (ctx.measureText(piece).width <= maxWidth) {
+          current = piece;
+        } else {
+          // Extremely narrow — force leftover soft splits already in piece
+          lines.push(piece);
+        }
+      }
+    }
+  }
+  flush();
+  return lines.length ? lines : [raw];
+}
+
+/**
+ * Shrink a single line to fit width (code / count).
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {string} text
+ * @param {number} maxWidth
+ * @param {number} startSize
+ * @param {string} weight
+ */
+function fitSingleLine(ctx, text, maxWidth, startSize, weight) {
+  let size = startSize;
+  while (size > 8) {
+    ctx.font = `${weight} ${size}px "Segoe UI", system-ui, sans-serif`;
+    if (ctx.measureText(text).width <= maxWidth) {
+      return { text, size };
+    }
+    size -= 1;
+  }
+  ctx.font = `${weight} ${size}px "Segoe UI", system-ui, sans-serif`;
+  let truncated = text;
+  while (truncated.length > 1 && ctx.measureText(`${truncated}…`).width > maxWidth) {
+    truncated = truncated.slice(0, -1);
+  }
+  return { text: truncated === text ? text : `${truncated}…`, size };
+}
+
+/**
+ * @typedef {{ role: 'code'|'product'|'detail'|'count', text: string, wrap: boolean, weight: string, scale: number, baseFrac: number }} TextBlock
+ */
+
+/**
+ * @param {LabelFields} fields
+ * @param {{ code: number, product: number, count: number }} scale
+ * @returns {TextBlock[]}
+ */
+function buildTextBlocks(fields, scale) {
+  /** @type {TextBlock[]} */
+  const blocks = [];
+  const code = labelField(fields.Code);
+  if (code) {
+    blocks.push({
+      role: 'code',
+      text: code,
+      wrap: false,
+      weight: 'bold',
+      scale: scale.code,
+      baseFrac: 0.34,
+    });
+  }
+
+  const brandProduct = [labelField(fields.Brand), labelField(fields.Product)]
+    .filter(Boolean)
+    .join(' ');
+  if (brandProduct) {
+    blocks.push({
+      role: 'product',
+      text: brandProduct,
+      wrap: true,
+      weight: '700',
+      scale: scale.product,
+      baseFrac: 0.26,
+    });
+  }
+
+  const variation = labelField(fields.Variation);
+  if (variation) {
+    blocks.push({
+      role: 'detail',
+      text: variation,
+      wrap: true,
+      weight: '600',
+      scale: scale.product,
+      baseFrac: 0.18,
+    });
+  }
+
+  const countOrSize = labelField(fields.CountOrSize);
+  if (countOrSize) {
+    blocks.push({
+      role: 'count',
+      text: countOrSize,
+      wrap: false,
+      weight: '600',
+      scale: scale.count,
+      baseFrac: 0.2,
+    });
+  }
+
+  return blocks;
+}
+
+/**
  * Draw a single label onto a canvas (black on white).
+ * Long product/variation text wraps instead of shrinking to unreadably small.
  * @param {FormattedLabel|LabelFields|string[]} labelOrLines
  * @param {LabelRenderOptions} [options]
  * @returns {HTMLCanvasElement}
  */
 export function renderLabelToCanvas(labelOrLines, options = {}) {
   const opts = { ...DEFAULT_LABEL_OPTIONS, ...options };
-  const lines = Array.isArray(labelOrLines)
-    ? labelOrLines.filter((l) => normalizeField(l))
-    : labelOrLines.lines
-      ? labelOrLines.lines
-      : formatLabelLines(/** @type {LabelFields} */ (labelOrLines));
+  const scale = resolveFontScale(opts);
 
   const width = mmToPx(opts.widthMm, opts.dpi);
   const height = mmToPx(opts.heightMm, opts.dpi);
@@ -179,7 +381,36 @@ export function renderLabelToCanvas(labelOrLines, options = {}) {
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
 
-  if (!lines.length) {
+  /** @type {TextBlock[]} */
+  let blocks = [];
+  if (Array.isArray(labelOrLines)) {
+    const lines = labelOrLines.filter((l) => normalizeField(l));
+    blocks = lines.map((text, i) => ({
+      role: i === 0 ? 'code' : i === lines.length - 1 && lines.length > 2 ? 'count' : 'product',
+      text: String(text),
+      wrap: i !== 0,
+      weight: i === 0 ? 'bold' : '600',
+      scale: i === 0 ? scale.code : i === lines.length - 1 && lines.length > 2 ? scale.count : scale.product,
+      baseFrac: i === 0 ? 0.34 : 0.22,
+    }));
+  } else if (labelOrLines && labelOrLines.fields) {
+    blocks = buildTextBlocks(labelOrLines.fields, scale);
+  } else if (labelOrLines && labelOrLines.lines) {
+    blocks = buildTextBlocks(
+      {
+        Code: labelOrLines.lines[0] || '',
+        Brand: '',
+        Product: labelOrLines.lines[1] || '',
+        Variation: labelOrLines.lines[2] || '',
+        CountOrSize: labelOrLines.lines[3] || '',
+      },
+      scale
+    );
+  } else {
+    blocks = buildTextBlocks(/** @type {LabelFields} */ (labelOrLines), scale);
+  }
+
+  if (!blocks.length) {
     ctx.font = `bold ${Math.floor(height * 0.2)}px sans-serif`;
     ctx.fillText('(empty)', padding, padding);
     return canvas;
@@ -187,56 +418,68 @@ export function renderLabelToCanvas(labelOrLines, options = {}) {
 
   const innerW = width - padding * 2;
   const innerH = height - padding * 2;
-  const gap = Math.max(2, Math.floor(innerH * 0.04));
+  const gap = Math.max(2, Math.floor(innerH * 0.035));
 
-  // Code is largest; remaining lines share leftover space.
-  const codeSize = Math.min(Math.floor(innerH * 0.38), Math.floor(innerW * 0.22));
-  const otherCount = Math.max(1, lines.length - 1);
-  const otherBudget = innerH - codeSize - gap * lines.length;
-  const otherSize = Math.max(
-    10,
-    Math.min(Math.floor(otherBudget / otherCount), Math.floor(codeSize * 0.55))
-  );
+  /**
+   * @param {number} shrink
+   */
+  function measureLayout(shrink) {
+    /** @type {{ text: string, size: number, weight: string }[]} */
+    const rows = [];
+    let total = 0;
+
+    for (const block of blocks) {
+      let size = Math.max(
+        9,
+        Math.floor(innerH * block.baseFrac * block.scale * shrink)
+      );
+      if (block.role === 'code') {
+        size = Math.min(size, Math.floor(innerW * 0.22 * block.scale * shrink));
+      }
+
+      if (block.wrap) {
+        // Prefer wrap over shrink: keep size, break to multiple lines.
+        let lines = wrapTextLines(ctx, block.text, innerW, size, block.weight, true);
+        // Cap wrapped lines; if still too many, nudge size down a bit.
+        let guard = 0;
+        while (lines.length > 3 && size > 10 && guard < 20) {
+          size -= 1;
+          lines = wrapTextLines(ctx, block.text, innerW, size, block.weight, true);
+          guard += 1;
+        }
+        for (const line of lines) {
+          rows.push({ text: line, size, weight: block.weight });
+          total += size + gap;
+        }
+      } else {
+        const fitted = fitSingleLine(ctx, block.text, innerW, size, block.weight);
+        rows.push({ text: fitted.text, size: fitted.size, weight: block.weight });
+        total += fitted.size + gap;
+      }
+    }
+
+    if (rows.length) total -= gap;
+    return { rows, total };
+  }
+
+  let shrink = 1;
+  let layout = measureLayout(shrink);
+  let guard = 0;
+  while (layout.total > innerH && shrink > 0.55 && guard < 25) {
+    shrink -= 0.04;
+    layout = measureLayout(shrink);
+    guard += 1;
+  }
 
   let y = padding;
-  lines.forEach((raw, i) => {
-    const text = String(raw);
-    const fontSize = i === 0 ? codeSize : otherSize;
-    const weight = i === 0 ? 'bold' : '600';
-    ctx.font = `${weight} ${fontSize}px "Segoe UI", system-ui, sans-serif`;
-
-    const fitted = fitText(ctx, text, innerW, fontSize, weight);
-    ctx.font = `${weight} ${fitted.size}px "Segoe UI", system-ui, sans-serif`;
-    ctx.fillText(fitted.text, padding, y);
-    y += fitted.size + gap;
-  });
+  for (const row of layout.rows) {
+    if (y + row.size > height - padding) break;
+    ctx.font = `${row.weight} ${row.size}px "Segoe UI", system-ui, sans-serif`;
+    ctx.fillText(row.text, padding, y);
+    y += row.size + gap;
+  }
 
   return canvas;
-}
-
-/**
- * Shrink font / truncate with ellipsis so text fits width.
- * @param {CanvasRenderingContext2D} ctx
- * @param {string} text
- * @param {number} maxWidth
- * @param {number} startSize
- * @param {string} weight
- */
-function fitText(ctx, text, maxWidth, startSize, weight) {
-  let size = startSize;
-  while (size > 8) {
-    ctx.font = `${weight} ${size}px "Segoe UI", system-ui, sans-serif`;
-    if (ctx.measureText(text).width <= maxWidth) {
-      return { text, size };
-    }
-    size -= 1;
-  }
-  ctx.font = `${weight} ${size}px "Segoe UI", system-ui, sans-serif`;
-  let truncated = text;
-  while (truncated.length > 1 && ctx.measureText(truncated + '…').width > maxWidth) {
-    truncated = truncated.slice(0, -1);
-  }
-  return { text: truncated === text ? text : truncated + '…', size };
 }
 
 /**
