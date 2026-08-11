@@ -3,7 +3,7 @@
  * Independent of Grist and of any specific printer.
  */
 
-/** @typedef {{ id?: number|string, Code: string, Brand?: string, Product?: string, Variation?: string, CountOrSize?: string, Color?: string, Storage?: string, Condition?: string, Grade?: string }} LabelFields */
+/** @typedef {{ id?: number|string, Code: string, Brand?: string, Product?: string, Variation?: string, CountOrSize?: string, Color?: string, Storage?: string, Condition?: string }} LabelFields */
 /** @typedef {{ id?: number|string, lines: string[], fields: LabelFields, skipped?: boolean, skipReason?: string }} FormattedLabel */
 /**
  * @typedef {{
@@ -17,7 +17,6 @@
  *     color?: number,
  *     storage?: number,
  *     condition?: number,
- *     grade?: number,
  *     variation?: number,
  *     count?: number
  *   }
@@ -35,7 +34,6 @@ export const DEFAULT_LABEL_OPTIONS = Object.freeze({
     color: 1,
     storage: 1.15,
     condition: 1,
-    grade: 1,
   }),
 });
 
@@ -92,7 +90,7 @@ export function labelField(value) {
 
 /**
  * Build display lines; omit blank fields per PRD.
- * Gadgets: Code → Brand Product → Color → Storage → Condition → Grade
+ * Gadgets: Code → Brand Product → Color → Storage → Condition
  * Supplements: Code → Brand Product → Variation → CountOrSize
  *
  * @param {LabelFields} fields
@@ -111,19 +109,16 @@ export function formatLabelLines(fields) {
   const color = labelField(fields.Color);
   const storage = labelField(fields.Storage);
   const condition = labelField(fields.Condition);
-  const grade = labelField(fields.Grade);
   const variation = labelField(fields.Variation);
   const countOrSize = labelField(fields.CountOrSize);
 
-  const structured =
-    color || storage || condition || grade;
+  const structured = color || storage || condition;
 
   if (structured) {
     if (color) lines.push(color);
     else if (variation) lines.push(variation);
     if (storage) lines.push(storage);
     if (condition) lines.push(condition);
-    if (grade) lines.push(grade);
   } else {
     if (variation) lines.push(variation);
     if (countOrSize) lines.push(countOrSize);
@@ -147,7 +142,6 @@ export function formatRecord(record) {
     Color: labelField(record.Color),
     Storage: labelField(record.Storage),
     Condition: labelField(record.Condition),
-    Grade: labelField(record.Grade),
   };
 
   if (!fields.Code) {
@@ -218,7 +212,6 @@ function resolveFontScale(options = {}) {
             : 1
     ),
     condition: clampScale(raw.condition != null ? raw.condition : base.condition != null ? base.condition : 1),
-    grade: clampScale(raw.grade != null ? raw.grade : base.grade != null ? base.grade : 1),
   };
 }
 
@@ -341,12 +334,12 @@ function fitSingleLine(ctx, text, maxWidth, startSize, weight) {
 }
 
 /**
- * @typedef {{ role: 'code'|'product'|'color'|'storage'|'condition'|'grade', text: string, wrap: boolean, weight: string, scale: number, baseFrac: number }} TextBlock
+ * @typedef {{ role: 'code'|'product'|'color'|'storage'|'condition', text: string, wrap: boolean, weight: string, scale: number, baseFrac: number }} TextBlock
  */
 
 /**
  * @param {LabelFields} fields
- * @param {{ code: number, product: number, color: number, storage: number, condition: number, grade: number }} scale
+ * @param {{ code: number, product: number, color: number, storage: number, condition: number }} scale
  * @returns {TextBlock[]}
  */
 function buildTextBlocks(fields, scale) {
@@ -381,10 +374,9 @@ function buildTextBlocks(fields, scale) {
   const color = labelField(fields.Color);
   const storage = labelField(fields.Storage);
   const condition = labelField(fields.Condition);
-  const grade = labelField(fields.Grade);
   const variation = labelField(fields.Variation);
   const countOrSize = labelField(fields.CountOrSize);
-  const structured = !!(color || storage || condition || grade);
+  const structured = !!(color || storage || condition);
 
   const colorLine = color || (!structured ? variation : '');
   if (colorLine) {
@@ -398,7 +390,7 @@ function buildTextBlocks(fields, scale) {
     });
   }
 
-  const storageLine = storage || (!structured && !condition && !grade ? countOrSize : '');
+  const storageLine = storage || (!structured && !condition ? countOrSize : '');
   if (storageLine) {
     blocks.push({
       role: 'storage',
@@ -417,17 +409,6 @@ function buildTextBlocks(fields, scale) {
       wrap: false,
       weight: '600',
       scale: scale.condition,
-      baseFrac: 0.15,
-    });
-  }
-
-  if (grade) {
-    blocks.push({
-      role: 'grade',
-      text: grade,
-      wrap: false,
-      weight: '600',
-      scale: scale.grade,
       baseFrac: 0.15,
     });
   }

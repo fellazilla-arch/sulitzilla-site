@@ -70,7 +70,6 @@ const els = {
   fontColor: document.getElementById('opt-font-color'),
   fontStorage: document.getElementById('opt-font-storage'),
   fontCondition: document.getElementById('opt-font-condition'),
-  fontGrade: document.getElementById('opt-font-grade'),
 };
 
 const FIELD_LABELS = {
@@ -113,7 +112,6 @@ function getRenderOptions() {
       color: (Number(els.fontColor.value) || 100) / 100,
       storage: (Number(els.fontStorage.value) || 115) / 100,
       condition: (Number(els.fontCondition.value) || 100) / 100,
-      grade: (Number(els.fontGrade.value) || 100) / 100,
     },
   };
 }
@@ -445,7 +443,6 @@ Object.values(els.maps).forEach((select) => {
     els.fontColor,
     els.fontStorage,
     els.fontCondition,
-    els.fontGrade,
   ].forEach((el) => {
     el.addEventListener(evt, () => {
       if (currentAll.length) renderPreviews(currentAll);

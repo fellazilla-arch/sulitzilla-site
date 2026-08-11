@@ -20,8 +20,8 @@ import { normalizeField, labelField, isMoneyValue } from './label-engine.js';
 
 /**
  * Shared mapping for Kango / Taobao-style rows.
- * Gadgets (phones, laptops, tablets, …): Storage + Color + Condition (+ Grade when Used).
- * Supplements / other: Color/flavor + count/size only — skip Condition/Grade.
+ * Gadgets (phones, laptops, tablets, …): Storage + Color + Condition.
+ * Supplements / other: Color/flavor + count/size only — skip Condition.
  * @param {object} cols
  * @param {number} idx
  */
@@ -33,13 +33,11 @@ function mapLabelCols(cols, idx) {
   const specs = labelField(cols.VariationOrSpecs);
   const storage = labelField(cols.Storage);
   const condition = labelField(cols.Condition);
-  const grade = labelField(cols.Grade);
 
   const gadget = isGadgetItem({
     brand,
     product,
     storage,
-    grade,
     condition,
     countOrSize: storage,
     variation: color || specs,
@@ -54,16 +52,15 @@ function mapLabelCols(cols, idx) {
       Color: color,
       Storage: storage || (specs && color ? specs : ''),
       Condition: condition,
-      Grade: grade,
       // Keep combined fields for older preview/map paths
       Variation: color || specs,
-      CountOrSize: [storage || (specs && color ? specs : ''), condition, grade]
+      CountOrSize: [storage || (specs && color ? specs : ''), condition]
         .filter(Boolean)
         .join(' · '),
     };
   }
 
-  // Supplements / general: never print Condition or Grade.
+  // Supplements / general: never print Condition.
   let variation = '';
   let countOrSize = storage;
   if (color) {
@@ -81,22 +78,20 @@ function mapLabelCols(cols, idx) {
     Color: color,
     Storage: storage,
     Condition: '',
-    Grade: '',
     Variation: variation,
     CountOrSize: countOrSize,
   };
 }
 
 /**
- * True for phones / laptops / tablets / similar — show Condition & Grade.
- * @param {{ brand?: string, product?: string, storage?: string, grade?: string, condition?: string, countOrSize?: string, variation?: string }} parts
+ * True for phones / laptops / tablets / similar — show Condition.
+ * @param {{ brand?: string, product?: string, storage?: string, condition?: string, countOrSize?: string, variation?: string }} parts
  */
 export function isGadgetItem(parts = {}) {
   if (isSupplementItem(parts)) return false;
 
   const storage = normalizeField(parts.storage);
   if (looksLikeStorage(storage)) return true;
-  if (looksLikeGrade(parts.grade)) return true;
 
   const blob = [parts.brand, parts.product].map(normalizeField).join(' ');
   if (
@@ -108,7 +103,7 @@ export function isGadgetItem(parts = {}) {
   }
 
   const condition = normalizeField(parts.condition);
-  // Used / factory / soft conditions strongly imply graded gadgets.
+  // Used / factory / soft conditions strongly imply gadgets.
   if (looksLikeCondition(condition) && /\b(used|factory|soft|refurb)/i.test(condition)) {
     return true;
   }
@@ -153,31 +148,6 @@ export function looksLikeCondition(v) {
     return true;
   }
   return false;
-}
-
-/**
- * @param {unknown} v
- */
-export function looksLikeGrade(v) {
-  const s = normalizeField(v);
-  if (!s || s.length > 24) return false;
-  return /^(excellent|good|fair|issue|issues|poor|mint|like new|a\+?|b\+?|c\+?)$/i.test(s);
-}
-
-/**
- * Prefer an explicit grade column; otherwise scan nearby cells.
- * @param {string[]} row
- * @param {number} [preferredIdx]
- */
-function resolveGrade(row, preferredIdx) {
-  if (preferredIdx != null && looksLikeGrade(row[preferredIdx])) {
-    return labelField(row[preferredIdx]);
-  }
-  const start = preferredIdx != null ? preferredIdx : 7;
-  for (let i = start; i < Math.min(row.length, start + 5); i++) {
-    if (looksLikeGrade(row[i])) return labelField(row[i]);
-  }
-  return '';
 }
 
 function sampleRows(rows) {
@@ -249,7 +219,6 @@ export const LAYOUT_KANGO_ARRIVED = Object.freeze({
         Storage: row[6],
         Color: row[7],
         VariationOrSpecs: row[8],
-        Grade: resolveGrade(row, 9),
       },
       idx
     );
@@ -306,7 +275,6 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
     });
 
     if (gadget) {
-      const grade = resolveGrade(row, 9);
       return {
         id: idx + 1,
         Code: labelField(row[0]),
@@ -315,13 +283,12 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
         Color: variation,
         Storage: countOrSize,
         Condition: condition,
-        Grade: grade,
         Variation: variation,
-        CountOrSize: [countOrSize, condition, grade].filter(Boolean).join(' · '),
+        CountOrSize: [countOrSize, condition].filter(Boolean).join(' · '),
       };
     }
 
-    // Supplements / general Amazon rows — Condition/Grade off the label.
+    // Supplements / general Amazon rows — Condition off the label.
     return {
       id: idx + 1,
       Code: labelField(row[0]),
@@ -330,7 +297,6 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
       Color: flavor,
       Storage: '',
       Condition: '',
-      Grade: '',
       Variation: variation,
       CountOrSize: countOrSize,
     };
@@ -346,7 +312,7 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
 export const LAYOUT_TAOBAO_ARRIVED = Object.freeze({
   id: 'taobao-arrived',
   name: 'Taobao Arrived',
-  usedColumns: [0, 2, 3, 4, 5, 6, 7],
+  usedColumns: [0, 2, 3, 4, 5, 6],
   detect(rows) {
     const sample = sampleRows(rows);
     if (!sample.length) return false;
@@ -378,7 +344,6 @@ export const LAYOUT_TAOBAO_ARRIVED = Object.freeze({
         Product: row[4],
         Storage: row[5],
         Color: row[6],
-        Grade: resolveGrade(row, 7),
         VariationOrSpecs: '',
       },
       idx
