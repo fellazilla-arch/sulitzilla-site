@@ -30,11 +30,13 @@ Default engine is **Xprinter (TSPL)** — works with open thermal label stock (n
 2. Close **Open Label+**, Clabel apps, or anything else using the printer COM port.
 3. Plug in the **XP-460B** (or other TSPL Xprinter) by USB.
 4. Set **Printer** to **Xprinter (TSPL)**.
-5. Set **W×H** to match the loaded labels (e.g. 50×30).
+5. Set **W×H** to match the loaded labels (e.g. 50×30) — measure the sticker, not the liner.
 6. Click **Connect USB** → choose the printer port.
 7. Paste rows from Grist → **Print Labels**.
 
 If the label is blank or reversed, check **Invert bitmap**. If feed is wrong, adjust **Gap** (mm) or try continuous (`Gap 0` by setting gap to 0 — uses `GAP 0 mm,0`).
+
+If text is cut off on one side, use **Offset X / Offset Y** (mm): positive X shifts print right, positive Y shifts down. Typical when half the design falls off the left: try Offset X `2`–`6`.
 
 ### Bluetooth
 

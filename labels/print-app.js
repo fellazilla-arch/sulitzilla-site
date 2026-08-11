@@ -71,6 +71,8 @@ const els = {
   height: document.getElementById('opt-height'),
   dpi: document.getElementById('opt-dpi'),
   gap: document.getElementById('opt-gap'),
+  offsetX: document.getElementById('opt-offset-x'),
+  offsetY: document.getElementById('opt-offset-y'),
   invert: document.getElementById('opt-invert'),
   task: document.getElementById('opt-task'),
   taskWrap: document.getElementById('niimbot-task-wrap'),
@@ -108,6 +110,8 @@ function getRenderOptions() {
     paddingMm: DEFAULT_LABEL_OPTIONS.paddingMm,
     printTaskName: els.task.value || undefined,
     gapMm: Number(els.gap.value),
+    offsetXMm: Number(els.offsetX.value) || 0,
+    offsetYMm: Number(els.offsetY.value) || 0,
     invert: !!els.invert.checked,
   };
 }

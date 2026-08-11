@@ -269,6 +269,8 @@ export function createXprinterPrintEngine(config = {}) {
      *   onProgress?: Function,
      *   gapMm?: number,
      *   invert?: boolean,
+     *   offsetXMm?: number,
+     *   offsetYMm?: number,
      *   copies?: number,
      *   media?: 'gap'|'none'
      * }} [options]
@@ -290,8 +292,11 @@ export function createXprinterPrintEngine(config = {}) {
       const jobOpts = {
         widthMm: renderOpts.widthMm,
         heightMm: renderOpts.heightMm,
+        dpi: renderOpts.dpi,
         gapMm: options.gapMm != null ? options.gapMm : gapMm,
         invert: options.invert != null ? options.invert : invert,
+        offsetXMm: Number(options.offsetXMm) || 0,
+        offsetYMm: Number(options.offsetYMm) || 0,
         copies: Math.max(1, Number(options.copies) || 1),
         media: options.media || 'gap',
       };

@@ -9,8 +9,11 @@
  * @property {number} [gapMm]
  * @property {boolean} [invert] - if true, black pixels become 0 (some firmwares)
  * @property {number} [copies]
- * @property {number} [x]
- * @property {number} [y]
+ * @property {number} [x] - BITMAP x in dots
+ * @property {number} [y] - BITMAP y in dots
+ * @property {number} [offsetXMm] - shift print right (positive) / left (negative)
+ * @property {number} [offsetYMm] - shift print down (positive) / up (negative)
+ * @property {number} [dpi]
  * @property {'gap'|'none'} [media]
  */
 
@@ -92,8 +95,10 @@ export function buildTsplJob(canvas, options) {
   const heightMm = Number(options.heightMm) || 30;
   const gapMm = options.gapMm != null ? Number(options.gapMm) : 2;
   const copies = Math.max(1, Number(options.copies) || 1);
-  const x = Number(options.x) || 0;
-  const y = Number(options.y) || 0;
+  const dpi = Number(options.dpi) || 203;
+  const mmToDots = (mm) => Math.round((Number(mm) || 0) * (dpi / 25.4));
+  const x = (Number(options.x) || 0) + mmToDots(options.offsetXMm);
+  const y = (Number(options.y) || 0) + mmToDots(options.offsetYMm);
   const media = options.media || 'gap';
 
   const { widthBytes, height, data } = canvasToTsplBitmap(canvas, {
