@@ -16,8 +16,8 @@
  */
 
 export const DEFAULT_LABEL_OPTIONS = Object.freeze({
-  widthMm: 50,
-  heightMm: 30,
+  widthMm: 30,
+  heightMm: 20,
   dpi: 203,
   paddingMm: 1.5,
   fontScale: Object.freeze({ code: 1, product: 1, count: 1 }),

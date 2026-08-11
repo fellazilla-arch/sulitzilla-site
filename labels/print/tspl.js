@@ -91,8 +91,8 @@ function ascii(s) {
  * @returns {Uint8Array}
  */
 export function buildTsplJob(canvas, options) {
-  const widthMm = Number(options.widthMm) || 50;
-  const heightMm = Number(options.heightMm) || 30;
+  const widthMm = Number(options.widthMm) || 30;
+  const heightMm = Number(options.heightMm) || 20;
   const gapMm = options.gapMm != null ? Number(options.gapMm) : 2;
   const copies = Math.max(1, Number(options.copies) || 1);
   const dpi = Number(options.dpi) || 203;
