@@ -142,6 +142,7 @@ export function createNiimbotPrintEngine(config = {}) {
         heightMm: options.heightMm,
         dpi: options.dpi,
         paddingMm: options.paddingMm,
+        fontScale: options.fontScale,
       };
 
       const taskName =
