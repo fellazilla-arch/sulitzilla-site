@@ -12,11 +12,13 @@ The paste page auto-detects which page you copied from:
 
 | View | Keeps |
 |------|--------|
-| **Kango Arrived** | Code, Brand, Product, Color/Variation, Storage |
-| **Amazon Arrived** | Code, Brand, Product, Variant·Flavor, Count/Size |
-| **Taobao Arrived** | Code, Brand, Product, Color, Storage |
+| **Kango Arrived** | Code, Brand, Product, Color, Storage; gadgets also get Condition (+ Grade when present) |
+| **Amazon Arrived** | Code, Brand, Product, Variant·Flavor, Count/Size (Condition only if it looks like a gadget) |
+| **Taobao Arrived** | Code, Brand, Product, Color, Storage; gadgets also get Condition (+ Grade when present) |
 
 Everything else (status, notes, prices, tracking, URLs, …) is dropped. Currency values never print. **`$STATUS` does not need to be a specific value** — any status from these views is fine.
+
+**Gadgets vs supplements:** phones / laptops / tablets / similar (or any row with storage like `256GB`, or a Grade) print **Condition** and **Grade**. Supplements (gummies, vitamins, etc.) keep Condition off the label even when the column is filled.
 
 ---
 

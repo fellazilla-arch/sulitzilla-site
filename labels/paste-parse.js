@@ -19,8 +19,9 @@ import { normalizeField, labelField, isMoneyValue } from './label-engine.js';
  */
 
 /**
- * Shared mapping: Color → Variation when set; specs → CountOrSize when color set,
- * otherwise Variation = specs/variant text; Storage fills CountOrSize when available.
+ * Shared mapping for Kango / Taobao-style rows.
+ * Gadgets (phones, laptops, tablets, …): Storage + Color + Condition (+ Grade when Used).
+ * Supplements / other: Color/flavor + count/size only — skip Condition/Grade.
  * @param {object} cols
  * @param {number} idx
  */
@@ -31,15 +32,42 @@ function mapLabelCols(cols, idx) {
   const color = labelField(cols.Color);
   const specs = labelField(cols.VariationOrSpecs);
   const storage = labelField(cols.Storage);
+  const condition = labelField(cols.Condition);
+  const grade = labelField(cols.Grade);
+
+  const gadget = isGadgetItem({
+    brand,
+    product,
+    storage,
+    grade,
+    condition,
+    countOrSize: storage,
+    variation: color || specs,
+  });
 
   let variation = '';
-  let countOrSize = storage;
+  let countOrSize = '';
 
-  if (color) {
-    variation = color;
-    if (specs) countOrSize = countOrSize || specs;
-  } else if (specs) {
-    variation = specs;
+  if (gadget) {
+    // Color on its own line; storage + condition + grade share the size line.
+    if (color) variation = color;
+    else if (specs) variation = specs;
+
+    const sizeParts = [];
+    if (storage) sizeParts.push(storage);
+    else if (specs && color) sizeParts.push(specs);
+    if (condition) sizeParts.push(condition);
+    if (grade) sizeParts.push(grade);
+    countOrSize = sizeParts.join(' · ');
+  } else {
+    // Supplements / general: never print Condition or Grade.
+    countOrSize = storage;
+    if (color) {
+      variation = color;
+      if (specs) countOrSize = countOrSize || specs;
+    } else if (specs) {
+      variation = specs;
+    }
   }
 
   return {
@@ -50,6 +78,99 @@ function mapLabelCols(cols, idx) {
     Variation: variation,
     CountOrSize: countOrSize,
   };
+}
+
+/**
+ * True for phones / laptops / tablets / similar — show Condition & Grade.
+ * @param {{ brand?: string, product?: string, storage?: string, grade?: string, condition?: string, countOrSize?: string, variation?: string }} parts
+ */
+export function isGadgetItem(parts = {}) {
+  if (isSupplementItem(parts)) return false;
+
+  const storage = normalizeField(parts.storage);
+  if (looksLikeStorage(storage)) return true;
+  if (looksLikeGrade(parts.grade)) return true;
+
+  const blob = [parts.brand, parts.product].map(normalizeField).join(' ');
+  if (
+    /\b(iphone|ipad|ipod|pixel|galaxy\s*[a-z]?\d|macbook|imac|mac\s*mini|laptop|notebook|thinkpad|yoga|surface(\s*pro)?|tablet|kindle|fire\s*hd|airpods|galaxy\s*buds|apple\s*watch|watch\s*[su]?\d|oneplus|xiaomi|redmi|huawei|oppo|vivo|realme|nothing\s*phone|steam\s*deck|nintendo\s*switch|gopro|drone|chromebook|fold|flip)\b/i.test(
+      blob
+    )
+  ) {
+    return true;
+  }
+
+  const condition = normalizeField(parts.condition);
+  // Used / factory / soft conditions strongly imply graded gadgets.
+  if (looksLikeCondition(condition) && /\b(used|factory|soft|refurb)/i.test(condition)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Supplements / consumables — keep Condition off the label even if present.
+ * @param {{ product?: string, countOrSize?: string, variation?: string }} parts
+ */
+export function isSupplementItem(parts = {}) {
+  const blob = [parts.product, parts.countOrSize, parts.variation]
+    .map(normalizeField)
+    .join(' ');
+  if (!blob) return false;
+  if (
+    /\b(gummy|gummies|vitamin|capsule|softgel|soft\s*gel|supplement|collagen|probiotic|omega[\s-]?3|multivitamin|creatine|protein\s*powder|electrolyte|fish\s*oil|serving)\b/i.test(
+      blob
+    )
+  ) {
+    return true;
+  }
+  if (/\d+\s*(gummies|caps|softgels|tablets|ct|count)\b/i.test(blob)) return true;
+  return false;
+}
+
+/**
+ * @param {unknown} v
+ */
+export function looksLikeCondition(v) {
+  const s = normalizeField(v);
+  if (!s || s.length > 48) return false;
+  if (
+    /^(new|used|soft|factory|refurbished|refurb|open box|like new)(\b|[,\s]|$)/i.test(s)
+  ) {
+    return true;
+  }
+  if (
+    /^(factory or new|used or new|used,?\s*soft|new,?\s*soft|factory,?\s*soft)$/i.test(s)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * @param {unknown} v
+ */
+export function looksLikeGrade(v) {
+  const s = normalizeField(v);
+  if (!s || s.length > 24) return false;
+  return /^(excellent|good|fair|issue|issues|poor|mint|like new|a\+?|b\+?|c\+?)$/i.test(s);
+}
+
+/**
+ * Prefer an explicit grade column; otherwise scan nearby cells.
+ * @param {string[]} row
+ * @param {number} [preferredIdx]
+ */
+function resolveGrade(row, preferredIdx) {
+  if (preferredIdx != null && looksLikeGrade(row[preferredIdx])) {
+    return labelField(row[preferredIdx]);
+  }
+  const start = preferredIdx != null ? preferredIdx : 7;
+  for (let i = start; i < Math.min(row.length, start + 5); i++) {
+    if (looksLikeGrade(row[i])) return labelField(row[i]);
+  }
+  return '';
 }
 
 function sampleRows(rows) {
@@ -88,7 +209,7 @@ function statusLike(v) {
 export const LAYOUT_KANGO_ARRIVED = Object.freeze({
   id: 'kango-arrived',
   name: 'Kango Arrived',
-  usedColumns: [0, 4, 5, 6, 7, 8],
+  usedColumns: [0, 3, 4, 5, 6, 7, 8],
   detect(rows) {
     const sample = sampleRows(rows);
     if (!sample.length) return false;
@@ -115,11 +236,13 @@ export const LAYOUT_KANGO_ARRIVED = Object.freeze({
     return mapLabelCols(
       {
         Code: row[0],
+        Condition: row[3],
         Brand: row[4],
         Product: row[5],
         Storage: row[6],
         Color: row[7],
         VariationOrSpecs: row[8],
+        Grade: resolveGrade(row, 9),
       },
       idx
     );
@@ -159,16 +282,44 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
     return ok >= Math.ceil(sample.length * 0.6);
   },
   mapRow(row, idx) {
+    const brand = labelField(row[4]);
+    const product = labelField(row[5]);
     const variant = labelField(row[6]);
     const countOrSize = labelField(row[7]);
     const flavor = labelField(row[8]);
-    // Never pull price columns (9+) into label fields even if empties shift perception
+    const condition = labelField(row[3]);
     const variation = [variant, flavor].filter(Boolean).join(' · ');
+    const gadget = isGadgetItem({
+      brand,
+      product,
+      storage: countOrSize,
+      condition,
+      countOrSize,
+      variation,
+    });
+
+    if (gadget) {
+      const sizeParts = [];
+      if (countOrSize) sizeParts.push(countOrSize);
+      if (condition) sizeParts.push(condition);
+      const grade = resolveGrade(row, 9);
+      if (grade) sizeParts.push(grade);
+      return {
+        id: idx + 1,
+        Code: labelField(row[0]),
+        Brand: brand,
+        Product: product,
+        Variation: variation,
+        CountOrSize: sizeParts.join(' · '),
+      };
+    }
+
+    // Supplements / general Amazon rows — Condition/Grade off the label.
     return {
       id: idx + 1,
       Code: labelField(row[0]),
-      Brand: labelField(row[4]),
-      Product: labelField(row[5]),
+      Brand: brand,
+      Product: product,
       Variation: variation,
       CountOrSize: countOrSize,
     };
@@ -184,7 +335,7 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
 export const LAYOUT_TAOBAO_ARRIVED = Object.freeze({
   id: 'taobao-arrived',
   name: 'Taobao Arrived',
-  usedColumns: [0, 2, 4, 5, 6],
+  usedColumns: [0, 2, 3, 4, 5, 6, 7],
   detect(rows) {
     const sample = sampleRows(rows);
     if (!sample.length) return false;
@@ -212,9 +363,11 @@ export const LAYOUT_TAOBAO_ARRIVED = Object.freeze({
       {
         Code: row[0],
         Brand: row[2],
+        Condition: row[3],
         Product: row[4],
         Storage: row[5],
         Color: row[6],
+        Grade: resolveGrade(row, 7),
         VariationOrSpecs: '',
       },
       idx
