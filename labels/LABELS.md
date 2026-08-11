@@ -16,7 +16,7 @@ The paste page auto-detects which page you copied from:
 | **Amazon Arrived** | Code, Brand, Product, Variant·Flavor, Count/Size |
 | **Taobao Arrived** | Code, Brand, Product, Color, Storage |
 
-Everything else (status, notes, prices, tracking, URLs, …) is dropped. Currency values never print.
+Everything else (status, notes, prices, tracking, URLs, …) is dropped. Currency values never print. **`$STATUS` does not need to be a specific value** — any status from these views is fine.
 
 ---
 

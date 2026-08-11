@@ -56,10 +56,27 @@ function sampleRows(rows) {
   return (rows || []).slice(0, Math.min(rows.length, 8));
 }
 
+/**
+ * Inventory $STATUS values — accept exact names and common Grist variants
+ * like "LIVE (ARRIVED)".
+ * @param {unknown} v
+ */
 function statusLike(v) {
-  return /^(ARRIVED|LIVE|AIR KANGO|OTW KANGO|AWAITING TRACKING|FOR REPAIR|CHINA AIR)$/i.test(
-    normalizeField(v)
-  );
+  const s = normalizeField(v);
+  if (!s) return false;
+  if (
+    /^(ARRIVED|LIVE|AIR KANGO|OTW KANGO|AWAITING TRACKING|FOR REPAIR|CHINA AIR|AIR TARLAC)$/i.test(
+      s
+    )
+  ) {
+    return true;
+  }
+  // e.g. LIVE (ARRIVED), ARRIVED (LIVE), LIVE(ARRIVED)
+  if (/^(LIVE|ARRIVED)\s*\(/i.test(s)) return true;
+  if (/\b(ARRIVED|LIVE|OTW KANGO|AIR KANGO|AWAITING TRACKING|FOR REPAIR|CHINA AIR|AIR TARLAC)\b/i.test(s)) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -79,7 +96,6 @@ export const LAYOUT_KANGO_ARRIVED = Object.freeze({
     for (const row of sample) {
       if (row.length < 9 || row.length > 24) continue;
       if (!looksLikeCode(row[0])) continue;
-      if (!statusLike(row[1])) continue;
       if (row.some((c) => /amazon\.com/i.test(c))) continue;
       if (/^AIR TARLAC$/i.test(normalizeField(row[1]))) continue;
       // Package id in col 2 distinguishes from Taobao (brand in col 2)
@@ -90,6 +106,7 @@ export const LAYOUT_KANGO_ARRIVED = Object.freeze({
       const product = normalizeField(row[5]);
       if (!brand || looksLikeNoise(brand) || looksLikeCode(brand)) continue;
       if (!product || looksLikeNoise(product)) continue;
+      // Status helps but is not required — print any $STATUS from this view.
       ok++;
     }
     return ok >= Math.ceil(sample.length * 0.6);
@@ -175,7 +192,6 @@ export const LAYOUT_TAOBAO_ARRIVED = Object.freeze({
     for (const row of sample) {
       if (row.length < 8 || row.length > 24) continue;
       if (!looksLikeCode(row[0])) continue;
-      if (!statusLike(row[1])) continue;
       if (row.some((c) => /amazon\.com/i.test(c))) continue;
       const brand = normalizeField(row[2]);
       if (!brand || /^PAK/i.test(brand) || /^\d{7,}$/.test(brand)) continue;
@@ -401,6 +417,7 @@ function looksLikeNoise(v) {
     return true;
   }
   if (/^LIVE$|^ARRIVED$|^AIR KANGO$/i.test(s)) return true;
+  if (/^(LIVE|ARRIVED)\s*\(/i.test(s)) return true;
   return false;
 }
 
