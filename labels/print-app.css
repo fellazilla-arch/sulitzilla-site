@@ -1,3 +1,42 @@
+.settings-stack {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--line);
+  background: #faf8f4;
+}
+
+.settings-block {
+  padding: 8px 12px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.settings-block:last-child {
+  border-bottom: none;
+}
+
+.settings-heading {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.settings-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
 .paste-panel {
   padding: 10px 12px;
   border-bottom: 1px solid var(--line);

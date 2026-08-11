@@ -45,7 +45,6 @@ let columnMap = {
 
 const els = {
   paste: document.getElementById('paste-input'),
-  parse: document.getElementById('btn-parse'),
   connectUsb: document.getElementById('btn-connect-usb'),
   connectBt: document.getElementById('btn-connect-bt'),
   disconnect: document.getElementById('btn-disconnect'),
@@ -74,8 +73,10 @@ const els = {
   offsetY: document.getElementById('opt-offset-y'),
   fontCode: document.getElementById('opt-font-code'),
   fontProduct: document.getElementById('opt-font-product'),
-  fontVariation: document.getElementById('opt-font-variation'),
-  fontCount: document.getElementById('opt-font-count'),
+  fontColor: document.getElementById('opt-font-color'),
+  fontStorage: document.getElementById('opt-font-storage'),
+  fontCondition: document.getElementById('opt-font-condition'),
+  fontGrade: document.getElementById('opt-font-grade'),
 };
 
 const FIELD_LABELS = {
@@ -115,8 +116,10 @@ function getRenderOptions() {
     fontScale: {
       code: (Number(els.fontCode.value) || 145) / 100,
       product: (Number(els.fontProduct.value) || 70) / 100,
-      variation: (Number(els.fontVariation.value) || 100) / 100,
-      count: (Number(els.fontCount.value) || 115) / 100,
+      color: (Number(els.fontColor.value) || 100) / 100,
+      storage: (Number(els.fontStorage.value) || 115) / 100,
+      condition: (Number(els.fontCondition.value) || 100) / 100,
+      grade: (Number(els.fontGrade.value) || 100) / 100,
     },
   };
 }
@@ -438,7 +441,6 @@ function clearAll() {
   updateActionState();
 }
 
-els.parse.addEventListener('click', loadPaste);
 els.connectUsb.addEventListener('click', () => connectPrinter('serial'));
 els.connectBt.addEventListener('click', async () => {
   if (engineId === 'niimbot') {
@@ -484,7 +486,19 @@ Object.values(els.maps).forEach((select) => {
 });
 
 ['change', 'input'].forEach((evt) => {
-  [els.width, els.height, els.fontCode, els.fontProduct, els.fontVariation, els.fontCount].forEach((el) => {
+  [
+    els.width,
+    els.height,
+    els.gap,
+    els.offsetX,
+    els.offsetY,
+    els.fontCode,
+    els.fontProduct,
+    els.fontColor,
+    els.fontStorage,
+    els.fontCondition,
+    els.fontGrade,
+  ].forEach((el) => {
     el.addEventListener(evt, () => {
       if (currentAll.length) renderPreviews(currentAll);
     });
@@ -493,6 +507,6 @@ Object.values(els.maps).forEach((select) => {
 
 updateEngineUi();
 showMessage(
-  'Long product names wrap. Defaults: Offset X 6 mm · Code 145% · Product 70% · Variation 100% · Count 115%.',
+  'Paste from Grist below. Connect the printer, then Print Labels. Use Label size and Text size if anything looks off.',
   'info'
 );

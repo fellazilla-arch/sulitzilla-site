@@ -13,7 +13,6 @@
     <header class="toolbar">
       <div class="brand">Sulitzilla Labels</div>
       <div class="actions">
-        <button type="button" id="btn-parse" class="btn">Load paste</button>
         <button type="button" id="btn-connect-usb" class="btn">Connect USB</button>
         <button type="button" id="btn-connect-bt" class="btn">Connect Bluetooth</button>
         <button type="button" id="btn-disconnect" class="btn" disabled>Disconnect</button>
@@ -24,39 +23,60 @@
     </header>
 
     <section class="status-bar" aria-live="polite">
-      <span id="status-selection">Paste rows from Grist, then Load paste</span>
+      <span id="status-selection">Paste rows from Grist below</span>
       <span class="sep">·</span>
       <span id="status-printer">Printer: disconnected</span>
     </section>
 
-    <section class="settings">
-      <label>Printer
-        <select id="opt-engine">
-          <option value="xprinter" selected>Xprinter (TSPL)</option>
-          <option value="niimbot">NIIMBOT</option>
-        </select>
-      </label>
-      <label>W <input type="number" id="opt-width" min="20" max="120" step="1" value="30" /> mm</label>
-      <label>H <input type="number" id="opt-height" min="10" max="150" step="1" value="20" /> mm</label>
-      <label>Gap <input type="number" id="opt-gap" min="0" max="10" step="0.5" value="2" /> mm</label>
-      <label title="Positive moves print right on the label">Offset X <input type="number" id="opt-offset-x" min="-20" max="20" step="0.5" value="6" /> mm</label>
-      <label title="Positive moves print down on the label">Offset Y <input type="number" id="opt-offset-y" min="-20" max="20" step="0.5" value="0" /> mm</label>
-      <label title="Code text size">Code <input type="number" id="opt-font-code" min="50" max="180" step="5" value="145" />%</label>
-      <label title="Brand / product text size (long names wrap)">Product <input type="number" id="opt-font-product" min="50" max="180" step="5" value="70" />%</label>
-      <label title="Variation text size">Variation <input type="number" id="opt-font-variation" min="50" max="180" step="5" value="100" />%</label>
-      <label title="Count / size text size">Count <input type="number" id="opt-font-count" min="50" max="180" step="5" value="115" />%</label>
+    <section class="settings-stack">
+      <div class="settings-block">
+        <div class="settings-heading">Printer</div>
+        <div class="settings">
+          <label>Type
+            <select id="opt-engine">
+              <option value="xprinter" selected>Xprinter (TSPL)</option>
+              <option value="niimbot">NIIMBOT</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-block">
+        <div class="settings-heading">Label size</div>
+        <p class="settings-hint">Match the sticker roll in the printer (not the backing paper).</p>
+        <div class="settings">
+          <label>Width <input type="number" id="opt-width" min="20" max="120" step="1" value="30" /> mm</label>
+          <label>Height <input type="number" id="opt-height" min="10" max="150" step="1" value="20" /> mm</label>
+          <label>Gap between labels <input type="number" id="opt-gap" min="0" max="10" step="0.5" value="2" /> mm</label>
+          <label title="Moves the print right on the sticker">Shift right <input type="number" id="opt-offset-x" min="-20" max="20" step="0.5" value="6" /> mm</label>
+          <label title="Moves the print down on the sticker">Shift down <input type="number" id="opt-offset-y" min="-20" max="20" step="0.5" value="0" /> mm</label>
+        </div>
+      </div>
+
+      <div class="settings-block">
+        <div class="settings-heading">Text size</div>
+        <p class="settings-hint">100% is normal. Higher = bigger text on the label. Preview updates as you change these.</p>
+        <div class="settings">
+          <label>Inventory code <input type="number" id="opt-font-code" min="50" max="180" step="5" value="145" />%</label>
+          <label>Product name <input type="number" id="opt-font-product" min="50" max="180" step="5" value="70" />%</label>
+          <label>Color / flavor <input type="number" id="opt-font-color" min="50" max="180" step="5" value="100" />%</label>
+          <label>Storage / count <input type="number" id="opt-font-storage" min="50" max="180" step="5" value="115" />%</label>
+          <label>Condition <input type="number" id="opt-font-condition" min="50" max="180" step="5" value="100" />%</label>
+          <label>Grade <input type="number" id="opt-font-grade" min="50" max="180" step="5" value="100" />%</label>
+        </div>
+      </div>
     </section>
 
     <section class="message" id="message" hidden></section>
 
     <section class="paste-panel">
       <label class="paste-label" for="paste-input">
-        Paste from Kango Arrived, Amazon Arrived, or Taobao Arrived. Prefer <strong>Connect USB</strong> for Xprinter (close Open Label+ / other apps using the port first). Match W×H to your loaded labels.
+        Copy rows in Grist, then paste here (Cmd/Ctrl+V). Labels appear automatically — no extra button.
       </label>
       <textarea
         id="paste-input"
         spellcheck="false"
-        placeholder="Paste any view… headers optional."
+        placeholder="Paste from Kango Arrived, Amazon Arrived, or Taobao Arrived…"
       ></textarea>
 
       <div class="field-status" id="field-status" hidden></div>

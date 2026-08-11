@@ -3,7 +3,7 @@
  * Independent of Grist and of any specific printer.
  */
 
-/** @typedef {{ id?: number|string, Code: string, Brand?: string, Product?: string, Variation?: string, CountOrSize?: string }} LabelFields */
+/** @typedef {{ id?: number|string, Code: string, Brand?: string, Product?: string, Variation?: string, CountOrSize?: string, Color?: string, Storage?: string, Condition?: string, Grade?: string }} LabelFields */
 /** @typedef {{ id?: number|string, lines: string[], fields: LabelFields, skipped?: boolean, skipReason?: string }} FormattedLabel */
 /**
  * @typedef {{
@@ -11,7 +11,16 @@
  *   heightMm?: number,
  *   dpi?: number,
  *   paddingMm?: number,
- *   fontScale?: { code?: number, product?: number, variation?: number, count?: number }
+ *   fontScale?: {
+ *     code?: number,
+ *     product?: number,
+ *     color?: number,
+ *     storage?: number,
+ *     condition?: number,
+ *     grade?: number,
+ *     variation?: number,
+ *     count?: number
+ *   }
  * }} LabelRenderOptions
  */
 
@@ -20,7 +29,14 @@ export const DEFAULT_LABEL_OPTIONS = Object.freeze({
   heightMm: 20,
   dpi: 203,
   paddingMm: 1.5,
-  fontScale: Object.freeze({ code: 1.45, product: 0.7, variation: 1, count: 1.15 }),
+  fontScale: Object.freeze({
+    code: 1.45,
+    product: 0.7,
+    color: 1,
+    storage: 1.15,
+    condition: 1,
+    grade: 1,
+  }),
 });
 
 /**
@@ -76,11 +92,8 @@ export function labelField(value) {
 
 /**
  * Build display lines; omit blank fields per PRD.
- * Layout:
- *   Code
- *   Brand Product
- *   Variation
- *   CountOrSize
+ * Gadgets: Code → Brand Product → Color → Storage → Condition → Grade
+ * Supplements: Code → Brand Product → Variation → CountOrSize
  *
  * @param {LabelFields} fields
  * @returns {string[]}
@@ -95,11 +108,26 @@ export function formatLabelLines(fields) {
     .join(' ');
   if (brandProduct) lines.push(brandProduct);
 
+  const color = labelField(fields.Color);
+  const storage = labelField(fields.Storage);
+  const condition = labelField(fields.Condition);
+  const grade = labelField(fields.Grade);
   const variation = labelField(fields.Variation);
-  if (variation) lines.push(variation);
-
   const countOrSize = labelField(fields.CountOrSize);
-  if (countOrSize) lines.push(countOrSize);
+
+  const structured =
+    color || storage || condition || grade;
+
+  if (structured) {
+    if (color) lines.push(color);
+    else if (variation) lines.push(variation);
+    if (storage) lines.push(storage);
+    if (condition) lines.push(condition);
+    if (grade) lines.push(grade);
+  } else {
+    if (variation) lines.push(variation);
+    if (countOrSize) lines.push(countOrSize);
+  }
 
   return lines;
 }
@@ -116,6 +144,10 @@ export function formatRecord(record) {
     Product: labelField(record.Product),
     Variation: labelField(record.Variation),
     CountOrSize: labelField(record.CountOrSize),
+    Color: labelField(record.Color),
+    Storage: labelField(record.Storage),
+    Condition: labelField(record.Condition),
+    Grade: labelField(record.Grade),
   };
 
   if (!fields.Code) {
@@ -167,14 +199,26 @@ function resolveFontScale(options = {}) {
   return {
     code: clampScale(raw.code != null ? raw.code : base.code),
     product: clampScale(raw.product != null ? raw.product : base.product),
-    variation: clampScale(
-      raw.variation != null
-        ? raw.variation
-        : base.variation != null
-          ? base.variation
-          : base.product
+    color: clampScale(
+      raw.color != null
+        ? raw.color
+        : raw.variation != null
+          ? raw.variation
+          : base.color != null
+            ? base.color
+            : 1
     ),
-    count: clampScale(raw.count != null ? raw.count : base.count),
+    storage: clampScale(
+      raw.storage != null
+        ? raw.storage
+        : raw.count != null
+          ? raw.count
+          : base.storage != null
+            ? base.storage
+            : 1
+    ),
+    condition: clampScale(raw.condition != null ? raw.condition : base.condition != null ? base.condition : 1),
+    grade: clampScale(raw.grade != null ? raw.grade : base.grade != null ? base.grade : 1),
   };
 }
 
@@ -297,12 +341,12 @@ function fitSingleLine(ctx, text, maxWidth, startSize, weight) {
 }
 
 /**
- * @typedef {{ role: 'code'|'product'|'detail'|'count', text: string, wrap: boolean, weight: string, scale: number, baseFrac: number }} TextBlock
+ * @typedef {{ role: 'code'|'product'|'color'|'storage'|'condition'|'grade', text: string, wrap: boolean, weight: string, scale: number, baseFrac: number }} TextBlock
  */
 
 /**
  * @param {LabelFields} fields
- * @param {{ code: number, product: number, variation: number, count: number }} scale
+ * @param {{ code: number, product: number, color: number, storage: number, condition: number, grade: number }} scale
  * @returns {TextBlock[]}
  */
 function buildTextBlocks(fields, scale) {
@@ -316,7 +360,7 @@ function buildTextBlocks(fields, scale) {
       wrap: false,
       weight: 'bold',
       scale: scale.code,
-      baseFrac: 0.34,
+      baseFrac: 0.3,
     });
   }
 
@@ -330,31 +374,61 @@ function buildTextBlocks(fields, scale) {
       wrap: true,
       weight: '700',
       scale: scale.product,
-      baseFrac: 0.26,
+      baseFrac: 0.22,
     });
   }
 
+  const color = labelField(fields.Color);
+  const storage = labelField(fields.Storage);
+  const condition = labelField(fields.Condition);
+  const grade = labelField(fields.Grade);
   const variation = labelField(fields.Variation);
-  if (variation) {
+  const countOrSize = labelField(fields.CountOrSize);
+  const structured = !!(color || storage || condition || grade);
+
+  const colorLine = color || (!structured ? variation : '');
+  if (colorLine) {
     blocks.push({
-      role: 'detail',
-      text: variation,
+      role: 'color',
+      text: colorLine,
       wrap: true,
       weight: '600',
-      scale: scale.variation,
-      baseFrac: 0.18,
+      scale: scale.color,
+      baseFrac: 0.16,
     });
   }
 
-  const countOrSize = labelField(fields.CountOrSize);
-  if (countOrSize) {
+  const storageLine = storage || (!structured && !condition && !grade ? countOrSize : '');
+  if (storageLine) {
     blocks.push({
-      role: 'count',
-      text: countOrSize,
+      role: 'storage',
+      text: storageLine,
       wrap: false,
       weight: '600',
-      scale: scale.count,
-      baseFrac: 0.2,
+      scale: scale.storage,
+      baseFrac: 0.17,
+    });
+  }
+
+  if (condition) {
+    blocks.push({
+      role: 'condition',
+      text: condition,
+      wrap: false,
+      weight: '600',
+      scale: scale.condition,
+      baseFrac: 0.15,
+    });
+  }
+
+  if (grade) {
+    blocks.push({
+      role: 'grade',
+      text: grade,
+      wrap: false,
+      weight: '600',
+      scale: scale.grade,
+      baseFrac: 0.15,
     });
   }
 
@@ -393,12 +467,19 @@ export function renderLabelToCanvas(labelOrLines, options = {}) {
   if (Array.isArray(labelOrLines)) {
     const lines = labelOrLines.filter((l) => normalizeField(l));
     blocks = lines.map((text, i) => ({
-      role: i === 0 ? 'code' : i === lines.length - 1 && lines.length > 2 ? 'count' : 'product',
+      role: i === 0 ? 'code' : i === 1 ? 'product' : i === 2 ? 'color' : 'storage',
       text: String(text),
       wrap: i !== 0,
       weight: i === 0 ? 'bold' : '600',
-      scale: i === 0 ? scale.code : i === lines.length - 1 && lines.length > 2 ? scale.count : scale.product,
-      baseFrac: i === 0 ? 0.34 : 0.22,
+      scale:
+        i === 0
+          ? scale.code
+          : i === 1
+            ? scale.product
+            : i === 2
+              ? scale.color
+              : scale.storage,
+      baseFrac: i === 0 ? 0.3 : 0.2,
     }));
   } else if (labelOrLines && labelOrLines.fields) {
     blocks = buildTextBlocks(labelOrLines.fields, scale);

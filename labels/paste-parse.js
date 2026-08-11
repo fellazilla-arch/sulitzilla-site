@@ -45,29 +45,32 @@ function mapLabelCols(cols, idx) {
     variation: color || specs,
   });
 
-  let variation = '';
-  let countOrSize = '';
-
   if (gadget) {
-    // Color on its own line; storage + condition + grade share the size line.
-    if (color) variation = color;
-    else if (specs) variation = specs;
+    return {
+      id: idx + 1,
+      Code: code,
+      Brand: brand,
+      Product: product,
+      Color: color,
+      Storage: storage || (specs && color ? specs : ''),
+      Condition: condition,
+      Grade: grade,
+      // Keep combined fields for older preview/map paths
+      Variation: color || specs,
+      CountOrSize: [storage || (specs && color ? specs : ''), condition, grade]
+        .filter(Boolean)
+        .join(' · '),
+    };
+  }
 
-    const sizeParts = [];
-    if (storage) sizeParts.push(storage);
-    else if (specs && color) sizeParts.push(specs);
-    if (condition) sizeParts.push(condition);
-    if (grade) sizeParts.push(grade);
-    countOrSize = sizeParts.join(' · ');
-  } else {
-    // Supplements / general: never print Condition or Grade.
-    countOrSize = storage;
-    if (color) {
-      variation = color;
-      if (specs) countOrSize = countOrSize || specs;
-    } else if (specs) {
-      variation = specs;
-    }
+  // Supplements / general: never print Condition or Grade.
+  let variation = '';
+  let countOrSize = storage;
+  if (color) {
+    variation = color;
+    if (specs) countOrSize = countOrSize || specs;
+  } else if (specs) {
+    variation = specs;
   }
 
   return {
@@ -75,6 +78,10 @@ function mapLabelCols(cols, idx) {
     Code: code,
     Brand: brand,
     Product: product,
+    Color: color,
+    Storage: storage,
+    Condition: '',
+    Grade: '',
     Variation: variation,
     CountOrSize: countOrSize,
   };
@@ -299,18 +306,18 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
     });
 
     if (gadget) {
-      const sizeParts = [];
-      if (countOrSize) sizeParts.push(countOrSize);
-      if (condition) sizeParts.push(condition);
       const grade = resolveGrade(row, 9);
-      if (grade) sizeParts.push(grade);
       return {
         id: idx + 1,
         Code: labelField(row[0]),
         Brand: brand,
         Product: product,
+        Color: variation,
+        Storage: countOrSize,
+        Condition: condition,
+        Grade: grade,
         Variation: variation,
-        CountOrSize: sizeParts.join(' · '),
+        CountOrSize: [countOrSize, condition, grade].filter(Boolean).join(' · '),
       };
     }
 
@@ -320,6 +327,10 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
       Code: labelField(row[0]),
       Brand: brand,
       Product: product,
+      Color: flavor,
+      Storage: '',
+      Condition: '',
+      Grade: '',
       Variation: variation,
       CountOrSize: countOrSize,
     };
