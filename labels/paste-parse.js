@@ -20,8 +20,8 @@ import { normalizeField, labelField, isMoneyValue } from './label-engine.js';
 
 /**
  * Shared mapping for Kango / Taobao-style rows.
- * Gadgets (phones, laptops, tablets, …): Storage + Color + Condition.
- * Supplements / other: Color/flavor + count/size only — skip Condition.
+ * Gadgets: Storage + Color/Flavor + Condition.
+ * Supplements / other: count/size (and non-color specs) only — skip Condition and Color/Flavor.
  * @param {object} cols
  * @param {number} idx
  */
@@ -52,7 +52,6 @@ function mapLabelCols(cols, idx) {
       Color: color,
       Storage: storage || (specs && color ? specs : ''),
       Condition: condition,
-      // Keep combined fields for older preview/map paths
       Variation: color || specs,
       CountOrSize: [storage || (specs && color ? specs : ''), condition]
         .filter(Boolean)
@@ -60,26 +59,17 @@ function mapLabelCols(cols, idx) {
     };
   }
 
-  // Supplements / general: never print Condition.
-  let variation = '';
-  let countOrSize = storage;
-  if (color) {
-    variation = color;
-    if (specs) countOrSize = countOrSize || specs;
-  } else if (specs) {
-    variation = specs;
-  }
-
+  // Supplements / general: no Condition, no Color/Flavor on the label.
   return {
     id: idx + 1,
     Code: code,
     Brand: brand,
     Product: product,
-    Color: color,
+    Color: '',
     Storage: storage,
     Condition: '',
-    Variation: variation,
-    CountOrSize: countOrSize,
+    Variation: specs,
+    CountOrSize: storage || specs,
   };
 }
 
@@ -280,24 +270,25 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
         Code: labelField(row[0]),
         Brand: brand,
         Product: product,
-        Color: variation,
+        // COLOR_FLAVOR for gadgets only (include variant when present).
+        Color: [flavor, variant].filter(Boolean).join(' · ') || flavor || variant,
         Storage: countOrSize,
         Condition: condition,
-        Variation: variation,
+        Variation: [variant, flavor].filter(Boolean).join(' · '),
         CountOrSize: [countOrSize, condition].filter(Boolean).join(' · '),
       };
     }
 
-    // Supplements / general Amazon rows — Condition off the label.
+    // Supplements / general — no Condition, no Color/Flavor on the label.
     return {
       id: idx + 1,
       Code: labelField(row[0]),
       Brand: brand,
       Product: product,
-      Color: flavor,
+      Color: '',
       Storage: '',
       Condition: '',
-      Variation: variation,
+      Variation: variant,
       CountOrSize: countOrSize,
     };
   },
