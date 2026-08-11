@@ -288,6 +288,7 @@ export function createXprinterPrintEngine(config = {}) {
         heightMm: options.heightMm,
         dpi: options.dpi,
         paddingMm: options.paddingMm,
+        fontScale: options.fontScale,
       };
       const jobOpts = {
         widthMm: renderOpts.widthMm,
