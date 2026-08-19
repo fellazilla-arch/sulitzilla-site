@@ -534,8 +534,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const rankB = INVENTORY_STATUS_RANK[b.availability] ?? 99;
             if (rankA !== rankB) return rankA - rankB;
 
-            const numA = storageToGB(a.unit.storage);
-            const numB = storageToGB(b.unit.storage);
+            const numA = storageToGB(a.storage);
+            const numB = storageToGB(b.storage);
             if (numA !== numB) {
                 return numA - numB;
             }
