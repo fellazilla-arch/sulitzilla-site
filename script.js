@@ -545,9 +545,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const rankB = INVENTORY_STATUS_RANK[b.availability] ?? 99;
             if (rankA !== rankB) return rankA - rankB;
 
-            const numA = parseInt(String(a.storage).replace(/\D/g, ''), 10);
-            const numB = parseInt(String(b.storage).replace(/\D/g, ''), 10);
-            if (!Number.isNaN(numA) && !Number.isNaN(numB) && numA !== numB) {
+            const numA = storageToGB(a.unit.storage);
+            const numB = storageToGB(b.unit.storage);
+            if (numA !== numB) {
                 return numA - numB;
             }
 
@@ -578,6 +578,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function normalizeStorage(storage) {
         return String(storage || '').trim().toUpperCase().replace(/\s+/g, '');
+    }
+
+    function storageToGB(storage) {
+        const s = normalizeStorage(storage);
+        const n = parseInt(s.replace(/\D/g, ''), 10);
+        if (Number.isNaN(n)) return 0;
+        return /TB$/i.test(s) ? n * 1024 : n;
     }
 
     function isNewInventoryCondition(condition) {
@@ -893,8 +900,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const rankB = INVENTORY_STATUS_RANK[b.entry.unit.availability] ?? 99;
             if (rankA !== rankB) return rankA - rankB;
 
-            const storA = parseInt(String(a.storage).replace(/\D/g, ''), 10) || 0;
-            const storB = parseInt(String(b.storage).replace(/\D/g, ''), 10) || 0;
+            const storA = storageToGB(a.storage);
+            const storB = storageToGB(b.storage);
             if (storA !== storB) return storA - storB;
 
             const colorA = String(a.entry.unit.color || '').toLowerCase();
@@ -907,9 +914,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function sortRestockRows(rows) {
         rows.sort(function (a, b) {
-            const storA = parseInt(String(a.storage).replace(/\D/g, ''), 10) || 0;
-            const storB = parseInt(String(b.storage).replace(/\D/g, ''), 10) || 0;
-            return storA - storB;
+            return storageToGB(a.storage) - storageToGB(b.storage);
         });
     }
 
@@ -1149,8 +1154,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const condB = b.sectionType === 'new' ? 0 : 1;
             if (condA !== condB) return condA - condB;
 
-            const storA = parseInt(String(a.storage).replace(/\D/g, ''), 10) || 0;
-            const storB = parseInt(String(b.storage).replace(/\D/g, ''), 10) || 0;
+            const storA = storageToGB(a.storage);
+            const storB = storageToGB(b.storage);
             if (storA !== storB) return storA - storB;
 
             const colorA = String(a.entry.unit.color || '').toLowerCase();
@@ -1591,12 +1596,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     const condB = b.condition === 'New' ? 0 : 1;
                     if (condA !== condB) return condA - condB;
 
-                    const numA = parseInt(String(a.storage).replace(/\D/g, ''), 10);
-                    const numB = parseInt(String(b.storage).replace(/\D/g, ''), 10);
-                    if (!Number.isNaN(numA) && !Number.isNaN(numB) && numA !== numB) {
-                        return numA - numB;
-                    }
-                    return String(a.storage).localeCompare(String(b.storage));
+            const numA = storageToGB(a.storage);
+            const numB = storageToGB(b.storage);
+            if (numA !== numB) return numA - numB;
+            return String(a.storage).localeCompare(String(b.storage));
                 });
                 return { model: model, variants: variants };
             })
