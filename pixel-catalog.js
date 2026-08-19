@@ -6,7 +6,7 @@
     const MODEL_IMAGE_FILES = {
         'Pixel 11': 'pixel-11.png',
         'Pixel 11 Pro': 'pixel-11-pro.jpg',
-        'Pixel 11 Pro XL': 'pixel-11-pro-xl.png',
+        'Pixel 11 Pro XL': 'pixel-11-pro-xl.jpg',
         'Pixel 11 Pro Fold': 'pixel-11-pro-fold.png',
         'Pixel 10a': 'pixel-10a.jpg',
         'Pixel 10': 'pixel-10.png',
