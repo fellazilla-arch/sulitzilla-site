@@ -82,16 +82,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function openGoodVsExcellentOverlay() {
         if (!goodVsExcellentOverlay) return;
-        goodVsExcellentOverlay.hidden = false;
-        goodVsExcellentOverlay.setAttribute('aria-hidden', 'false');
+            goodVsExcellentOverlay.hidden = false;
+            goodVsExcellentOverlay.setAttribute('aria-hidden', 'false');
         setGoodVsExcellentExpanded(true);
-        document.body.style.overflow = 'hidden';
-    }
+            document.body.style.overflow = 'hidden';
+        }
 
     function closeGoodVsExcellentOverlay() {
         if (!goodVsExcellentOverlay) return;
-        goodVsExcellentOverlay.hidden = true;
-        goodVsExcellentOverlay.setAttribute('aria-hidden', 'true');
+            goodVsExcellentOverlay.hidden = true;
+            goodVsExcellentOverlay.setAttribute('aria-hidden', 'true');
         setGoodVsExcellentExpanded(false);
         const stockOverlay = document.getElementById('stock-overlay');
         const softOverlay = document.getElementById('soft-unlocked-overlay');
@@ -395,7 +395,31 @@ document.addEventListener('DOMContentLoaded', function() {
         { model: 'Pixel 10a', storage: '128GB', condition: 'New', code: 'B2030' },
         { model: 'Pixel 10a', storage: '128GB', condition: 'Used', code: 'B2810' },
         { model: 'Pixel 10a', storage: '256GB', condition: 'New', code: 'B2171' },
-        { model: 'Pixel 10a', storage: '256GB', condition: 'Used', code: 'B2811' }
+        { model: 'Pixel 10a', storage: '256GB', condition: 'Used', code: 'B2811' },
+
+        // Pixel 11 series
+        { model: 'Pixel 11', storage: '256GB', condition: 'New', code: 'B3977' },
+        { model: 'Pixel 11', storage: '256GB', condition: 'Used', code: 'B3979' },
+        { model: 'Pixel 11', storage: '512GB', condition: 'New', code: 'B3978' },
+        { model: 'Pixel 11', storage: '512GB', condition: 'Used', code: 'B3980' },
+        { model: 'Pixel 11 Pro', storage: '256GB', condition: 'New', code: 'B3981' },
+        { model: 'Pixel 11 Pro', storage: '256GB', condition: 'Used', code: 'B3984' },
+        { model: 'Pixel 11 Pro', storage: '512GB', condition: 'New', code: 'B3982' },
+        { model: 'Pixel 11 Pro', storage: '512GB', condition: 'Used', code: 'B3985' },
+        { model: 'Pixel 11 Pro', storage: '1TB', condition: 'New', code: 'B3983' },
+        { model: 'Pixel 11 Pro', storage: '1TB', condition: 'Used', code: 'B3986' },
+        { model: 'Pixel 11 Pro XL', storage: '256GB', condition: 'New', code: 'B3987' },
+        { model: 'Pixel 11 Pro XL', storage: '256GB', condition: 'Used', code: 'B3990' },
+        { model: 'Pixel 11 Pro XL', storage: '512GB', condition: 'New', code: 'B3988' },
+        { model: 'Pixel 11 Pro XL', storage: '512GB', condition: 'Used', code: 'B3991' },
+        { model: 'Pixel 11 Pro XL', storage: '1TB', condition: 'New', code: 'B3989' },
+        { model: 'Pixel 11 Pro XL', storage: '1TB', condition: 'Used', code: 'B3992' },
+        { model: 'Pixel 11 Pro Fold', storage: '256GB', condition: 'New', code: 'B3993' },
+        { model: 'Pixel 11 Pro Fold', storage: '256GB', condition: 'Used', code: 'B3996' },
+        { model: 'Pixel 11 Pro Fold', storage: '512GB', condition: 'New', code: 'B3994' },
+        { model: 'Pixel 11 Pro Fold', storage: '512GB', condition: 'Used', code: 'B3997' },
+        { model: 'Pixel 11 Pro Fold', storage: '1TB', condition: 'New', code: 'B3995' },
+        { model: 'Pixel 11 Pro Fold', storage: '1TB', condition: 'Used', code: 'B3998' }
     ];
 
     const pricingListEl = document.getElementById('pricing-list');
@@ -1366,7 +1390,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 amount.textContent = formatPesoPrice(priceNum);
                 priceEl.appendChild(fromLabel);
                 priceEl.appendChild(amount);
-            } else {
+                } else {
                 priceEl.textContent = formatPesoPrice(priceNum);
             }
 
@@ -1482,6 +1506,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Flattened model order for table view, newest (Pixel 10a) to oldest (Pixel 2).
     const MODEL_ORDER_NEWEST_TO_OLDEST = [
+        'Pixel 11 Pro Fold',
+        'Pixel 11 Pro XL',
+        'Pixel 11 Pro',
+        'Pixel 11',
         'Pixel 10a',
         'Pixel 10 Pro Fold',
         'Pixel 10 Pro XL',
@@ -1533,7 +1561,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const hasPrice = item.price !== null && item.price !== undefined && item.price !== '';
             const priceNum =
                 hasPrice && typeof item.price === 'number'
-                    ? item.price
+                ? item.price
                     : hasPrice
                       ? Number(item.price)
                       : null;
@@ -1786,10 +1814,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const url = window.GRIST_PRICES_URL;
 
         if (!url) {
-            hidePricingLoader();
+                            hidePricingLoader();
             renderPricingList(data, inventoryByModel);
-            return;
-        }
+                            return;
+                        }
 
         let serverSyncAt = null;
         if (!forceRefresh) {
@@ -1839,7 +1867,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (e) {
             if (!forceRefresh && renderCachedPricingIfAvailable()) {
-                hidePricingLoader();
+        hidePricingLoader();
                 return;
             }
         }

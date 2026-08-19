@@ -4,6 +4,10 @@
 (function (global) {
     /** Front+back product renders (160–216px). After changes run: images/models/compress-models.sh */
     const MODEL_IMAGE_FILES = {
+        'Pixel 11': 'pixel-11.png',
+        'Pixel 11 Pro': 'pixel-11-pro.png',
+        'Pixel 11 Pro XL': 'pixel-11-pro-xl.png',
+        'Pixel 11 Pro Fold': 'pixel-11-pro-fold.png',
         'Pixel 10a': 'pixel-10a.jpg',
         'Pixel 10': 'pixel-10.png',
         'Pixel 10 Pro': 'pixel-10-pro.jpg',
@@ -81,6 +85,12 @@
         cream: '#f0e8d8',
         'cloudy white': '#ececec',
         frost: '#e6eef6',
+
+        // Pixel 11 family
+        canyon: '#e8845a',
+        fog: '#d0ddd8',
+        olive: '#5a6848',
+        hibiscus: '#d84870',
 
         // Pixel 10 family
         indigo: '#0a84ff',
