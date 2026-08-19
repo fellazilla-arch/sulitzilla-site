@@ -399,27 +399,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Pixel 11 series
         { model: 'Pixel 11', storage: '256GB', condition: 'New', code: 'B3977' },
-        { model: 'Pixel 11', storage: '256GB', condition: 'Used', code: 'B3979' },
         { model: 'Pixel 11', storage: '512GB', condition: 'New', code: 'B3978' },
-        { model: 'Pixel 11', storage: '512GB', condition: 'Used', code: 'B3980' },
         { model: 'Pixel 11 Pro', storage: '256GB', condition: 'New', code: 'B3981' },
-        { model: 'Pixel 11 Pro', storage: '256GB', condition: 'Used', code: 'B3984' },
         { model: 'Pixel 11 Pro', storage: '512GB', condition: 'New', code: 'B3982' },
-        { model: 'Pixel 11 Pro', storage: '512GB', condition: 'Used', code: 'B3985' },
         { model: 'Pixel 11 Pro', storage: '1TB', condition: 'New', code: 'B3983' },
-        { model: 'Pixel 11 Pro', storage: '1TB', condition: 'Used', code: 'B3986' },
         { model: 'Pixel 11 Pro XL', storage: '256GB', condition: 'New', code: 'B3987' },
-        { model: 'Pixel 11 Pro XL', storage: '256GB', condition: 'Used', code: 'B3990' },
         { model: 'Pixel 11 Pro XL', storage: '512GB', condition: 'New', code: 'B3988' },
-        { model: 'Pixel 11 Pro XL', storage: '512GB', condition: 'Used', code: 'B3991' },
         { model: 'Pixel 11 Pro XL', storage: '1TB', condition: 'New', code: 'B3989' },
-        { model: 'Pixel 11 Pro XL', storage: '1TB', condition: 'Used', code: 'B3992' },
         { model: 'Pixel 11 Pro Fold', storage: '256GB', condition: 'New', code: 'B3993' },
-        { model: 'Pixel 11 Pro Fold', storage: '256GB', condition: 'Used', code: 'B3996' },
         { model: 'Pixel 11 Pro Fold', storage: '512GB', condition: 'New', code: 'B3994' },
-        { model: 'Pixel 11 Pro Fold', storage: '512GB', condition: 'Used', code: 'B3997' },
-        { model: 'Pixel 11 Pro Fold', storage: '1TB', condition: 'New', code: 'B3995' },
-        { model: 'Pixel 11 Pro Fold', storage: '1TB', condition: 'Used', code: 'B3998' }
+        { model: 'Pixel 11 Pro Fold', storage: '1TB', condition: 'New', code: 'B3995' }
     ];
 
     const pricingListEl = document.getElementById('pricing-list');
