@@ -882,6 +882,12 @@ body {
     color: #c5221f;
 }
 
+.tag--mdm {
+    border-color: #c5cae9;
+    background-color: #e8eaf6;
+    color: #3949ab;
+}
+
 .tag--default {
     border-color: #e5e7eb;
     background-color: #f3f4f6;

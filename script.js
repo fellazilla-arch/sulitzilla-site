@@ -620,10 +620,15 @@ document.addEventListener('DOMContentLoaded', function() {
         return /soft/i.test(String(condition || ''));
     }
 
+    function isMdmUnit(condition) {
+        return /mdm/i.test(String(condition || ''));
+    }
+
     function getUnitPrice(basePrice, unit) {
         if (unit.hasIssue) return null;
         let price = basePrice;
         if (isSoftUnlocked(unit.condition)) price -= 4000;
+        if (isMdmUnit(unit.condition)) price -= 3000;
         if (isExcellentGrade(unit.grade)) price += 1000;
         return price;
     }
@@ -700,6 +705,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function getGradeChipMeta(unit) {
         if (unit.hasIssue) {
             return { label: 'Issue', className: 'tag--issue' };
+        }
+        if (isMdmUnit(unit.condition)) {
+            return { label: 'MDM', className: 'tag--mdm' };
         }
         const grade = String(unit.grade || '').trim();
         if (/excellent/i.test(grade)) {
@@ -831,7 +839,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .match(/^used,\s*(.+)$/i);
         if (!match) return '';
         const extra = match[1].trim();
-        return /^factory$/i.test(extra) ? '' : extra;
+        if (/^factory$/i.test(extra) || /^mdm$/i.test(extra)) return '';
+        return extra;
     }
 
     function getUnitExtraLabel(unit, sectionType) {
