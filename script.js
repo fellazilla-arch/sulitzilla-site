@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { model: 'Pixel 8 Pro', storage: '512GB', condition: 'Used', code: 'A3486' },
         { model: 'Pixel 8a', storage: '128GB', condition: 'New', code: 'A9689' },
         { model: 'Pixel 8a', storage: '128GB', condition: 'Used', code: 'B0981' },
-        { model: 'Pixel 8a', storage: '256GB', condition: 'New', code: 'CODE: ' },
+        { model: 'Pixel 8a', storage: '256GB', condition: 'New', code: 'A6118' },
         { model: 'Pixel 8a', storage: '256GB', condition: 'Used', code: 'A9931' },
 
         // Pixel 9 series – based on current leaks/specs, excluding 1TB
