@@ -91,18 +91,6 @@ img { max-width: 100%; display: block; }
   line-height: 0.96;
 }
 
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 22px;
-  margin: 20px 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.92rem;
-}
-
-.facts strong { font-weight: 600; }
-
 .toolbar {
   display: flex;
   flex-wrap: wrap;
