@@ -230,6 +230,19 @@ img { max-width: 100%; display: block; }
   text-transform: uppercase;
 }
 
+.badge--used {
+  background: #e4ddd2;
+  color: #3c352f;
+}
+
+.bottle__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 3px;
+}
+
 .bottle__name {
   margin: 3px 0 0;
   font-family: var(--serif);
@@ -237,6 +250,14 @@ img { max-width: 100%; display: block; }
   font-weight: 520;
   letter-spacing: -0.02em;
   line-height: 1.08;
+}
+
+.bottle__title .bottle__name { margin: 0; }
+
+.fill {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .bottle__meta {
@@ -297,12 +318,6 @@ img { max-width: 100%; display: block; }
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-}
-
-.fill {
-  margin: 2px 0 0;
-  color: var(--muted);
-  font-size: 0.84rem;
 }
 
 .ask {
