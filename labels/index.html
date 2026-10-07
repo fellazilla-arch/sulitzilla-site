@@ -27,33 +27,33 @@
       <span id="status-printer">Printer: disconnected</span>
     </section>
 
-    <section class="settings-stack">
-      <div class="settings-block">
-        <div class="settings-heading">Printer</div>
-        <div class="settings">
-          <span class="printer-fixed">Xprinter (TSPL)</span>
-        </div>
-      </div>
+    <section class="profile-bar" aria-label="Employee settings">
+      <span class="profile-label">My settings</span>
+      <select id="opt-profile" title="Pick your saved settings"></select>
+      <button type="button" id="btn-profile-save" class="btn btn-ghost" title="Save current label & text settings to this person">Save</button>
+      <button type="button" id="btn-profile-save-as" class="btn btn-ghost" title="Save as a new person">Save as…</button>
+      <button type="button" id="btn-profile-delete" class="btn btn-ghost" title="Delete this person’s saved settings">Delete</button>
+    </section>
 
+    <section class="settings-stack">
       <div class="settings-block">
         <div class="settings-heading">Label size</div>
         <div class="settings">
-          <label>Width <input type="number" id="opt-width" min="20" max="120" step="1" value="30" /> mm</label>
-          <label>Height <input type="number" id="opt-height" min="10" max="150" step="1" value="20" /> mm</label>
-          <label>Gap between labels <input type="number" id="opt-gap" min="0" max="10" step="0.5" value="2" /> mm</label>
-          <label title="Moves the print right on the sticker">Shift right <input type="number" id="opt-offset-x" min="-20" max="20" step="0.5" value="6" /> mm</label>
-          <label title="Moves the print down on the sticker">Shift down <input type="number" id="opt-offset-y" min="-20" max="20" step="0.5" value="0" /> mm</label>
+          <label>W <input type="number" id="opt-width" min="20" max="120" step="1" value="30" title="Width" /> mm</label>
+          <label>H <input type="number" id="opt-height" min="10" max="150" step="1" value="20" title="Height" /> mm</label>
+          <label title="Gap between labels">Gap <input type="number" id="opt-gap" min="0" max="10" step="0.5" value="2" /> mm</label>
+          <label title="Moves the print right on the sticker">→ <input type="number" id="opt-offset-x" min="-20" max="20" step="0.5" value="6" /> mm</label>
+          <label title="Moves the print down on the sticker">↓ <input type="number" id="opt-offset-y" min="-20" max="20" step="0.5" value="0" /> mm</label>
         </div>
       </div>
 
       <div class="settings-block">
-        <div class="settings-heading">Text size</div>
-        <p class="settings-hint">100% is normal. Higher = bigger text on the label. Preview updates as you change these.</p>
+        <div class="settings-heading" title="100% is normal. Higher = bigger text. Preview updates live.">Text size</div>
         <div class="settings">
-          <label>Inventory code <input type="number" id="opt-font-code" min="50" max="180" step="5" value="145" />%</label>
-          <label>Product name <input type="number" id="opt-font-product" min="50" max="180" step="5" value="70" />%</label>
-          <label>Color / flavor <input type="number" id="opt-font-color" min="50" max="180" step="5" value="100" />%</label>
-          <label>Storage / count <input type="number" id="opt-font-storage" min="50" max="180" step="5" value="115" />%</label>
+          <label title="Inventory code">Code <input type="number" id="opt-font-code" min="50" max="180" step="5" value="145" />%</label>
+          <label title="Product name">Product <input type="number" id="opt-font-product" min="50" max="180" step="5" value="70" />%</label>
+          <label title="Color / flavor">Color <input type="number" id="opt-font-color" min="50" max="180" step="5" value="100" />%</label>
+          <label title="Storage / count">Storage <input type="number" id="opt-font-storage" min="50" max="180" step="5" value="115" />%</label>
           <label>Condition <input type="number" id="opt-font-condition" min="50" max="180" step="5" value="100" />%</label>
         </div>
       </div>
@@ -68,7 +68,7 @@
       <textarea
         id="paste-input"
         spellcheck="false"
-        placeholder="Paste from Kango Arrived, Amazon Arrived, or Taobao Arrived…"
+        placeholder="Copy/paste from the Printer page in Grist"
       ></textarea>
 
       <div class="field-status" id="field-status" hidden></div>
@@ -78,8 +78,12 @@
         <label>Code <select id="map-code"></select></label>
         <label>Brand <select id="map-brand"></select></label>
         <label>Product <select id="map-product"></select></label>
+        <label>Color <select id="map-color"></select></label>
+        <label>Storage <select id="map-storage"></select></label>
+        <label>Condition <select id="map-condition"></select></label>
         <label>Variation <select id="map-variation"></select></label>
         <label>Count/Size <select id="map-count"></select></label>
+        <label>Strength <select id="map-strength"></select></label>
       </div>
     </section>
 

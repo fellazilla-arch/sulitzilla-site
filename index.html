@@ -163,6 +163,14 @@
             </div>
         </div>
 
+        <div id="accessories-overlay" class="stock-overlay" hidden aria-hidden="true">
+            <div class="stock-modal accessories-modal" role="dialog" aria-labelledby="accessories-modal-title" aria-modal="true">
+                <button type="button" class="stock-modal-close" aria-label="Close">Close</button>
+                <h2 id="accessories-modal-title" class="stock-modal-title"></h2>
+                <div id="accessories-modal-body" class="stock-modal-body"></div>
+            </div>
+        </div>
+
         <section class="pricing-list-section" aria-label="Pixel price list">
             <div id="pricing-loading" class="pricing-loading" hidden aria-live="polite">
                 <div class="pricing-loading-spinner" aria-hidden="true"></div>
@@ -176,6 +184,7 @@
     <script>
         window.GRIST_PRICES_URL = '/api/prices';
         window.GRIST_INVENTORY_URL = '/api/inventory';
+        window.GRIST_ACCESSORIES_URL = '/api/accessories';
         window.GRIST_SYNC_STATUS_URL = '/api/sync-status';
     </script>
     <script src="/pixel-catalog.js"></script>

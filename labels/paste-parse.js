@@ -7,7 +7,7 @@
 
 import { normalizeField, labelField, isMoneyValue } from './label-engine.js';
 
-/** @typedef {'Code'|'Brand'|'Product'|'Variation'|'CountOrSize'} LabelField */
+/** @typedef {'Code'|'Brand'|'Product'|'Color'|'Storage'|'Condition'|'Variation'|'CountOrSize'|'Strength'} LabelField */
 
 /**
  * @typedef {Object} ViewLayout
@@ -18,28 +18,315 @@ import { normalizeField, labelField, isMoneyValue } from './label-engine.js';
  * @property {number[]} usedColumns - original indexes kept (for drop reporting)
  */
 
+function looksLikeGrade(v) {
+  const s = normalizeField(v);
+  if (!s || s.length > 24) return false;
+  return /^(excellent|good|fair|poor|issue|ok|a\+?|b\+?|c\+?)$/i.test(s);
+}
+
 /**
- * Shared mapping for Kango / Taobao-style rows.
- * Gadgets: Storage + Color/Flavor + Condition.
- * Supplements / other: count/size (and non-color specs) only — skip Condition and Color/Flavor.
+ * True for short color / flavor style text (not storage/condition/noise).
+ * @param {unknown} v
+ */
+function isPlausibleColorOrFlavor(v) {
+  const s = normalizeField(v);
+  if (!s || s.length > 40) return false;
+  if (looksLikeStorage(s) || looksLikeCondition(s) || looksLikeGrade(s)) return false;
+  if (looksLikeCode(s) || looksLikeNoise(s) || /^PAK/i.test(s)) return false;
+  if (/\b(pixel|iphone|ipad|galaxy|macbook|oneblade)\b/i.test(s)) return false;
+  if (!/^[A-Za-z][A-Za-z0-9 +#&'./\-]*$/.test(s)) return false;
+  // Prefer multi-word color names or known singles; reject long prose.
+  const words = s.split(/\s+/);
+  if (words.length > 5) return false;
+  return true;
+}
+
+/**
+ * Find COLOR_FLAVOR anywhere in the row when the fixed column is empty/wrong.
+ * Grist Arrived views often reorder columns so index 7 is not always Color.
+ * @param {string[]} row
+ * @param {string[]} [reserved]
+ */
+function findColorInRow(row, reserved = []) {
+  const used = new Set(
+    reserved.map((v) => normalizeField(v).toLowerCase()).filter(Boolean)
+  );
+  /** @type {string[]} */
+  const soft = [];
+  for (const cell of row || []) {
+    const v = labelField(cell);
+    if (!v) continue;
+    const key = v.toLowerCase();
+    if (used.has(key)) continue;
+    if (looksLikeNoise(v) || looksLikeCode(v) || looksLikeStorage(v)) continue;
+    if (looksLikeCondition(v) || looksLikeGrade(v)) continue;
+    if (looksLikeColor(v)) return v;
+    if (isPlausibleColorOrFlavor(v)) soft.push(v);
+  }
+  if (soft.length) return soft[0];
+
+  // Last resort: known color phrase inside a longer cell (notes, etc.)
+  const known = [...KNOWN_COLORS].sort((a, b) => b.length - a.length);
+  for (const cell of row || []) {
+    const s = normalizeField(cell);
+    if (!s || s.length < 4 || used.has(s.toLowerCase())) continue;
+    if (looksLikeCode(s) || looksLikeStorage(s) || looksLikeCondition(s)) continue;
+    for (const c of known) {
+      const re = new RegExp(`(?:^|[^a-z0-9])(${c.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')})(?:[^a-z0-9]|$)`, 'i');
+      const m = s.match(re);
+      if (m && m[1] && !used.has(m[1].toLowerCase())) return m[1];
+    }
+  }
+  return '';
+}
+
+/**
+ * Find a storage cell (128GB / 1TB) anywhere in the row.
+ * @param {string[]} row
+ * @param {string[]} [reserved]
+ */
+function findStorageInRow(row, reserved = []) {
+  const used = new Set(
+    reserved.map((v) => normalizeField(v).toLowerCase()).filter(Boolean)
+  );
+  for (const cell of row || []) {
+    const v = labelField(cell);
+    if (!v || used.has(v.toLowerCase())) continue;
+    if (looksLikeStorage(v)) return v;
+  }
+  return '';
+}
+
+/**
+ * Count/size for supplements: "60 Softgels", "24 Gummies", "100 Caplets", etc.
+ * Kept broad on purpose — Grist COUNT/SIZE values vary a lot.
+ * @param {unknown} v
+ */
+function looksLikeCountOrSize(v) {
+  const s = normalizeField(v);
+  if (!s || s.length > 48) return false;
+  if (looksLikeStorage(s)) return true;
+  if (looksLikeCondition(s) || looksLikeGrade(s) || looksLikeCode(s)) return false;
+  if (isMoneyValue(s) || looksLikeNoise(s)) return false;
+  if (looksLikeColor(s)) return false;
+  // Any value with a number + short unit-ish text
+  if (/\d/.test(s)) {
+    if (
+      /\b(gummies|gummy|caps?|caplets?|capsules?|softgels?|soft\s*gels?|gelcaps?|tablets?|tabs?|ct|count|pcs?|pieces?|servings?|packs?|bottles?|ml|oz|fl\.?\s*oz|chewables?|softgels?)\b/i.test(
+        s
+      )
+    ) {
+      return true;
+    }
+    // CamelCase: SoftGels, SleepGels, GelCaps
+    if (/^\d+\s*[A-Za-z][A-Za-z0-9]*$/i.test(s) && s.length <= 24) return true;
+    if (/^\d+\s*[x×]\s*\d+/i.test(s)) return true;
+    if (/^\d+\s*(mg|mcg|g)\b/i.test(s) && s.length <= 16) return true;
+    // Bare counts like "100" or "24 ct"
+    if (/^\d{1,4}(\s*ct)?$/i.test(s)) return true;
+  }
+  return false;
+}
+
+/**
+ * Keep almost any COUNT/SIZE cell that isn't junk / a known other field.
+ * @param {unknown} v
+ */
+function isUsableCountOrSizeCell(v) {
+  const s = labelField(v);
+  if (!s) return false;
+  if (looksLikeNoise(s) || looksLikeCode(s) || isMoneyValue(s)) return false;
+  if (looksLikeCondition(s) || looksLikeGrade(s) || looksLikeStorage(s)) return false;
+  if (looksLikeColor(s)) return false;
+  if (/^PAK/i.test(s)) return false;
+  if (/^[A-Z]{2,}\d{6,}/i.test(s)) return false; // tracking-ish IDs
+  if (looksLikeCountOrSize(s)) return true;
+  // Digits should lead (100 Caplets) — not appear mid package/id text
+  if (/^\d/.test(s) && s.length <= 40) return true;
+  if (/\b(tablet|tab|softgel|capsule|caplet|gumm|count|gelcap|chewable|pack|bottle|serving|gel)\b/i.test(s)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Find count/size anywhere in the row (supplements).
+ * @param {string[]} row
+ * @param {string[]} [reserved]
+ */
+function findCountOrSizeInRow(row, reserved = []) {
+  const used = new Set(
+    reserved.map((v) => normalizeField(v).toLowerCase()).filter(Boolean)
+  );
+  // Prefer cells after product-ish columns
+  for (const cell of row || []) {
+    const v = labelField(cell);
+    if (!v || used.has(v.toLowerCase())) continue;
+    if (isUsableCountOrSizeCell(v) && !looksLikeStorage(v)) return v;
+  }
+  return '';
+}
+
+/**
+ * Find STRENGTH (Maximum Strength, 500mg, …) anywhere in the row.
+ * @param {string[]} row
+ * @param {string[]} [reserved]
+ */
+function findStrengthInRow(row, reserved = []) {
+  const used = new Set(
+    reserved.map((v) => normalizeField(v).toLowerCase()).filter(Boolean)
+  );
+  for (const cell of row || []) {
+    const v = labelField(cell);
+    if (!v || used.has(v.toLowerCase())) continue;
+    if (looksLikeStrength(v)) return v;
+  }
+  return '';
+}
+
+function looksLikeStrength(v) {
+  const s = normalizeField(v);
+  if (!s || s.length > 48) return false;
+  if (looksLikeStorage(s) || looksLikeCondition(s) || looksLikeCode(s)) return false;
+  if (isMoneyValue(s) || looksLikeNoise(s)) return false;
+  if (/^PAK/i.test(s) || /^AIR\s*(KANGO|TARLAC)\b/i.test(s)) return false;
+  if (/\b(maximum|extra|regular|high)\s+strength\b/i.test(s)) return true;
+  if (/^strength\b/i.test(s)) return true;
+  if (/^\d+(\.\d+)?\s*(mg|mcg|µg|ug|iu|g)\b/i.test(s)) return true;
+  if (/\b\d+(\.\d+)?\s*(mg|mcg|iu)\b/i.test(s) && s.length <= 24) return true;
+  return false;
+}
+
+/**
+ * Shared mapping for Kango / Taobao / Printer-style rows.
+ * Gadgets: Storage + Color/Flavor + Condition (+ Count/Size/Strength when present).
+ * Non-gadgets: Color/Flavor + Variation + Count/Size + Strength — skip Condition/Storage.
  * @param {object} cols
  * @param {number} idx
+ * @param {string[]} [sourceRow] - full paste row for color/storage recovery
  */
-function mapLabelCols(cols, idx) {
+function mapLabelCols(cols, idx, sourceRow) {
   const code = labelField(cols.Code);
   const brand = labelField(cols.Brand);
   const product = labelField(cols.Product);
-  const color = labelField(cols.Color);
+  let color = labelField(cols.Color);
   const specs = labelField(cols.VariationOrSpecs);
-  const storage = labelField(cols.Storage);
+  let storage = labelField(cols.Storage);
   const condition = labelField(cols.Condition);
+  let strength = labelField(cols.Strength);
+  // Always prefer the dedicated COUNT/SIZE column when present.
+  let countHint = isUsableCountOrSizeCell(cols.CountOrSize)
+    ? labelField(cols.CountOrSize)
+    : '';
+
+  // Storage col sometimes holds supplement counts when COUNT/SIZE is empty.
+  if (!countHint && storage && isUsableCountOrSizeCell(storage) && !looksLikeStorage(storage)) {
+    countHint = storage;
+    storage = '';
+  }
+
+  // Fixed Color slot sometimes holds storage/grade/count when columns shifted.
+  if (color && (looksLikeStorage(color) || looksLikeCondition(color) || looksLikeGrade(color))) {
+    if (!storage && looksLikeStorage(color)) storage = color;
+    color = '';
+  } else if (color && isUsableCountOrSizeCell(color) && !looksLikeColor(color)) {
+    if (!countHint) countHint = color;
+    color = '';
+  }
+
+  if (storage && !looksLikeStorage(storage) && !isUsableCountOrSizeCell(storage)) {
+    if (!color && (looksLikeColor(storage) || isPlausibleColorOrFlavor(storage))) {
+      color = storage;
+    }
+    storage = '';
+  }
+
+  // If COUNT/SIZE cell is actually a color (older layouts), move it.
+  if (countHint && !isUsableCountOrSizeCell(countHint)) {
+    if (!color && (looksLikeColor(countHint) || isPlausibleColorOrFlavor(countHint))) {
+      color = countHint;
+    }
+    countHint = '';
+  }
+
+  if (strength && (looksLikeStorage(strength) || looksLikeCondition(strength) || looksLikeCode(strength))) {
+    strength = '';
+  }
+
+  if (sourceRow && sourceRow.length) {
+    if (!storage) {
+      storage = findStorageInRow(sourceRow, [
+        code,
+        brand,
+        product,
+        condition,
+        color,
+        specs,
+        countHint,
+        strength,
+      ]);
+    }
+    if (!color || looksLikeStorage(color)) {
+      const found = findColorInRow(sourceRow, [
+        code,
+        brand,
+        product,
+        condition,
+        storage,
+        specs,
+        countHint,
+        strength,
+      ]);
+      if (found) color = found;
+    }
+    if (!countHint) {
+      countHint = findCountOrSizeInRow(sourceRow, [
+        code,
+        brand,
+        product,
+        condition,
+        storage,
+        color,
+        specs,
+        strength,
+      ]);
+    }
+    if (!strength) {
+      strength = findStrengthInRow(sourceRow, [
+        code,
+        brand,
+        product,
+        condition,
+        storage,
+        color,
+        specs,
+        countHint,
+      ]);
+    }
+  }
+
+  // Specs / variation column often holds color when Color col is blank.
+  if (
+    !color &&
+    specs &&
+    !looksLikeStorage(specs) &&
+    !looksLikeCondition(specs) &&
+    !looksLikeGrade(specs) &&
+    !isUsableCountOrSizeCell(specs)
+  ) {
+    if (looksLikeColor(specs) || isPlausibleColorOrFlavor(specs)) color = specs;
+  }
+
+  if (!countHint && specs && isUsableCountOrSizeCell(specs) && !looksLikeStorage(specs)) {
+    countHint = specs;
+  }
 
   const gadget = isGadgetItem({
     brand,
     product,
     storage,
     condition,
-    countOrSize: storage,
+    countOrSize: storage || countHint,
     variation: color || specs,
   });
 
@@ -50,26 +337,35 @@ function mapLabelCols(cols, idx) {
       Brand: brand,
       Product: product,
       Color: color,
-      Storage: storage || (specs && color ? specs : ''),
+      Storage: storage,
       Condition: condition,
-      Variation: color || specs,
-      CountOrSize: [storage || (specs && color ? specs : ''), condition]
-        .filter(Boolean)
-        .join(' · '),
+      // Keep VARIATION distinct from COLOR/FLAVOR (e.g. case model vs color).
+      Variation: specs && specs !== color ? specs : '',
+      CountOrSize: countHint,
+      Strength: strength,
     };
   }
 
-  // Supplements / general: no Condition, no Color/Flavor on the label.
+  // Non-gadgets: Color/Flavor + Variation + Count/Size + Strength; never Condition/Storage.
+  const countOrSize =
+    countHint ||
+    (storage && !looksLikeStorage(storage) ? storage : '') ||
+    (specs && isUsableCountOrSizeCell(specs) ? specs : '');
+  const variation =
+    specs && specs !== countOrSize && specs !== color && !isUsableCountOrSizeCell(specs)
+      ? specs
+      : '';
   return {
     id: idx + 1,
     Code: code,
     Brand: brand,
     Product: product,
-    Color: '',
-    Storage: storage,
+    Color: color && color !== countOrSize ? color : '',
+    Storage: '',
     Condition: '',
-    Variation: specs,
-    CountOrSize: storage || specs,
+    Variation: variation,
+    CountOrSize: countOrSize,
+    Strength: strength && strength !== countOrSize ? strength : '',
   };
 }
 
@@ -111,13 +407,15 @@ export function isSupplementItem(parts = {}) {
     .join(' ');
   if (!blob) return false;
   if (
-    /\b(gummy|gummies|vitamin|capsule|softgel|soft\s*gel|supplement|collagen|probiotic|omega[\s-]?3|multivitamin|creatine|protein\s*powder|electrolyte|fish\s*oil|serving)\b/i.test(
+    /\b(gummy|gummies|vitamin|capsule|softgel|soft\s*gel|sleepgels?|sleep\s*gels?|supplement|collagen|probiotic|omega[\s-]?3|multivitamin|creatine|protein\s*powder|electrolyte|fish\s*oil|serving)\b/i.test(
       blob
     )
   ) {
     return true;
   }
   if (/\d+\s*(gummies|caps|softgels|tablets|ct|count)\b/i.test(blob)) return true;
+  // Product names like SleepGels / MelatoninGummies without a space
+  if (/gels?\b|gummies\b|capsules?\b|vitamins?\b/i.test(blob)) return true;
   return false;
 }
 
@@ -168,51 +466,199 @@ function statusLike(v) {
 }
 
 /**
- * View 1 — Grist page "Kango Arrived"
+ * Shared column map for Kango-style Master_List views
+ * (Arrived / Air Kango — same left-to-right order).
  *
  * 0 Code | 1 Status | 2 Package (PAK…) | 3 Condition | 4 Brand | 5 Product
- * 6 Storage? | 7 Color | 8 Variation | … notes, urls, prices, tracking
+ * 6 Storage | 7 Count/Size | 8 Variation | 9 Color/Flavor | 10 Grade | …
+ * @param {string[]} row
+ * @param {number} idx
  */
-export const LAYOUT_KANGO_ARRIVED = Object.freeze({
-  id: 'kango-arrived',
-  name: 'Kango Arrived',
-  usedColumns: [0, 3, 4, 5, 6, 7, 8],
+function mapKangoStyleRow(row, idx) {
+  const countRaw = labelField(row[7]);
+  const colorRaw = labelField(row[9]);
+  const color =
+    colorRaw ||
+    (countRaw && !isUsableCountOrSizeCell(countRaw) ? countRaw : '');
+  // STRENGTH is often after COLOR/FLAVOR (col 10+) on Printer / Master_List pastes.
+  const strength =
+    labelField(row[10]) && looksLikeStrength(row[10])
+      ? labelField(row[10])
+      : labelField(row[11]) && looksLikeStrength(row[11])
+        ? labelField(row[11])
+        : '';
+  return mapLabelCols(
+    {
+      Code: row[0],
+      Condition: row[3],
+      Brand: row[4],
+      Product: row[5],
+      Storage: row[6],
+      CountOrSize: countRaw,
+      VariationOrSpecs: row[8],
+      Color: color,
+      Strength: strength,
+    },
+    idx,
+    row
+  );
+}
+
+function looksLikeKangoPackage(v) {
+  const pkg = normalizeField(v);
+  return /^PAK/i.test(pkg) || /^[A-Z]{2,}\d+/i.test(pkg);
+}
+
+/** AIR KANGO / AIR TARLAC on Master_List-style views (PAK in col 2). */
+function looksLikeAirInventoryStatus(v) {
+  const s = normalizeField(v);
+  return /^AIR\s*KANGO\b/i.test(s) || /^AIR\s*TARLAC\b/i.test(s);
+}
+
+function resolveAirInventoryLayoutName(rows) {
+  const sample = sampleRows(rows);
+  let kango = 0;
+  let tarlac = 0;
+  for (const row of sample) {
+    const s = normalizeField(row[1]);
+    if (/^AIR\s*KANGO\b/i.test(s)) kango++;
+    if (/^AIR\s*TARLAC\b/i.test(s)) tarlac++;
+  }
+  if (tarlac && !kango) return 'Air Tarlac';
+  if (kango && !tarlac) return 'Air Kango';
+  return 'Air Inventory';
+}
+
+/**
+ * View — Inventory filtered to AIR KANGO or AIR TARLAC (e.g. p/470).
+ * Same column order as Kango Arrived; same field rules as Air Kango.
+ */
+export const LAYOUT_AIR_KANGO = Object.freeze({
+  id: 'air-inventory',
+  name: 'Air Inventory',
+  // CODE, CONDITION, BRAND, PRODUCT, STORAGE, COUNT/SIZE, VARIATION, COLOR/FLAVOR (+ STRENGTH if present)
+  usedColumns: [0, 3, 4, 5, 6, 7, 8, 9, 10],
   detect(rows) {
     const sample = sampleRows(rows);
     if (!sample.length) return false;
     let ok = 0;
     for (const row of sample) {
-      if (row.length < 9 || row.length > 24) continue;
+      if (row.length < 9 || row.length > 40) continue;
       if (!looksLikeCode(row[0])) continue;
       if (row.some((c) => /amazon\.com/i.test(c))) continue;
-      if (/^AIR TARLAC$/i.test(normalizeField(row[1]))) continue;
-      // Package id in col 2 distinguishes from Taobao (brand in col 2)
-      const pkg = normalizeField(row[2]);
-      if (!/^PAK/i.test(pkg) && !/^[A-Z]{2,}\d+/i.test(pkg)) continue;
-      if (looksLikeStorage(row[5])) continue; // Taobao has storage in col 5
+      if (!looksLikeAirInventoryStatus(row[1])) continue;
+      if (!looksLikeKangoPackage(row[2])) continue;
+      if (looksLikeStorage(row[5])) continue;
       const brand = normalizeField(row[4]);
       const product = normalizeField(row[5]);
       if (!brand || looksLikeNoise(brand) || looksLikeCode(brand)) continue;
       if (!product || looksLikeNoise(product)) continue;
-      // Status helps but is not required — print any $STATUS from this view.
       ok++;
     }
     return ok >= Math.ceil(sample.length * 0.6);
+  },
+  resolveName: resolveAirInventoryLayoutName,
+  mapRow: mapKangoStyleRow,
+});
+
+/**
+ * Grist "Printer" page column order (Inventory p/497-style):
+ * 0 CODE | 1 CONDITION | 2 BRAND | 3 MODEL/PRODUCT | 4 VARIATION
+ * 5 STORAGE | 6 COUNT/SIZE | 7 COLOR/FLAVOR | 8 STRENGTH | 9 STATUS
+ * STATUS is detected but never printed.
+ */
+export const LAYOUT_AIR_PRINTER = Object.freeze({
+  id: 'air-printer',
+  name: 'Air Printer',
+  usedColumns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  detect(rows) {
+    const sample = sampleRows(rows);
+    if (!sample.length) return false;
+    let ok = 0;
+    for (const row of sample) {
+      if (row.length < 8 || row.length > 16) continue;
+      if (!looksLikeCode(row[0])) continue;
+      // Master_List air layout has STATUS in col 1 — leave that to LAYOUT_AIR_KANGO.
+      if (looksLikeAirInventoryStatus(row[1])) continue;
+      if (looksLikeKangoPackage(row[1]) || looksLikeKangoPackage(row[2])) continue;
+      const status = normalizeField(row[9] || row[row.length - 1]);
+      if (!looksLikeAirInventoryStatus(status)) continue;
+      const brand = normalizeField(row[2]);
+      const product = normalizeField(row[3]);
+      if (!brand || looksLikeNoise(brand) || looksLikeCode(brand)) continue;
+      if (!product || looksLikeNoise(product)) continue;
+      // Soft check: CONDITION empty or condition-like; STORAGE empty or storage-like.
+      const cond = normalizeField(row[1]);
+      if (cond && !looksLikeCondition(cond) && !/^new\b/i.test(cond) && !/^used\b/i.test(cond)) {
+        continue;
+      }
+      ok++;
+    }
+    return ok >= Math.ceil(sample.length * 0.6);
+  },
+  resolveName(rows) {
+    const sample = sampleRows(rows);
+    let kango = 0;
+    let tarlac = 0;
+    for (const row of sample) {
+      const s = normalizeField(row[9] || row[row.length - 1]);
+      if (/^AIR\s*KANGO\b/i.test(s)) kango++;
+      if (/^AIR\s*TARLAC\b/i.test(s)) tarlac++;
+    }
+    if (tarlac && !kango) return 'Air Tarlac';
+    if (kango && !tarlac) return 'Air Kango';
+    return 'Air Printer';
   },
   mapRow(row, idx) {
     return mapLabelCols(
       {
         Code: row[0],
-        Condition: row[3],
-        Brand: row[4],
-        Product: row[5],
-        Storage: row[6],
+        Condition: row[1],
+        Brand: row[2],
+        Product: row[3],
+        VariationOrSpecs: row[4],
+        Storage: row[5],
+        CountOrSize: row[6],
         Color: row[7],
-        VariationOrSpecs: row[8],
+        Strength: row[8],
       },
-      idx
+      idx,
+      row
     );
   },
+});
+
+/**
+ * View 1 — Grist page "Kango Arrived"
+ *
+ * 0 Code | 1 Status | 2 Package (PAK…) | 3 Condition | 4 Brand | 5 Product
+ * 6 Storage | 7 Count/Size | 8 Variation | 9 Color/Flavor | 10 Grade | …
+ */
+export const LAYOUT_KANGO_ARRIVED = Object.freeze({
+  id: 'kango-arrived',
+  name: 'Kango Arrived',
+  usedColumns: [0, 3, 4, 5, 6, 7, 8, 9],
+  detect(rows) {
+    const sample = sampleRows(rows);
+    if (!sample.length) return false;
+    let ok = 0;
+    for (const row of sample) {
+      if (row.length < 9 || row.length > 40) continue;
+      if (!looksLikeCode(row[0])) continue;
+      if (row.some((c) => /amazon\.com/i.test(c))) continue;
+      // Air Kango / Air Tarlac inventory views have their own detector.
+      if (looksLikeAirInventoryStatus(row[1])) continue;
+      if (!looksLikeKangoPackage(row[2])) continue;
+      if (looksLikeStorage(row[5])) continue; // Taobao has storage in col 5
+      const brand = normalizeField(row[4]);
+      const product = normalizeField(row[5]);
+      if (!brand || looksLikeNoise(brand) || looksLikeCode(brand)) continue;
+      if (!product || looksLikeNoise(product)) continue;
+      ok++;
+    }
+    return ok >= Math.ceil(sample.length * 0.6);
+  },
+  mapRow: mapKangoStyleRow,
 });
 
 /**
@@ -236,9 +682,10 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
       const hasAmzUrl = row.some((c) => /amazon\.com/i.test(c));
       const orderId = normalizeField(row[2]);
       const numericOrder = /^\d{7,}$/.test(orderId);
-      const amzStatus = /^AIR TARLAC$/i.test(status) || /^AIR\b/i.test(status);
+      // Amazon Arrived: order# / amazon URL. PAK+AIR TARLAC belongs to Air Inventory.
+      const amzStatus = /^AIR\s*TARLAC\b/i.test(status);
       if (!hasAmzUrl && !numericOrder && !amzStatus) continue;
-      if (/^PAK/i.test(orderId)) continue;
+      if (looksLikeKangoPackage(orderId)) continue;
       const brand = normalizeField(row[4]);
       const product = normalizeField(row[5]);
       if (!brand || looksLikeNoise(brand) || looksLikeCode(brand)) continue;
@@ -251,9 +698,19 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
     const brand = labelField(row[4]);
     const product = labelField(row[5]);
     const variant = labelField(row[6]);
-    const countOrSize = labelField(row[7]);
+    let countOrSize = labelField(row[7]);
     const flavor = labelField(row[8]);
     const condition = labelField(row[3]);
+    if (!countOrSize) {
+      countOrSize = findCountOrSizeInRow(row, [
+        labelField(row[0]),
+        brand,
+        product,
+        condition,
+        variant,
+        flavor,
+      ]);
+    }
     const variation = [variant, flavor].filter(Boolean).join(' · ');
     const gadget = isGadgetItem({
       brand,
@@ -270,25 +727,24 @@ export const LAYOUT_AMAZON_ARRIVED = Object.freeze({
         Code: labelField(row[0]),
         Brand: brand,
         Product: product,
-        // COLOR_FLAVOR for gadgets only (include variant when present).
         Color: [flavor, variant].filter(Boolean).join(' · ') || flavor || variant,
-        Storage: countOrSize,
+        Storage: looksLikeStorage(countOrSize) ? countOrSize : '',
         Condition: condition,
         Variation: [variant, flavor].filter(Boolean).join(' · '),
-        CountOrSize: [countOrSize, condition].filter(Boolean).join(' · '),
+        CountOrSize: countOrSize || [condition].filter(Boolean).join(' · '),
       };
     }
 
-    // Supplements / general — no Condition, no Color/Flavor on the label.
+    // Supplements / general — Count/Size + optional Color/Flavor + Variation.
     return {
       id: idx + 1,
       Code: labelField(row[0]),
       Brand: brand,
       Product: product,
-      Color: '',
+      Color: flavor && flavor !== countOrSize ? flavor : '',
       Storage: '',
       Condition: '',
-      Variation: variant,
+      Variation: variant && variant !== countOrSize && variant !== flavor ? variant : '',
       CountOrSize: countOrSize,
     };
   },
@@ -335,15 +791,18 @@ export const LAYOUT_TAOBAO_ARRIVED = Object.freeze({
         Product: row[4],
         Storage: row[5],
         Color: row[6],
-        VariationOrSpecs: '',
+        VariationOrSpecs: row[7],
       },
-      idx
+      idx,
+      row
     );
   },
 });
 
 /** Registered layouts — first match wins. */
 export const VIEW_LAYOUTS = [
+  LAYOUT_AIR_PRINTER,
+  LAYOUT_AIR_KANGO,
   LAYOUT_AMAZON_ARRIVED,
   LAYOUT_TAOBAO_ARRIVED,
   LAYOUT_KANGO_ARRIVED,
@@ -375,39 +834,43 @@ const FIELD_ALIASES = {
     'item name',
     'itemname',
   ],
-  Variation: [
-    'variation',
-    'variant',
+  Color: [
     'color',
     'colour',
     'color flavor',
     'colorflavor',
     'color_flavor',
     'color / flavor',
-    'flavor',
     'colour flavor',
+    'flavor',
+    'flavour',
   ],
+  Storage: ['storage', 'capacity', 'ram', 'memory'],
+  Condition: ['condition', 'conditions', 'cond'],
+  Variation: ['variation', 'variant', 'variants'],
   CountOrSize: [
     'count',
     'size',
+    'count size',
     'countorsize',
     'count or size',
     'count / size',
-    'storage',
-    'capacity',
     'qty',
     'quantity',
-    'ram',
-    'memory',
   ],
+  Strength: ['strength', 'potency', 'dose', 'dosage'],
 };
 
 const FIELD_ORDER = /** @type {LabelField[]} */ ([
   'Code',
   'Brand',
   'Product',
+  'Color',
+  'Storage',
+  'Condition',
   'Variation',
   'CountOrSize',
+  'Strength',
 ]);
 
 const KNOWN_BRANDS = new Set([
@@ -475,6 +938,25 @@ const KNOWN_COLORS = new Set([
   'walnut wood',
   'garden party blue',
   'berry',
+  'mint',
+  'navy',
+  'bronze',
+  'graphite',
+  'midnight',
+  'starlight',
+  'product red',
+  'sierra blue',
+  'alpine green',
+  'deep purple',
+  'space gray',
+  'space grey',
+  'natural titanium',
+  'blue titanium',
+  'black titanium',
+  'white titanium',
+  'lemon',
+  'indigo',
+  'coral red',
 ]);
 
 function normHeader(header) {
@@ -637,6 +1119,9 @@ export function scoreColumn(values) {
   let code = 0;
   let brand = 0;
   let product = 0;
+  let color = 0;
+  let storage = 0;
+  let condition = 0;
   let variation = 0;
   let size = 0;
   let noise = 0;
@@ -648,13 +1133,22 @@ export function scoreColumn(values) {
     if (looksLikeCode(c)) code++;
     if (looksLikeBrand(c)) brand++;
     if (looksLikeProduct(c)) product++;
-    if (looksLikeColor(c)) variation++;
-    if (looksLikeStorage(c)) size++;
+    if (looksLikeColor(c)) color++;
+    if (looksLikeStorage(c)) storage++;
+    if (looksLikeCondition(c)) condition++;
+    if (isUsableCountOrSizeCell(c) && !looksLikeStorage(c)) size++;
+    // Loose product: multi-word non-noise text
+    if (!looksLikeBrand(c) && !looksLikeCode(c) && !looksLikeColor(c) && c.split(/\s+/).length >= 2) {
+      product += 0.35;
+    }
   }
   return {
     Code: code / n - noise / n,
     Brand: brand / n - noise / n,
     Product: product / n - noise / n,
+    Color: color / n - noise / n,
+    Storage: storage / n - noise / n,
+    Condition: condition / n - noise / n,
     Variation: variation / n - noise / n,
     CountOrSize: size / n - noise / n,
   };
@@ -743,24 +1237,72 @@ export function parsePasteTable(text) {
 }
 
 /**
+ * Grist sometimes includes the leftmost row-number column when copying.
+ * That shifts CODE off index 0 and breaks Kango detection.
+ * @param {string[][]} rows
+ * @param {string[]} [headers]
+ */
+function stripLeadingRowNumbers(rows, headers = []) {
+  if (!rows.length) return { rows, headers, stripped: false };
+  const sample = rows.slice(0, Math.min(rows.length, 8));
+  let indexLike = 0;
+  let codeInCol1 = 0;
+  for (const row of sample) {
+    const c0 = normalizeField(row[0]);
+    const c1 = normalizeField(row[1]);
+    if (/^\d{1,4}$/.test(c0)) indexLike++;
+    if (looksLikeCode(c1)) codeInCol1++;
+  }
+  const need = Math.ceil(sample.length * 0.6);
+  if (indexLike < need || codeInCol1 < need) {
+    return { rows, headers, stripped: false };
+  }
+  // Don't strip if col0 already looks like inventory codes
+  if (sample.filter((r) => looksLikeCode(r[0])).length >= need) {
+    return { rows, headers, stripped: false };
+  }
+  return {
+    rows: rows.map((r) => r.slice(1)),
+    headers: headers.length ? headers.slice(1) : headers,
+    stripped: true,
+  };
+}
+
+/**
  * @param {{ headers: string[], rows: string[][], delimiter?: string, hasHeader?: boolean }} table
  */
 export function filterToLabelColumns(table) {
   const delim = table.delimiter || '\t';
-  const headers = table.headers || [];
-  const rows = table.rows || [];
+  const stripped = stripLeadingRowNumbers(table.rows || [], table.headers || []);
+  const headers = stripped.headers;
+  const rows = stripped.rows;
 
-  // Fixed Grist page layouts (Kango Arrived, …) — first match wins
-  const layout = !table.hasHeader ? detectViewLayout(rows) : null;
+  // Prefer fixed Grist layouts even when a header row is present — headers often
+  // mis-map STORAGE→Count/Size and drop COUNT/SIZE / COLOR/FLAVOR.
+  const layout = detectViewLayout(rows);
   if (layout) {
     const fields = rows.map((row, idx) => layout.mapRow(row, idx));
-    const newHeaders = ['Code', 'Brand', 'Product', 'Variation', 'CountOrSize'];
+    const newHeaders = [
+      'Code',
+      'Brand',
+      'Product',
+      'Color',
+      'Storage',
+      'Condition',
+      'Variation',
+      'CountOrSize',
+      'Strength',
+    ];
     const newRows = fields.map((f) => [
       f.Code,
       f.Brand,
       f.Product,
-      f.Variation,
-      f.CountOrSize,
+      f.Color || '',
+      f.Storage || '',
+      f.Condition || '',
+      f.Variation || '',
+      f.CountOrSize || '',
+      f.Strength || '',
     ]);
     const used = new Set(layout.usedColumns);
     const droppedHeaders = headers
@@ -772,21 +1314,28 @@ export function filterToLabelColumns(table) {
       rows: newRows,
       delimiter: delim,
       hasHeader: true,
-      kept: FIELD_ORDER.map((field, i) => ({
-        field,
-        header: field,
-        fromIndex: i,
+      kept: newHeaders.map((header, fromIndex) => ({
+        field: /** @type {LabelField} */ (header),
+        header,
+        fromIndex,
       })),
       droppedHeaders,
       columnMap: {
         Code: 0,
         Brand: 1,
         Product: 2,
-        Variation: 3,
-        CountOrSize: 4,
+        Color: 3,
+        Storage: 4,
+        Condition: 5,
+        Variation: 6,
+        CountOrSize: 7,
+        Strength: 8,
       },
       layout: layout.id,
-      layoutName: layout.name,
+      layoutName:
+        typeof layout.resolveName === 'function'
+          ? layout.resolveName(rows)
+          : layout.name,
       labelFields: fields,
     };
   }
@@ -825,16 +1374,44 @@ export function filterToLabelColumns(table) {
   const kept = FIELD_ORDER.map((f) => keptByField.get(f)).filter(Boolean);
   const newHeaders = kept.map((k) => k.header);
   const newRows = rows.map((row) => kept.map((k) => normalizeField(row[k.fromIndex])));
-  /** @type {Record<LabelField, number>} */
+  /** @type {Record<string, number>} */
   const columnMap = {
     Code: -1,
     Brand: -1,
     Product: -1,
+    Color: -1,
+    Storage: -1,
+    Condition: -1,
     Variation: -1,
     CountOrSize: -1,
+    Strength: -1,
   };
   kept.forEach((k, i) => {
     columnMap[k.field] = i;
+  });
+
+  // Build rich label fields from header/inferred columns (not only 5-col legacy).
+  const labelFields = rows.map((row, idx) => {
+    const pick = (field) => {
+      const meta = keptByField.get(field);
+      if (!meta) return '';
+      return row[meta.fromIndex];
+    };
+    return mapLabelCols(
+      {
+        Code: pick('Code'),
+        Brand: pick('Brand'),
+        Product: pick('Product'),
+        Color: pick('Color'),
+        Storage: pick('Storage'),
+        Condition: pick('Condition'),
+        VariationOrSpecs: pick('Variation'),
+        CountOrSize: pick('CountOrSize'),
+        Strength: pick('Strength'),
+      },
+      idx,
+      row
+    );
   });
 
   return {
@@ -846,6 +1423,7 @@ export function filterToLabelColumns(table) {
     droppedHeaders,
     columnMap,
     layout: table.hasHeader ? 'headers' : 'inferred',
+    labelFields,
   };
 }
 
@@ -884,13 +1462,34 @@ export function rowsToLabelFields(rows, columnMap) {
       if (i == null || i < 0) return '';
       return normalizeField(row[i]);
     };
+    const color = pick('Color') || pick('Variation');
+    const storage = pick('Storage');
+    const condition = pick('Condition');
+    const countOrSize = pick('CountOrSize');
+    // Cleaned 6-col layout stores Color/Storage/Condition separately.
+    // Older 5-col clean TSV may have "128GB · Used" in CountOrSize.
+    let resolvedStorage = storage;
+    let resolvedCondition = condition;
+    if (!resolvedStorage && !resolvedCondition && countOrSize) {
+      const parts = countOrSize.split(/\s*·\s*/).map((s) => s.trim()).filter(Boolean);
+      if (parts.length >= 2 && looksLikeStorage(parts[0])) {
+        resolvedStorage = parts[0];
+        resolvedCondition = parts.slice(1).join(' · ');
+      } else if (looksLikeStorage(countOrSize)) {
+        resolvedStorage = countOrSize;
+      }
+    }
     return {
       id: idx + 1,
       Code: pick('Code'),
       Brand: pick('Brand'),
       Product: pick('Product'),
-      Variation: pick('Variation'),
-      CountOrSize: pick('CountOrSize'),
+      Color: color,
+      Storage: resolvedStorage,
+      Condition: resolvedCondition,
+      Variation: pick('Variation') || color,
+      CountOrSize: countOrSize || [resolvedStorage, resolvedCondition].filter(Boolean).join(' · '),
+      Strength: pick('Strength'),
     };
   });
 }

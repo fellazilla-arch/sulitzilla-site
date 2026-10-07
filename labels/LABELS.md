@@ -12,13 +12,14 @@ The paste page auto-detects which page you copied from:
 
 | View | Keeps |
 |------|--------|
-| **Kango Arrived** | Code, Brand, Product, Storage; gadgets also get Color/Flavor + Condition |
-| **Amazon Arrived** | Code, Brand, Product, Count/Size; gadgets also get Color/Flavor + Condition |
+| **Air Kango / Air Tarlac** (Printer / Inventory) | Code, Brand, Model/Product, Variation, Count/Size, Color/Flavor, Strength; gadgets also get Condition + Storage. Status never prints. |
+| **Kango Arrived** | Code, Brand, Product, Storage, Count/Size, Color/Flavor, Variation; gadgets also get Condition |
+| **Amazon Arrived** | Code, Brand, Product, Count/Size, Color/Flavor, Variation; gadgets also get Condition |
 | **Taobao Arrived** | Code, Brand, Product, Storage; gadgets also get Color/Flavor + Condition |
 
-Everything else (status, notes, prices, tracking, URLs, grade, …) is dropped. Currency values never print. **`$STATUS` does not need to be a specific value** — any status from these views is fine.
+Everything else (status, notes, prices, tracking, URLs, grade, …) is dropped. Currency values never print. **Air Inventory** is detected by status `AIR KANGO` or `AIR TARLAC` with Master_List / PAK columns. True Amazon pastes (order # / amazon.com) still use **Amazon Arrived**.
 
-**Gadgets vs supplements:** phones / laptops / tablets / similar (or any row with storage like `256GB`) print **Color/Flavor** and **Condition**. Supplements (gummies, vitamins, etc.) skip those even when the columns are filled.
+**Gadgets vs supplements:** phones / laptops / tablets / similar (or any row with storage like `256GB`) print **Condition** and **Storage**. Non-gadgets skip those even when the columns are filled. **Color/Flavor** and **Variation** print when present.
 
 ---
 

@@ -3,7 +3,7 @@
  * Independent of Grist and of any specific printer.
  */
 
-/** @typedef {{ id?: number|string, Code: string, Brand?: string, Product?: string, Variation?: string, CountOrSize?: string, Color?: string, Storage?: string, Condition?: string }} LabelFields */
+/** @typedef {{ id?: number|string, Code: string, Brand?: string, Product?: string, Variation?: string, CountOrSize?: string, Color?: string, Storage?: string, Condition?: string, Strength?: string }} LabelFields */
 /** @typedef {{ id?: number|string, lines: string[], fields: LabelFields, skipped?: boolean, skipReason?: string }} FormattedLabel */
 /**
  * @typedef {{
@@ -89,9 +89,44 @@ export function labelField(value) {
 }
 
 /**
+ * Brand + Product for the label. Drop redundant brand when product already
+ * includes it (e.g. Google + Pixel 7 → "Pixel 7").
+ * @param {unknown} brand
+ * @param {unknown} product
+ */
+export function formatBrandProductLine(brand, product) {
+  const b = labelField(brand);
+  const p = labelField(product);
+  if (!p) return b;
+  if (!b) return p;
+  if (/^google$/i.test(b) && /\bpixel\b/i.test(p)) return p;
+  const bl = b.toLowerCase();
+  const pl = p.toLowerCase();
+  if (pl === bl || pl.startsWith(`${bl} `) || pl.startsWith(`${bl}-`)) return p;
+  return `${b} ${p}`;
+}
+
+/**
+ * Model with storage on one line: "Pixel 4 - 64GB".
+ * @param {unknown} brand
+ * @param {unknown} product
+ * @param {unknown} storage
+ */
+export function formatProductStorageLine(brand, product, storage) {
+  const name = formatBrandProductLine(brand, product);
+  const s = labelField(storage);
+  if (!name) return s;
+  if (!s) return name;
+  if (new RegExp(`\\b${s.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&').replace(/\\s+/g, '\\s*')}\\b`, 'i').test(name)) {
+    return name;
+  }
+  return `${name} - ${s}`;
+}
+
+/**
  * Build display lines; omit blank fields per PRD.
- * Gadgets: Code → Brand Product → Color → Storage → Condition
- * Supplements: Code → Brand Product → Variation → CountOrSize
+ * Gadgets: Code → Brand Product - Storage → Color → Variation → Condition → Count/Size → Strength
+ * Non-gadgets: Code → Brand Product → Color → Variation → Count/Size → Strength
  *
  * @param {LabelFields} fields
  * @returns {string[]}
@@ -101,27 +136,47 @@ export function formatLabelLines(fields) {
   const code = labelField(fields.Code);
   if (code) lines.push(code);
 
-  const brandProduct = [labelField(fields.Brand), labelField(fields.Product)]
-    .filter(Boolean)
-    .join(' ');
-  if (brandProduct) lines.push(brandProduct);
-
   const color = labelField(fields.Color);
   const storage = labelField(fields.Storage);
   const condition = labelField(fields.Condition);
   const variation = labelField(fields.Variation);
   const countOrSize = labelField(fields.CountOrSize);
-
-  const structured = color || storage || condition;
+  const strength = labelField(fields.Strength);
+  const structured = !!(color || storage || condition);
 
   if (structured) {
+    const productLine = formatProductStorageLine(fields.Brand, fields.Product, storage);
+    if (productLine) lines.push(productLine);
     if (color) lines.push(color);
-    else if (variation) lines.push(variation);
-    if (storage) lines.push(storage);
+    if (variation && variation !== color && variation !== storage) {
+      lines.push(variation);
+    }
     if (condition) lines.push(condition);
+    if (
+      countOrSize &&
+      countOrSize !== storage &&
+      countOrSize !== condition &&
+      countOrSize !== color &&
+      countOrSize !== variation &&
+      !/^[\d.]+\s*(GB|TB)\b/i.test(countOrSize)
+    ) {
+      lines.push(countOrSize);
+    }
   } else {
-    if (variation) lines.push(variation);
+    const brandProduct = formatBrandProductLine(fields.Brand, fields.Product);
+    if (brandProduct) lines.push(brandProduct);
+    if (variation && variation !== countOrSize) lines.push(variation);
     if (countOrSize) lines.push(countOrSize);
+  }
+
+  if (
+    strength &&
+    strength !== countOrSize &&
+    strength !== color &&
+    strength !== variation &&
+    strength !== condition
+  ) {
+    lines.push(strength);
   }
 
   return lines;
@@ -142,6 +197,7 @@ export function formatRecord(record) {
     Color: labelField(record.Color),
     Storage: labelField(record.Storage),
     Condition: labelField(record.Condition),
+    Strength: labelField(record.Strength),
   };
 
   if (!fields.Code) {
@@ -357,59 +413,125 @@ function buildTextBlocks(fields, scale) {
     });
   }
 
-  const brandProduct = [labelField(fields.Brand), labelField(fields.Product)]
-    .filter(Boolean)
-    .join(' ');
-  if (brandProduct) {
-    blocks.push({
-      role: 'product',
-      text: brandProduct,
-      wrap: true,
-      weight: '700',
-      scale: scale.product,
-      baseFrac: 0.22,
-    });
-  }
-
   const color = labelField(fields.Color);
   const storage = labelField(fields.Storage);
   const condition = labelField(fields.Condition);
   const variation = labelField(fields.Variation);
   const countOrSize = labelField(fields.CountOrSize);
+  const strength = labelField(fields.Strength);
   const structured = !!(color || storage || condition);
 
-  const colorLine = color || (!structured ? variation : '');
-  if (colorLine) {
-    blocks.push({
-      role: 'color',
-      text: colorLine,
-      wrap: true,
-      weight: '600',
-      scale: scale.color,
-      baseFrac: 0.16,
-    });
+  if (structured) {
+    const productLine = formatProductStorageLine(fields.Brand, fields.Product, storage);
+    if (productLine) {
+      blocks.push({
+        role: 'product',
+        text: productLine,
+        wrap: true,
+        weight: '700',
+        scale: scale.product,
+        baseFrac: 0.22,
+      });
+    }
+
+    if (color) {
+      blocks.push({
+        role: 'color',
+        text: color,
+        wrap: true,
+        weight: '600',
+        scale: scale.color,
+        baseFrac: 0.18,
+      });
+    }
+
+    if (variation && variation !== color && variation !== storage) {
+      blocks.push({
+        role: 'color',
+        text: variation,
+        wrap: true,
+        weight: '600',
+        scale: scale.color,
+        baseFrac: 0.15,
+      });
+    }
+
+    if (condition) {
+      blocks.push({
+        role: 'condition',
+        text: condition,
+        wrap: false,
+        weight: '600',
+        scale: scale.condition,
+        baseFrac: 0.16,
+      });
+    }
+
+    if (
+      countOrSize &&
+      countOrSize !== storage &&
+      countOrSize !== condition &&
+      countOrSize !== color &&
+      countOrSize !== variation &&
+      !/^[\d.]+\s*(GB|TB)\b/i.test(countOrSize)
+    ) {
+      blocks.push({
+        role: 'storage',
+        text: countOrSize,
+        wrap: false,
+        weight: '600',
+        scale: scale.storage,
+        baseFrac: 0.15,
+      });
+    }
+  } else {
+    const brandProduct = formatBrandProductLine(fields.Brand, fields.Product);
+    if (brandProduct) {
+      blocks.push({
+        role: 'product',
+        text: brandProduct,
+        wrap: true,
+        weight: '700',
+        scale: scale.product,
+        baseFrac: 0.22,
+      });
+    }
+    if (variation && variation !== countOrSize) {
+      blocks.push({
+        role: 'color',
+        text: variation,
+        wrap: true,
+        weight: '600',
+        scale: scale.color,
+        baseFrac: 0.16,
+      });
+    }
+    if (countOrSize) {
+      blocks.push({
+        role: 'storage',
+        text: countOrSize,
+        wrap: false,
+        weight: '600',
+        scale: scale.storage,
+        baseFrac: 0.17,
+      });
+    }
   }
 
-  const storageLine = storage || (!structured && !condition ? countOrSize : '');
-  if (storageLine) {
+  if (
+    strength &&
+    strength !== countOrSize &&
+    strength !== color &&
+    strength !== variation &&
+    strength !== condition
+  ) {
     blocks.push({
       role: 'storage',
-      text: storageLine,
-      wrap: false,
+      text: strength,
+      wrap: true,
       weight: '600',
       scale: scale.storage,
-      baseFrac: 0.17,
-    });
-  }
-
-  if (condition) {
-    blocks.push({
-      role: 'condition',
-      text: condition,
-      wrap: false,
-      weight: '600',
-      scale: scale.condition,
-      baseFrac: 0.15,
+      baseFrac: 0.14,
     });
   }
 

@@ -17,7 +17,7 @@ body {
 
 .app {
   display: block;
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
   min-height: 100%;
   height: auto;
@@ -120,73 +120,122 @@ body {
 }
 
 .printer-fixed {
-  display: inline-flex;
+  display: none;
+}
+
+.profile-bar {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: #e8f4ee;
-  border: 1px solid #c5ddd2;
-  color: var(--accent);
-  font-weight: 600;
+  gap: 8px;
+  margin: 0 12px 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fffcf7 0%, #f8f4ed 100%);
+  box-shadow: 0 1px 2px rgba(26, 26, 26, 0.03);
+}
+
+.profile-label {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4f4a45;
+}
+
+.profile-bar select {
+  min-width: 140px;
+  max-width: 220px;
+  flex: 1 1 140px;
+  font: inherit;
+  font-weight: 500;
   font-size: 12.5px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 5px 28px 5px 8px;
+  background: #fff;
+  color: var(--ink);
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #6b6560 50%),
+    linear-gradient(135deg, #6b6560 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) calc(50% - 2px),
+    calc(100% - 9px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.profile-bar .btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  min-height: 0;
 }
 
 .settings-stack {
   display: flex;
-  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
   border-bottom: none;
   background: transparent;
-  gap: 10px;
-  padding: 4px 12px 14px;
+  padding: 0 12px 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .settings-block {
-  padding: 12px 14px 14px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 10px 9px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   background: linear-gradient(180deg, #fffcf7 0%, #f8f4ed 100%);
   box-shadow: 0 1px 2px rgba(26, 26, 26, 0.03);
 }
 
 .settings-block:last-child {
+  flex: 1.15 1 0;
   border-bottom: 1px solid var(--line);
 }
 
 .settings-heading {
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #4f4a45;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .settings-hint {
-  margin: -2px 0 10px;
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.4;
+  display: none;
 }
 
 .settings {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px 12px;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 5px;
   padding: 0;
   border: none;
   background: transparent;
+  overflow-x: auto;
 }
 
 .settings label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: 8px;
+  gap: 3px;
+  padding: 2px 5px;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.65);
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
   color: #5c564f;
-  font-size: 12px;
+  font-size: 11px;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .settings input,
@@ -195,8 +244,8 @@ body {
   font: inherit;
   font-weight: 500;
   border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 6px 8px;
+  border-radius: 6px;
+  padding: 3px 5px;
   background: #fff;
   color: var(--ink);
   box-shadow: inset 0 1px 1px rgba(26, 26, 26, 0.03);
@@ -236,7 +285,8 @@ body {
 }
 
 .settings input[type="number"] {
-  width: 64px;
+  width: 46px;
+  min-width: 0;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
@@ -358,7 +408,7 @@ body {
   padding: 12px 16px 28px;
   margin: 0 12px;
   gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   align-content: start;
 }
 
@@ -372,6 +422,91 @@ body {
 .card:hover {
   border-color: #cfc5b8;
   box-shadow: 0 4px 14px rgba(26, 26, 26, 0.06);
+}
+
+.card.edited {
+  border-color: #9ec9b4;
+}
+
+.card.is-editing {
+  grid-column: span 2;
+  border-color: #7eb89a;
+  box-shadow: 0 4px 16px rgba(15, 107, 76, 0.1);
+}
+
+.card-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-edit {
+  padding: 2px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  min-height: 0;
+  box-shadow: none;
+}
+
+.badge.edited {
+  color: #0f6b4c;
+  border-color: #9ec9b4;
+  background: #e8f4ee;
+}
+
+.card-preview {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-edit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #ebe4da;
+}
+
+.card-edit[hidden] {
+  display: none;
+}
+
+.card-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.card-edit-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 7px;
+  border: 1px solid #d9d1c5;
+  border-radius: 6px;
+  background: #fff;
+  font-family: var(--mono, "IBM Plex Mono", ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.card-edit-field input:focus {
+  outline: 2px solid #7eb89a;
+  outline-offset: 1px;
+  border-color: #7eb89a;
+}
+
+.card-edit-hint {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
 }
 
 .card canvas,
@@ -392,6 +527,7 @@ body {
 @media (max-width: 720px) {
   .toolbar,
   .status-bar,
+  .profile-bar,
   .settings-stack,
   .paste-panel,
   .preview-meta,
@@ -407,12 +543,33 @@ body {
     border-right: none;
   }
 
+  .settings-stack {
+    flex-wrap: wrap;
+  }
+
+  .settings-block,
+  .settings-block:last-child {
+    flex: 1 1 100%;
+  }
+
+  .settings {
+    flex-wrap: wrap;
+  }
+
   .settings label {
-    width: 100%;
-    justify-content: space-between;
+    width: auto;
+    justify-content: flex-start;
   }
 
   .settings input[type="number"] {
-    width: 72px;
+    width: 52px;
+  }
+
+  .card.is-editing {
+    grid-column: span 1;
+  }
+
+  .card-edit {
+    grid-template-columns: 1fr;
   }
 }
