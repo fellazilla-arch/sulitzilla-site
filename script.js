@@ -405,6 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { model: 'Pixel 11 Pro', storage: '256GB', condition: 'New', code: 'B3981' },
         { model: 'Pixel 11 Pro', storage: '256GB', condition: 'Used', code: 'B3985' },
         { model: 'Pixel 11 Pro', storage: '512GB', condition: 'New', code: 'B3982' },
+        { model: 'Pixel 11 Pro', storage: '512GB', condition: 'Used', code: 'B4656' },
         { model: 'Pixel 11 Pro', storage: '1TB', condition: 'New', code: 'B3983' },
         { model: 'Pixel 11 Pro', storage: '1TB', condition: 'Used', code: 'B3986' },
         { model: 'Pixel 11 Pro XL', storage: '256GB', condition: 'New', code: 'B3987' },
