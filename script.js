@@ -430,12 +430,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const stockModalBodyEl = document.getElementById('stock-modal-body');
     const stockModalCloseEl =
         stockOverlayEl && stockOverlayEl.querySelector('.stock-modal-close');
-    const accessoriesOverlayEl = document.getElementById('accessories-overlay');
-    const accessoriesModalTitleEl = document.getElementById('accessories-modal-title');
-    const accessoriesModalBodyEl = document.getElementById('accessories-modal-body');
-    const accessoriesModalCloseEl =
-        accessoriesOverlayEl && accessoriesOverlayEl.querySelector('.stock-modal-close');
-
     function closeStockModal() {
         if (!stockOverlayEl) return;
         stockOverlayEl.hidden = true;
@@ -448,30 +442,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function closeAccessoriesModal() {
-        if (!accessoriesOverlayEl) return;
-        accessoriesOverlayEl.hidden = true;
-        accessoriesOverlayEl.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-        document.querySelectorAll('.model-accessories-link[aria-expanded="true"]').forEach(function (btn) {
-            btn.setAttribute('aria-expanded', 'false');
-        });
-    }
-
     if (stockOverlayEl) {
         stockOverlayEl.addEventListener('click', function (e) {
             if (e.target === stockOverlayEl) closeStockModal();
         });
         if (stockModalCloseEl) stockModalCloseEl.addEventListener('click', closeStockModal);
-    }
-
-    if (accessoriesOverlayEl) {
-        accessoriesOverlayEl.addEventListener('click', function (e) {
-            if (e.target === accessoriesOverlayEl) closeAccessoriesModal();
-        });
-        if (accessoriesModalCloseEl) {
-            accessoriesModalCloseEl.addEventListener('click', closeAccessoriesModal);
-        }
     }
 
     document.addEventListener('keydown', function (e) {
@@ -482,10 +457,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (goodVsExcellentOverlay && !goodVsExcellentOverlay.hidden) {
             closeGoodVsExcellentOverlay();
-            return;
-        }
-        if (accessoriesOverlayEl && !accessoriesOverlayEl.hidden) {
-            closeAccessoriesModal();
             return;
         }
         if (stockOverlayEl && !stockOverlayEl.hidden) closeStockModal();
@@ -1101,136 +1072,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (triggerBtn) triggerBtn.setAttribute('aria-expanded', 'true');
     }
 
-    function buildAccessoriesByModel(list) {
-        const map = new Map();
-        if (!Array.isArray(list)) return map;
-        list.forEach(function (item) {
-            if (!item || !item.phoneModel) return;
-            if (!map.has(item.phoneModel)) map.set(item.phoneModel, []);
-            map.get(item.phoneModel).push(item);
-        });
-        map.forEach(function (items) {
-            items.sort(function (a, b) {
-                const catA = a.category === 'Cases' ? 0 : 1;
-                const catB = b.category === 'Cases' ? 0 : 1;
-                if (catA !== catB) return catA - catB;
-                const rankA = INVENTORY_STATUS_RANK[a.availability] ?? 99;
-                const rankB = INVENTORY_STATUS_RANK[b.availability] ?? 99;
-                if (rankA !== rankB) return rankA - rankB;
-                const productCmp = String(a.product || '').localeCompare(String(b.product || ''));
-                if (productCmp) return productCmp;
-                return String(a.color || '').localeCompare(String(b.color || ''));
-            });
-        });
-        return map;
-    }
-
-    function createAccessoriesRow(item) {
-        const row = document.createElement('div');
-        row.className = 'accessories-row';
-
-        const productCol = document.createElement('div');
-        productCol.className = 'accessories-product';
-        const nameEl = document.createElement('div');
-        nameEl.className = 'accessories-product-name';
-        nameEl.textContent = item.product || '—';
-        productCol.appendChild(nameEl);
-        row.appendChild(productCol);
-
-        const colorCol = document.createElement('div');
-        colorCol.className = 'accessories-color';
-        if (item.color) {
-            colorCol.appendChild(createColorDot(item.color));
-            const colorName = document.createElement('span');
-            colorName.className = 'accessories-color-name';
-            colorName.textContent = item.color;
-            colorCol.appendChild(colorName);
-        } else {
-            colorCol.textContent = '—';
-        }
-        row.appendChild(colorCol);
-
-        const metaCol = document.createElement('div');
-        metaCol.className = 'accessories-meta';
-        metaCol.appendChild(createStatusPill(item.availability));
-        if (item.quantity > 1) {
-            const qty = document.createElement('span');
-            qty.className = 'accessories-qty';
-            qty.textContent = item.quantity + ' available';
-            metaCol.appendChild(qty);
-        }
-        if (item.price != null && item.price > 0) {
-            const price = document.createElement('div');
-            price.className = 'accessories-price';
-            price.textContent = formatPesoPrice(item.price);
-            metaCol.appendChild(price);
-        }
-        row.appendChild(metaCol);
-        return row;
-    }
-
-    function createAccessoriesSection(title, items) {
-        const section = document.createElement('section');
-        section.className = 'accessories-section';
-        const heading = document.createElement('h3');
-        heading.className = 'accessories-section__heading';
-        heading.textContent = title;
-        section.appendChild(heading);
-
-        const table = document.createElement('div');
-        table.className = 'accessories-table';
-        items.forEach(function (item) {
-            table.appendChild(createAccessoriesRow(item));
-        });
-        section.appendChild(table);
-        return section;
-    }
-
-    function createAccessoriesPanelContent(modelName, items) {
-        const panel = document.createElement('div');
-        panel.className = 'accessories-panel';
-
-        if (!items || !items.length) {
-            const empty = document.createElement('p');
-            empty.className = 'accessories-empty';
-            empty.textContent = 'No cases or screen protectors available for this model right now.';
-            panel.appendChild(empty);
-            return panel;
-        }
-
-        const cases = items.filter(function (item) {
-            return item.category === 'Cases';
-        });
-        const protectors = items.filter(function (item) {
-            return item.category === 'Screen Protectors';
-        });
-
-        if (cases.length) {
-            panel.appendChild(createAccessoriesSection('Cases', cases));
-        }
-        if (protectors.length) {
-            panel.appendChild(createAccessoriesSection('Screen Protectors', protectors));
-        }
-        return panel;
-    }
-
-    function openAccessoriesModal(modelName, items, triggerBtn) {
-        if (!accessoriesOverlayEl || !accessoriesModalTitleEl || !accessoriesModalBodyEl) return;
-
-        accessoriesModalTitleEl.textContent = modelName + ' — Cases & Screen Protectors';
-        accessoriesModalBodyEl.innerHTML = '';
-        accessoriesModalBodyEl.appendChild(createAccessoriesPanelContent(modelName, items));
-
-        accessoriesOverlayEl.hidden = false;
-        accessoriesOverlayEl.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-
-        document.querySelectorAll('.model-accessories-link[aria-expanded="true"]').forEach(function (btn) {
-            btn.setAttribute('aria-expanded', 'false');
-        });
-        if (triggerBtn) triggerBtn.setAttribute('aria-expanded', 'true');
-    }
-
     function isIncomingAvailability(availability) {
         const label = String(availability || '').trim();
         return label !== 'In Stock' && /arriving/i.test(label);
@@ -1368,9 +1209,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return btn;
     }
 
-    function createModelGroupElement(modelName, variants, inventoryUnits, accessoryItems) {
+    function createModelGroupElement(modelName, variants, inventoryUnits) {
         inventoryUnits = inventoryUnits || [];
-        accessoryItems = accessoryItems || [];
 
         const catalog = window.PIXEL_CATALOG;
         const imageUrl = catalog
@@ -1576,24 +1416,6 @@ document.addEventListener('DOMContentLoaded', function() {
         groupEl.appendChild(headerEl);
         groupEl.appendChild(bodyEl);
 
-        if (accessoryItems.length) {
-            const footerEl = document.createElement('div');
-            footerEl.className = 'model-accessories-footer';
-            const accessoriesBtn = document.createElement('button');
-            accessoriesBtn.type = 'button';
-            accessoriesBtn.className = 'model-accessories-link';
-            accessoriesBtn.textContent = 'View cases & screen protectors';
-            accessoriesBtn.setAttribute('aria-haspopup', 'dialog');
-            accessoriesBtn.setAttribute('aria-expanded', 'false');
-            accessoriesBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                openAccessoriesModal(modelName, accessoryItems, accessoriesBtn);
-            });
-            footerEl.appendChild(accessoriesBtn);
-            groupEl.appendChild(footerEl);
-        }
-
         return groupEl;
     }
 
@@ -1798,9 +1620,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return models;
     }
 
-    function renderPricingList(pricingData, inventoryByModel, accessoriesByModel) {
+    function renderPricingList(pricingData, inventoryByModel) {
         inventoryByModel = inventoryByModel || new Map();
-        accessoriesByModel = accessoriesByModel || new Map();
         if (!pricingListEl || !pricingEmptyStateEl) return;
 
         const models = buildModelsFromPricingData(pricingData);
@@ -1817,13 +1638,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const fragment = document.createDocumentFragment();
         models.forEach(function (entry) {
             const inventoryUnits = inventoryByModel.get(entry.model) || [];
-            const accessoryItems = accessoriesByModel.get(entry.model) || [];
-            const groupEl = createModelGroupElement(
-                entry.model,
-                entry.variants,
-                inventoryUnits,
-                accessoryItems
-            );
+            const groupEl = createModelGroupElement(entry.model, entry.variants, inventoryUnits);
             if (groupEl) fragment.appendChild(groupEl);
         });
 
@@ -1832,11 +1647,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const CACHE_KEY = 'sulitzilla_prices';
     const INVENTORY_CACHE_KEY = 'sulitzilla_inventory';
-    const ACCESSORIES_CACHE_KEY = 'sulitzilla_accessories';
     const SYNC_CACHE_AT_KEY = 'sulitzilla_sync_at';
     const SERVER_SYNC_AT_KEY = 'sulitzilla_server_sync_at';
     const BROWSER_CACHE_VERSION_KEY = 'sulitzilla_cache_version';
-    const BROWSER_CACHE_VERSION = '3';
+    const BROWSER_CACHE_VERSION = '4';
 
     function ensureBrowserCacheVersion() {
         try {
@@ -1845,7 +1659,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             localStorage.removeItem(CACHE_KEY);
             localStorage.removeItem(INVENTORY_CACHE_KEY);
-            localStorage.removeItem(ACCESSORIES_CACHE_KEY);
+            localStorage.removeItem('sulitzilla_accessories');
             localStorage.removeItem(SYNC_CACHE_AT_KEY);
             localStorage.removeItem(CACHE_KEY + '_at');
             localStorage.removeItem(SERVER_SYNC_AT_KEY);
@@ -1897,7 +1711,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return localStorage.getItem(SYNC_CACHE_AT_KEY) || localStorage.getItem(CACHE_KEY + '_at');
     }
 
-    function saveSyncCache(pricesList, inventoryList, accessoriesList, timestamp) {
+    function saveSyncCache(pricesList, inventoryList, timestamp) {
         try {
             const at = String(timestamp);
             if (Array.isArray(pricesList)) {
@@ -1905,9 +1719,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if (Array.isArray(inventoryList)) {
                 localStorage.setItem(INVENTORY_CACHE_KEY, JSON.stringify(inventoryList));
-            }
-            if (Array.isArray(accessoriesList)) {
-                localStorage.setItem(ACCESSORIES_CACHE_KEY, JSON.stringify(accessoriesList));
             }
             localStorage.setItem(SYNC_CACHE_AT_KEY, at);
             localStorage.setItem(CACHE_KEY + '_at', at);
@@ -1918,17 +1729,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function readInventoryCache() {
         try {
             const cached = localStorage.getItem(INVENTORY_CACHE_KEY);
-            if (!cached) return [];
-            const list = JSON.parse(cached);
-            return Array.isArray(list) ? list : [];
-        } catch (e) {
-            return [];
-        }
-    }
-
-    function readAccessoriesCache() {
-        try {
-            const cached = localStorage.getItem(ACCESSORIES_CACHE_KEY);
             if (!cached) return [];
             const list = JSON.parse(cached);
             return Array.isArray(list) ? list : [];
@@ -1950,21 +1750,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (e) {}
         return readInventoryCache();
-    }
-
-    async function fetchAccessoriesList(forceRefresh) {
-        const url = withRefreshParam(window.GRIST_ACCESSORIES_URL, forceRefresh);
-        if (!url) return [];
-        try {
-            const r = await fetch(url, { cache: 'no-store' });
-            if (!r.ok) return [];
-            const json = await r.json();
-            const list = Array.isArray(json) ? json : (json && json.data);
-            if (Array.isArray(list)) {
-                return list;
-            }
-        } catch (e) {}
-        return readAccessoriesCache();
     }
 
     function setPricingLastUpdated(timestamp) {
@@ -2023,12 +1808,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const list = JSON.parse(cached);
             const inventoryList = JSON.parse(inventoryCached);
             if (!Array.isArray(list) || !Array.isArray(inventoryList)) return false;
-            const accessoriesList = readAccessoriesCache();
             const data = mergePricesFromList(list);
             const inventoryByModel = buildInventoryByModel(inventoryList);
-            const accessoriesByModel = buildAccessoriesByModel(accessoriesList);
             setPricingLastUpdated(cachedServerAt);
-            renderPricingList(data, inventoryByModel, accessoriesByModel);
+            renderPricingList(data, inventoryByModel);
             return true;
         } catch (e) {
             return false;
@@ -2041,12 +1824,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let data = FALLBACK_PRICING_DATA;
         let inventoryByModel = buildInventoryByModel(readInventoryCache());
-        let accessoriesByModel = buildAccessoriesByModel(readAccessoriesCache());
         const url = window.GRIST_PRICES_URL;
 
         if (!url) {
                             hidePricingLoader();
-            renderPricingList(data, inventoryByModel, accessoriesByModel);
+            renderPricingList(data, inventoryByModel);
                             return;
                         }
 
@@ -2066,13 +1848,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 return r.json();
             });
             const inventoryPromise = fetchInventoryList(forceRefresh);
-            const accessoriesPromise = fetchAccessoriesList(forceRefresh);
-            const results = await Promise.all([pricePromise, inventoryPromise, accessoriesPromise]);
+            const results = await Promise.all([pricePromise, inventoryPromise]);
             const json = results[0];
             const invList = results[1];
-            const accessoriesList = results[2];
             inventoryByModel = buildInventoryByModel(invList);
-            accessoriesByModel = buildAccessoriesByModel(accessoriesList);
             const list = json
                 ? Array.isArray(json)
                     ? json
@@ -2082,11 +1861,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!serverSyncAt) {
                 serverSyncAt = await fetchServerSyncAt();
             }
-            if (
-                pricesList ||
-                (Array.isArray(invList) && invList.length > 0) ||
-                (Array.isArray(accessoriesList) && accessoriesList.length > 0)
-            ) {
+            if (pricesList || (Array.isArray(invList) && invList.length > 0)) {
                 let pricesToStore = pricesList;
                 if (!pricesToStore) {
                     try {
@@ -2096,12 +1871,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         pricesToStore = [];
                     }
                 }
-                saveSyncCache(
-                    pricesToStore,
-                    invList,
-                    accessoriesList,
-                    serverSyncAt || Date.now()
-                );
+                saveSyncCache(pricesToStore, invList, serverSyncAt || Date.now());
                 if (serverSyncAt) saveServerSyncAt(serverSyncAt);
                 setPricingLastUpdated(serverSyncAt || Date.now());
             }
@@ -2116,7 +1886,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         hidePricingLoader();
-        renderPricingList(data, inventoryByModel, accessoriesByModel);
+        renderPricingList(data, inventoryByModel);
     }
 
     loadPrices(false);

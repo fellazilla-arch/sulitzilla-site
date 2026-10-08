@@ -158,16 +158,22 @@
         <div id="stock-overlay" class="stock-overlay" hidden aria-hidden="true">
             <div class="stock-modal" role="dialog" aria-labelledby="stock-modal-title" aria-modal="true">
                 <button type="button" class="stock-modal-close" aria-label="Close">Close</button>
-                <h2 id="stock-modal-title" class="stock-modal-title"></h2>
+                <div class="stock-modal-header">
+                    <h2 id="stock-modal-title" class="stock-modal-title"></h2>
+                    <p class="stock-modal-hint">
+                        Don't see what you're looking for?
+                        <a href="https://m.me/sulitzilla" target="_blank" rel="noopener noreferrer" class="nav-message-link stock-modal-message-link">
+                            <span>Message us</span>
+                            <span class="nav-message-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 12c0 4.418 3.582 8 8 8 1.335 0 2.59-.324 3.7-.9L20 20l-.9-4.3A7.963 7.963 0 0 0 20 12c0-4.418-3.582-8-8-8S4 7.582 4 12z"></path>
+                                    <path d="m8.5 13.5 2.5-3 2.5 3 2.5-3"></path>
+                                </svg>
+                            </span>
+                        </a>
+                    </p>
+                </div>
                 <div id="stock-modal-body" class="stock-modal-body"></div>
-            </div>
-        </div>
-
-        <div id="accessories-overlay" class="stock-overlay" hidden aria-hidden="true">
-            <div class="stock-modal accessories-modal" role="dialog" aria-labelledby="accessories-modal-title" aria-modal="true">
-                <button type="button" class="stock-modal-close" aria-label="Close">Close</button>
-                <h2 id="accessories-modal-title" class="stock-modal-title"></h2>
-                <div id="accessories-modal-body" class="stock-modal-body"></div>
             </div>
         </div>
 
@@ -184,7 +190,6 @@
     <script>
         window.GRIST_PRICES_URL = '/api/prices';
         window.GRIST_INVENTORY_URL = '/api/inventory';
-        window.GRIST_ACCESSORIES_URL = '/api/accessories';
         window.GRIST_SYNC_STATUS_URL = '/api/sync-status';
     </script>
     <script src="/pixel-catalog.js"></script>

@@ -2,8 +2,6 @@
  * Prices API for sulitzilla.com (DigitalOcean or local).
  * GET /api/prices → fetches Grist table, returns [{ code, price }, ...].
  * GET /api/inventory → available Pixel units [{ model, storage, color, condition, grade, availability, hasIssue, video? }, ...].
- * GET /api/accessories → cases & screen protectors for Pixel models
- *   [{ phoneModel, category, product, color, availability, quantity, price? }, ...].
  * Grist data is cached server-side and refreshed daily at 6pm (Asia/Manila) on the server.
  * Manual sync: POST /api/admin/sync?key=YOUR_GRIST_SYNC_SECRET (set in server/.env).
  *
@@ -224,26 +222,6 @@ const INVENTORY_STATUS_LABELS = {
   'AWAITING TRACKING': 'Arriving in 3–4 weeks',
 };
 
-const ACCESSORY_ALLOWED_STATUSES = new Set([
-  'LIVE',
-  'ARRIVED',
-  'STOCK',
-  'AIR KANGO',
-  'OTW KANGO',
-  'AWAITING TRACKING',
-]);
-
-const ACCESSORY_STATUS_LABELS = {
-  LIVE: 'In Stock',
-  ARRIVED: 'In Stock',
-  STOCK: 'In Stock',
-  'AIR KANGO': 'Arriving in 1–2 weeks',
-  'OTW KANGO': 'Arriving in 2–3 weeks',
-  'AWAITING TRACKING': 'Arriving in 3–4 weeks',
-};
-
-const ACCESSORY_CATEGORIES = new Set(['CASES', 'SCREEN PROTECTORS']);
-
 function cleanModelName(name) {
   let raw = name;
   if (Array.isArray(name)) {
@@ -287,103 +265,6 @@ function mapInventoryRecord(fields) {
     hasIssue,
     video,
   };
-}
-
-/** Parse Pixel model names from Cases/Screen Protector VARIATION (e.g. "L,Pixel 10,Pixel 10 Pro"). */
-function extractCompatiblePixelModels(variation) {
-  const raw = String(variation ?? '').trim();
-  if (!raw) return [];
-  const cleaned = cleanModelName(raw);
-  return cleaned
-    .split(',')
-    .map((part) => cleanModelName(part.trim()))
-    .filter((part) => part && /^Pixel\b/i.test(part));
-}
-
-function accessoryCategoryLabel(categoryRaw) {
-  const cat = String(categoryRaw || '').trim().toUpperCase();
-  if (cat === 'CASES') return 'Cases';
-  if (cat === 'SCREEN PROTECTORS') return 'Screen Protectors';
-  return String(categoryRaw || '').trim();
-}
-
-function mapAccessoryUnit(fields) {
-  const categoryRaw = String(fields.CATEGORY ?? '').trim();
-  if (!ACCESSORY_CATEGORIES.has(categoryRaw.toUpperCase())) return null;
-  if (fields.DO_NOT_COUNT) return null;
-
-  const notes = String(fields.NOTES ?? '').trim();
-  if (/reserve/i.test(notes)) return null;
-
-  const statusRaw = String(fields.STATUS ?? '').trim().toUpperCase();
-  if (!ACCESSORY_ALLOWED_STATUSES.has(statusRaw)) return null;
-
-  const phoneModels = extractCompatiblePixelModels(fields.VARIATION);
-  if (!phoneModels.length) return null;
-
-  const product = cleanModelName(fields.MODEL_PRODUCT ?? fields.MODEL ?? '');
-  if (!product) return null;
-
-  const priceRaw = fields.PRICES ?? fields.Price ?? fields.price ?? null;
-  const priceNum =
-    priceRaw === null || priceRaw === undefined || priceRaw === ''
-      ? null
-      : typeof priceRaw === 'number'
-        ? priceRaw
-        : Number(priceRaw);
-
-  return {
-    phoneModels,
-    category: accessoryCategoryLabel(categoryRaw),
-    product,
-    color: String(fields.COLOR_FLAVOR ?? '').trim(),
-    availability: ACCESSORY_STATUS_LABELS[statusRaw],
-    price: priceNum !== null && !Number.isNaN(priceNum) && priceNum > 0 ? priceNum : null,
-  };
-}
-
-function buildAccessoryList(records) {
-  const merged = new Map();
-
-  records.forEach((rec) => {
-    const unit = mapAccessoryUnit(rec.fields || {});
-    if (!unit) return;
-
-    unit.phoneModels.forEach((phoneModel) => {
-      const key = [
-        phoneModel.toLowerCase(),
-        unit.category.toLowerCase(),
-        unit.product.toLowerCase(),
-        unit.color.toLowerCase(),
-        unit.availability,
-        unit.price == null ? '' : String(unit.price),
-      ].join('|');
-
-      if (merged.has(key)) {
-        merged.get(key).quantity += 1;
-      } else {
-        merged.set(key, {
-          phoneModel,
-          category: unit.category,
-          product: unit.product,
-          color: unit.color,
-          availability: unit.availability,
-          quantity: 1,
-          price: unit.price,
-        });
-      }
-    });
-  });
-
-  return Array.from(merged.values()).sort((a, b) => {
-    const modelCmp = String(a.phoneModel).localeCompare(String(b.phoneModel));
-    if (modelCmp) return modelCmp;
-    const catCmp = String(a.category).localeCompare(String(b.category));
-    if (catCmp) return catCmp;
-    const productCmp = String(a.product).localeCompare(String(b.product));
-    if (productCmp) return productCmp;
-    return String(a.color).localeCompare(String(b.color));
-  });
 }
 
 async function fetchGristRecords() {
@@ -471,19 +352,6 @@ app.get('/api/inventory', async (req, res) => {
     res.json(list);
   } catch (err) {
     sendGristError(res, err, '/api/inventory');
-  }
-});
-
-app.get('/api/accessories', async (req, res) => {
-  try {
-    const force = wantsForceSync(req);
-    const records = await getGristRecords(force);
-    const list = buildAccessoryList(records);
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Cache-Control', 'no-store');
-    res.json(list);
-  } catch (err) {
-    sendGristError(res, err, '/api/accessories');
   }
 });
 
