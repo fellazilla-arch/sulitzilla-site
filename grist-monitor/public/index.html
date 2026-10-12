@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grist Memory Monitor</title>
+  <link rel="stylesheet" href="monitor.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Grist memory monitor</h1>
+      <p class="sub">Live Node / Python RSS on the droplet. Keep this tab open while testing.</p>
+    </div>
+    <div class="status-pill" id="statusPill">Connecting…</div>
+  </header>
+
+  <section class="cards">
+    <article class="card highlight">
+      <div class="label">Node RSS</div>
+      <div class="value" id="nodeRss">—</div>
+      <div class="hint" id="heapCeiling">heap ceiling —</div>
+    </article>
+    <article class="card">
+      <div class="label">Python RSS</div>
+      <div class="value" id="pythonRss">—</div>
+      <div class="hint">formula engine</div>
+    </article>
+    <article class="card">
+      <div class="label">Container</div>
+      <div class="value" id="containerMem">—</div>
+      <div class="hint" id="containerCpu">CPU —</div>
+    </article>
+    <article class="card">
+      <div class="label">Connections</div>
+      <div class="value" id="connections">—</div>
+      <div class="hint" id="docClients">doc clients —</div>
+    </article>
+    <article class="card">
+      <div class="label">Host free RAM</div>
+      <div class="value" id="hostFree">—</div>
+      <div class="hint" id="gristUptime">uptime —</div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Memory over time</h2>
+      <div class="legend">
+        <span class="dot node"></span> Node
+        <span class="dot python"></span> Python
+        <span class="dot container"></span> Container
+      </div>
+    </div>
+    <canvas id="chart" width="1200" height="320"></canvas>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Stress test</h2>
+      <p class="sub">Runs on the server against Inventory — simulates heavy API load from multiple tabs.</p>
+    </div>
+    <div class="stress-controls">
+      <label>
+        Profile
+        <select id="stressProfile">
+          <option value="light">Light — 5 parallel reads</option>
+          <option value="medium" selected>Medium — 15 parallel reads</option>
+          <option value="heavy">Heavy — 30 full-table fetches</option>
+          <option value="tabs">Tab simulator — 12 sustained loads</option>
+        </select>
+      </label>
+      <label>
+        Duration (minutes)
+        <input id="stressMinutes" type="number" min="1" max="60" value="5">
+      </label>
+      <button id="startStress" class="btn primary">Start stress</button>
+      <button id="stopStress" class="btn danger" disabled>Stop</button>
+    </div>
+    <div class="stress-status" id="stressStatus">Idle</div>
+  </section>
+
+  <script src="monitor.js"></script>
+</body>
+</html>
