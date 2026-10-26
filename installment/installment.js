@@ -23,11 +23,12 @@
     const modalBodyEl = document.getElementById('plans-modal-body');
     const modalCloseEl = overlayEl.querySelector('.stock-modal-close');
     const softOverlayEl = document.getElementById('soft-unlocked-overlay');
+    const gradingOverlayEl = document.getElementById('good-vs-excellent-overlay');
 
     let banks = [];
     let selectedBank = null;
     let lastTrigger = null;
-    let softLastFocus = null;
+    let infoLastFocus = null;
     const plansState = { openUnit: null, othersOpen: false };
     const RESERVE_NOTE = 'Units below will take 3–4 weeks to arrive after ordering.';
 
@@ -626,6 +627,29 @@
         parent.appendChild(note);
     }
 
+    function createGradingLink() {
+        const link = document.createElement('button');
+        link.type = 'button';
+        link.className = 'inst-grading-link';
+        link.setAttribute('aria-haspopup', 'dialog');
+        link.textContent = 'How do we grade used units?';
+        link.addEventListener('click', function (e) {
+            e.stopPropagation();
+            openGradingOverlay();
+        });
+        return link;
+    }
+
+    /** Puts a link on the right of a choice group's label. */
+    function addLabelLink(group, link) {
+        const label = group.querySelector('.inst-choice-label');
+        const head = document.createElement('div');
+        head.className = 'inst-choice-head';
+        group.insertBefore(head, label);
+        head.appendChild(label);
+        head.appendChild(link);
+    }
+
     function findOption(model, unit) {
         return model.visibleOptions.find(function (o) {
             return o.spec === unit.spec && o.soft === unit.soft && o.grade === unit.grade;
@@ -752,6 +776,9 @@
         label.className = 'inst-choice-label';
         label.textContent = 'Available stock';
         group.appendChild(label);
+        if (model.stockUnits.some(function (u) { return u.grade !== 'New'; })) {
+            addLabelLink(group, createGradingLink());
+        }
 
         const showSpec = model.stockUnits.some(function (u) { return u.spec; });
         const table = document.createElement('div');
@@ -1013,33 +1040,53 @@
         }
     }
 
-    function openSoftOverlay() {
-        softLastFocus = document.activeElement;
-        softOverlayEl.hidden = false;
-        softOverlayEl.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-        softOverlayEl.querySelector('.extracare-close').focus();
+    /** Small explainer popups (Soft unlocked, grading) that open on top of the plans popup. */
+    const infoOverlays = [softOverlayEl, gradingOverlayEl];
+
+    function infoCloseButton(el) {
+        return el.querySelector('.extracare-close, .good-vs-excellent-close');
     }
 
-    function closeSoftOverlay() {
-        softOverlayEl.hidden = true;
-        softOverlayEl.setAttribute('aria-hidden', 'true');
+    function openInfoOverlay(el) {
+        infoLastFocus = document.activeElement;
+        el.hidden = false;
+        el.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        infoCloseButton(el).focus();
+    }
+
+    function closeInfoOverlay(el) {
+        el.hidden = true;
+        el.setAttribute('aria-hidden', 'true');
         if (overlayEl.hidden) document.body.style.overflow = '';
-        if (softLastFocus && document.contains(softLastFocus)) softLastFocus.focus();
-        softLastFocus = null;
+        if (infoLastFocus && document.contains(infoLastFocus)) infoLastFocus.focus();
+        infoLastFocus = null;
+    }
+
+    function openSoftOverlay() {
+        openInfoOverlay(softOverlayEl);
+    }
+
+    function openGradingOverlay() {
+        openInfoOverlay(gradingOverlayEl);
     }
 
     overlayEl.addEventListener('click', function (e) {
         if (e.target === overlayEl) closeModal();
     });
     modalCloseEl.addEventListener('click', closeModal);
-    softOverlayEl.addEventListener('click', function (e) {
-        if (e.target === softOverlayEl) closeSoftOverlay();
+    infoOverlays.forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            if (e.target === el) closeInfoOverlay(el);
+        });
+        infoCloseButton(el).addEventListener('click', function () {
+            closeInfoOverlay(el);
+        });
     });
-    softOverlayEl.querySelector('.extracare-close').addEventListener('click', closeSoftOverlay);
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
-        if (!softOverlayEl.hidden) closeSoftOverlay();
+        const openInfo = infoOverlays.find(function (el) { return !el.hidden; });
+        if (openInfo) closeInfoOverlay(openInfo);
         else if (!overlayEl.hidden) closeModal();
     });
 
