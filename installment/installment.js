@@ -30,6 +30,7 @@
     let lastTrigger = null;
     let softLastFocus = null;
     const plansState = { openUnit: null, othersOpen: false };
+    const RESERVE_NOTE = 'Units below will take 3–4 weeks to arrive after ordering.';
 
     function formatPeso(amount) {
         return '₱' + amount.toLocaleString('en-PH');
@@ -195,6 +196,11 @@
         model.visibleOptions = model.options.filter(function (option) {
             const stockOnly = categoryStockOnly || option.soft || option.grade === 'Issue';
             return !stockOnly || optionStatus(model, option).type !== 'restock';
+        });
+        // Ungraded incoming units could land as any used grade, so they don't cover a grade here.
+        model.reserveOptions = model.visibleOptions.filter(function (option) {
+            if (option.grade === 'Issue') return false;
+            return !unitsForOption(model, option).some(function (u) { return !u.ungraded; });
         });
         return model;
     }
@@ -593,7 +599,7 @@
 
     /** Snap a requested selection onto an option that exists, keeping as much of it as possible. */
     function resolveSelection(model, want) {
-        const options = model.visibleOptions;
+        const options = model.reserveOptions;
         const byGrade = options.filter(function (o) { return o.grade === want.grade; });
         if (!byGrade.length) return cheapestRegular(options);
         let bySpec = byGrade.filter(function (o) { return o.spec === want.spec; });
@@ -682,26 +688,26 @@
         return '/installment/bank-' + bank.name.toLowerCase().replace(/\s+/g, '') + '.png';
     }
 
-    function createBankButtons(onPick) {
+    function createBankButtons(onPick, pressedBank) {
         const strip = document.createElement('div');
         strip.className = 'inst-unit-banks';
 
-        const label = document.createElement('span');
+        const label = document.createElement('p');
         label.className = 'inst-unit-banks__label';
-        label.textContent = 'Your card:';
+        label.textContent = 'Choose your card:';
         strip.appendChild(label);
-        strip.appendChild(createBankLogos(onPick));
+        strip.appendChild(createBankLogos(onPick, pressedBank));
         return strip;
     }
 
-    function createBankLogos(onPick) {
+    function createBankLogos(onPick, pressedBank) {
         const logos = document.createElement('span');
         logos.className = 'inst-unit-banks__logos';
         banks.forEach(function (bank) {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'inst-bank-btn';
-            btn.setAttribute('aria-pressed', bank === selectedBank ? 'true' : 'false');
+            btn.setAttribute('aria-pressed', bank === pressedBank ? 'true' : 'false');
             btn.setAttribute('aria-label', bank.name + ' installment plans');
             const img = document.createElement('img');
             img.src = bankLogoUrl(bank);
@@ -733,7 +739,7 @@
         }
     }
 
-    /** Units in stock or incoming; "View plans" expands a unit's card picker and plans in place. */
+    /** Units in stock or incoming; tapping a card under a unit expands its plans in place. */
     function createStockList(model, category, rerender) {
         const group = document.createElement('div');
         group.className = 'inst-choice-group';
@@ -779,6 +785,7 @@
             }
 
             function pickBank(bank) {
+                plansState.openUnit = isOpen && bank === selectedBank ? null : index;
                 selectedBank = bank;
                 rerender();
             }
@@ -816,28 +823,14 @@
             unitEl.appendChild(row);
 
             if (unitOption) {
-                const toggleWrap = document.createElement('div');
-                toggleWrap.className = 'inst-unit-toggle';
-                const toggleBtn = document.createElement('button');
-                toggleBtn.type = 'button';
-                toggleBtn.className = 'inst-view-plans';
-                toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                toggleBtn.textContent = isOpen ? 'Hide plans' : 'View plans';
-                toggleBtn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    toggle();
-                });
-                toggleWrap.appendChild(toggleBtn);
-                unitEl.appendChild(toggleWrap);
-
+                const plans = document.createElement('div');
+                plans.className = 'inst-unit-plans';
+                plans.appendChild(createBankButtons(pickBank, isOpen ? selectedBank : null));
                 if (isOpen) {
-                    const plans = document.createElement('div');
-                    plans.className = 'inst-unit-plans';
-                    plans.appendChild(createBankButtons(pickBank));
                     plans.appendChild(createPlansTable(unitOption.price, selectedBank));
                     addOptionNotes(plans, unitOption, unit.ungraded);
-                    unitEl.appendChild(plans);
                 }
+                unitEl.appendChild(plans);
             }
             tbody.appendChild(unitEl);
         });
@@ -846,39 +839,53 @@
         return group;
     }
 
-    /** Condition / storage / unlock / card pickers covering every listed option. */
+    /** Condition / storage / unlock / card pickers covering the options we'd order for a reservation. */
     function appendPickers(container, model, category, option, rerender) {
-        const options = model.visibleOptions;
+        const options = model.reserveOptions;
 
         function select(want) {
             rerender(resolveSelection(model, want));
         }
 
-        const grades = uniq(options.map(function (o) { return o.grade; }))
+        function conditionOf(grade) {
+            return grade === 'New' ? 'New' : 'Used';
+        }
+
+        // Always shown, even with a single choice, so a reservation spells out exactly what we'd order.
+        const conditions = uniq(options.map(function (o) { return conditionOf(o.grade); }))
+            .sort(function (a, b) { return a === 'New' ? -1 : b === 'New' ? 1 : 0; });
+        const usedGrades = uniq(options
+            .filter(function (o) { return o.grade !== 'New'; })
+            .map(function (o) { return o.grade; }))
             .sort(function (a, b) { return gradeRank(a) - gradeRank(b); });
-        if (grades.length > 1) {
+        container.appendChild(
+            createChoiceGroup(
+                'Condition',
+                conditions.map(function (c) { return { value: c, label: c }; }),
+                conditionOf(option.grade),
+                function (condition) {
+                    if (condition === conditionOf(option.grade)) return;
+                    const used = options.filter(function (o) { return o.grade !== 'New'; });
+                    const grade = condition === 'New' ? 'New' : cheapestRegular(used).grade;
+                    select({ spec: option.spec, grade: grade, soft: option.soft });
+                }
+            )
+        );
+
+        if (option.grade !== 'New') {
             container.appendChild(
                 createChoiceGroup(
-                    'Condition',
-                    grades.map(function (grade) { return { value: grade, label: grade }; }),
+                    'Grade',
+                    usedGrades.map(function (grade) { return { value: grade, label: grade }; }),
                     option.grade,
                     function (grade) { select({ spec: option.spec, grade: grade, soft: option.soft }); }
                 )
             );
-        } else {
-            const single = document.createElement('div');
-            single.className = 'inst-choice-group';
-            const label = document.createElement('p');
-            label.className = 'inst-choice-label';
-            label.textContent = 'Condition';
-            single.appendChild(label);
-            single.appendChild(createConditionTags({ grade: option.grade, soft: false }));
-            container.appendChild(single);
         }
 
         const gradeOptions = options.filter(function (o) { return o.grade === option.grade; });
-        const specs = uniq(gradeOptions.map(function (o) { return o.spec; }));
-        if (specs.length > 1) {
+        const specs = uniq(gradeOptions.map(function (o) { return o.spec; }).filter(Boolean));
+        if (specs.length) {
             container.appendChild(
                 createChoiceGroup(
                     SPEC_LABEL[category.key] || 'Option',
@@ -915,12 +922,11 @@
         bankGroup.appendChild(createBankLogos(function (bank) {
             selectedBank = bank;
             rerender(option);
-        }));
+        }, selectedBank));
         container.appendChild(bankGroup);
 
         container.appendChild(createPlansTable(option.price, selectedBank));
-        const status = optionStatus(model, option);
-        addOptionNotes(container, option, status.type === 'incoming' && status.ungraded);
+        addOptionNotes(container, option);
     }
 
     function renderPlansBody(model, category, option) {
@@ -938,10 +944,7 @@
             body.appendChild(createStockList(model, category, rerender));
         }
 
-        const hasOptionsBeyondStock = model.visibleOptions.some(function (o) {
-            return optionStatus(model, o).type === 'restock';
-        });
-        if (option && (hasOptionsBeyondStock || !model.stockUnits.length)) {
+        if (option) {
             if (model.stockUnits.length) {
                 const other = document.createElement('details');
                 other.className = 'inst-other';
@@ -952,6 +955,10 @@
                 const summary = document.createElement('summary');
                 summary.className = 'inst-other__summary';
                 summary.textContent = 'All options & prices';
+                const hint = document.createElement('span');
+                hint.className = 'inst-other__hint';
+                hint.textContent = RESERVE_NOTE;
+                summary.appendChild(hint);
                 other.appendChild(summary);
                 const otherBody = document.createElement('div');
                 otherBody.className = 'inst-other__body';
@@ -959,6 +966,10 @@
                 other.appendChild(otherBody);
                 body.appendChild(other);
             } else {
+                const hint = document.createElement('p');
+                hint.className = 'inst-reserve-note';
+                hint.textContent = RESERVE_NOTE;
+                body.appendChild(hint);
                 appendPickers(body, model, category, option, rerender);
             }
         }
@@ -974,7 +985,7 @@
         plansState.othersOpen = false;
         modalTitleEl.textContent = model.model + ' — Installment Plans';
         modalBodyEl.scrollTop = 0;
-        renderPlansBody(model, category, cheapestRegular(model.visibleOptions));
+        renderPlansBody(model, category, cheapestRegular(model.reserveOptions));
         overlayEl.hidden = false;
         overlayEl.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';

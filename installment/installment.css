@@ -244,59 +244,18 @@
     outline-offset: -2px;
 }
 
-.inst-unit-toggle {
-    padding: 0 14px 12px;
-}
-
-.inst-view-plans {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    font: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #1976d2;
-    background: #eef5ff;
-    border: 1px solid #c5d9f5;
-    border-radius: 999px;
-    cursor: pointer;
-}
-
-.inst-view-plans::after {
-    content: '';
-    width: 6px;
-    height: 6px;
-    margin-top: -3px;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: rotate(45deg);
-}
-
-.inst-view-plans[aria-expanded="true"]::after {
-    margin-top: 3px;
-    transform: rotate(-135deg);
-}
-
-.inst-view-plans:hover {
-    background: #e1edff;
-}
-
-.inst-view-plans:focus-visible {
-    outline: 2px solid #0b72e7;
-    outline-offset: 2px;
-}
-
 .inst-unit-banks {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
 }
 
 .inst-unit-banks__label {
+    margin: 0;
     font-size: 0.78rem;
-    color: #6b7280;
+    font-weight: 600;
+    color: #374151;
 }
 
 .inst-unit-banks__logos {
@@ -354,9 +313,9 @@
 }
 
 .inst-other {
-    border: 1px solid #e5e7eb;
+    border: 1px solid #f1deb4;
     border-radius: 10px;
-    background: #fff;
+    background: #fffaf0;
 }
 
 .inst-other__summary {
@@ -365,6 +324,28 @@
     font-weight: 600;
     color: #1976d2;
     cursor: pointer;
+}
+
+.inst-other__hint,
+.inst-reserve-note {
+    font-size: 0.78rem;
+    font-weight: 400;
+    line-height: 1.45;
+    color: #8a5a00;
+}
+
+.inst-other__hint {
+    display: block;
+    margin-top: 3px;
+    padding-left: 1em;
+}
+
+.inst-reserve-note {
+    margin: 0;
+    padding: 10px 12px;
+    background: #fffaf0;
+    border: 1px solid #f1deb4;
+    border-radius: 10px;
 }
 
 .inst-other__summary:focus-visible {
@@ -444,10 +425,6 @@
     .inst-stock-table .status-pill-eta {
         white-space: normal;
         text-align: right;
-    }
-
-    .inst-unit-banks__label {
-        flex-basis: 100%;
     }
 }
 
