@@ -1,0 +1,3262 @@
+{
+  "source": "asdas.xlsx",
+  "generatedAt": "2026-10-26T05:28:43+00:00",
+  "banks": [
+    {
+      "name": "BDO",
+      "fees": {
+        "3": 2.81,
+        "6": 5.1,
+        "9": 10.2,
+        "12": 10.2,
+        "18": 17.85,
+        "24": 17.85
+      }
+    },
+    {
+      "name": "BPI",
+      "fees": {
+        "3": 2.24,
+        "6": 4.59,
+        "9": 7.65,
+        "12": 8.67,
+        "18": 18.36,
+        "24": 11.22
+      }
+    },
+    {
+      "name": "HSBC",
+      "fees": {
+        "3": 2.04,
+        "6": 4.08,
+        "12": 8.67,
+        "24": 10.2
+      }
+    },
+    {
+      "name": "UnionBank",
+      "fees": {
+        "3": 2.04,
+        "6": 4.59,
+        "12": 9.18,
+        "24": 12.24,
+        "36": 16.32
+      }
+    }
+  ],
+  "categories": [
+    {
+      "key": "phones",
+      "label": "Phones",
+      "models": [
+        {
+          "model": "Pixel 11 Pro XL",
+          "options": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 80290,
+              "stock": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 89090,
+              "stock": 0
+            },
+            {
+              "spec": "1TB",
+              "soft": false,
+              "grade": "New",
+              "price": 105590,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 11 Pro",
+          "options": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 74790,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 85790,
+              "stock": 0
+            },
+            {
+              "spec": "1TB",
+              "soft": false,
+              "grade": "New",
+              "price": 105590,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Pixel 11",
+          "options": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 54990,
+              "stock": 2
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 69290,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "color": "Obsidian",
+              "qty": 2
+            }
+          ]
+        },
+        {
+          "model": "Pixel 10a",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 34090,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 29690,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 31090,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 27690,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 26690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 40690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 37690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 32090,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 31090,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Fog",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 10 Pro Fold",
+          "options": [
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 77190,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "Excellent",
+              "color": "Moonstone",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 10 Pro XL",
+          "options": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 54990,
+              "stock": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 61590,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Jade",
+              "qty": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 10 Pro",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 47190,
+              "stock": 2
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 43990,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 51590,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 47990,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 60490,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 57990,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Obsidian",
+              "qty": 2
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 10",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 41790,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 33990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 32990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 29990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 38790,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 30990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 29990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 48390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 38390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 37390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 34390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 45390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 35390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 34390,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "color": "Indigo",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 9a",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 28590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 26290,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 25290,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 23290,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 29690,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 26390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 25290,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 34090,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 29590,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 28590,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 26590,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Pixel 9 Pro Fold",
+          "options": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 69290,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 55990,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 54990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 76990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 72590,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 71490,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 73690,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 60390,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 59390,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "New",
+              "price": 86890,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 78090,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 76990,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 9 Pro XL",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 38390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 37390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 34390,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 44290,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 35390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 34390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 49790,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 38690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 37690,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 43990,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "New",
+              "price": 53090,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 41990,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 40990,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 9 Pro",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 51690,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 45090,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 43990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 39990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 39590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 37390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 36290,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Issue",
+              "price": 32390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 58290,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 50590,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 49490,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 46490,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 43990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 40690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 39590,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Issue",
+              "price": 35690,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 65990,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 63990,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 62990,
+              "stock": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 58990,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 9",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 31890,
+              "stock": 3
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 34390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 27690,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 26690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 37690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 32090,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 31090,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 3
+            }
+          ]
+        },
+        {
+          "model": "Pixel 8a",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 26390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 20790,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 19790,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "MDM",
+              "price": 16790,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 29690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 22990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 21990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "MDM",
+              "price": 18990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Pixel 8 Pro",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 36290,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 31890,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 30790,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 30350,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 27790,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 26590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 25590,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 40690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 37390,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 36290,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 35850,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 31090,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 29890,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 28890,
+              "stock": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 46190,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 41790,
+              "stock": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 40690,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 40250,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "New",
+              "price": 35490,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 33190,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 32190,
+              "stock": 0
+            },
+            {
+              "spec": "1TB",
+              "soft": false,
+              "grade": "New",
+              "price": 51790,
+              "stock": 0
+            },
+            {
+              "spec": "1TB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 46690,
+              "stock": 0
+            },
+            {
+              "spec": "1TB",
+              "soft": false,
+              "grade": "Good",
+              "price": 45690,
+              "stock": 0
+            },
+            {
+              "spec": "1TB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 46290,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 8",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 28590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 22990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 21990,
+              "stock": 2
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 18990,
+              "stock": 2
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 21190,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 2
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Obsidian",
+              "qty": 2
+            }
+          ]
+        },
+        {
+          "model": "Pixel Fold",
+          "options": [
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 36990,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 38990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Pixel 7a",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 19790,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 16390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 15390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 13990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Pixel 7 Pro",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 27490,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 20190,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 19190,
+              "stock": 2
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 18990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 31890,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 22990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 21990,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 25990,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 37390,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 25190,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 24190,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 29990,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 2
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 7",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 23090,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 18590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 17590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 15990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 19790,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 14190,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 13190,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 28590,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 22990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 21990,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 19990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 24190,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 16390,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 15390,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "color": "Lemongrass",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Obsidian",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 6a",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 16490,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 11990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 10990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 13190,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 10990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 9890,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Pixel 6 Pro",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 24190,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 16390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 12990,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 18090,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 15990,
+              "stock": 0
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 21890,
+              "stock": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 20890,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Stormy Black",
+              "qty": 1
+            },
+            {
+              "spec": "512GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Stormy Black",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 6",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 14890,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 12990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "New",
+              "price": 15390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 13190,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 12090,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 16390,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 13990,
+              "stock": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "New",
+              "price": 18690,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Excellent",
+              "price": 16490,
+              "stock": 0
+            },
+            {
+              "spec": "256GB",
+              "soft": true,
+              "grade": "Good",
+              "price": 15390,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Sorta Seafoam",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Stormy Black",
+              "qty": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Stormy Black",
+              "qty": 1
+            },
+            {
+              "spec": "256GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Stormy Black",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 5a",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 11490,
+              "stock": 3
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 10490,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Mostly Black",
+              "qty": 3
+            }
+          ]
+        },
+        {
+          "model": "Pixel 5",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 17590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 12390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 11390,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Just Black",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 4a 5G",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 13590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 12490,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 11490,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Just Black",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 4a",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 12990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 10490,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 9490,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Just Black",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 4 XL",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 10990,
+              "stock": 3
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 10490,
+              "stock": 2
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 12990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 11990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Just Black",
+              "qty": 2
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Oh So Orange",
+              "qty": 1
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Oh So Orange",
+              "qty": 2
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Clearly White",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Clearly White",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 4",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "New",
+              "price": 13990,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 10890,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 9890,
+              "stock": 1
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 6890,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 14990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 11990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 10990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 7990,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Just Black",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Just Black",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Clearly White",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 3a XL",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "New",
+              "price": 11990,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 9790,
+              "stock": 2
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 8790,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Clearly White",
+              "qty": 1
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Just Black",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 3a",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "New",
+              "price": 10990,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 8690,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 7690,
+              "stock": 2
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 4690,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Just Black",
+              "qty": 1
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Purple-ish",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 3 XL",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "New",
+              "price": 12990,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 9390,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 8390,
+              "stock": 2
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 6390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 13990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 10490,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 9490,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 7490,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Clearly White",
+              "qty": 1
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Not Pink",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Just Black",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Just Black",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel 3",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "New",
+              "price": 11990,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 8490,
+              "stock": 2
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 7490,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 12990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 9590,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 8590,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Just Black",
+              "qty": 2
+            }
+          ]
+        },
+        {
+          "model": "Pixel 2 XL",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "New",
+              "price": 10990,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 8290,
+              "stock": 3
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 7290,
+              "stock": 0
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 4290,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 11990,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 9390,
+              "stock": 0
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 8390,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 5390,
+              "stock": 3
+            }
+          ],
+          "units": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Black/White",
+              "qty": 1
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Just Black",
+              "qty": 2
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Just Black",
+              "qty": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Just Black",
+              "qty": 3
+            }
+          ]
+        },
+        {
+          "model": "Pixel 2",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 7190,
+              "stock": 1
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 6190,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 7290,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Just Black",
+              "qty": 1
+            },
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Just Black",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Motorola One 5G UW Ace",
+          "options": [
+            {
+              "spec": "64GB",
+              "soft": false,
+              "grade": "New",
+              "price": 9990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Motorola Razr 40",
+          "options": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 17990,
+              "stock": 1
+            },
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Issue",
+              "price": 15990,
+              "stock": 0
+            }
+          ],
+          "units": [
+            {
+              "spec": "128GB",
+              "soft": false,
+              "grade": "Good",
+              "color": "Green",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Motorola Razr 40 Ultra",
+          "options": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Issue",
+              "price": 17990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Viva",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Motorola Razr 50",
+          "options": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 21990,
+              "stock": 1
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Good",
+              "price": 20990,
+              "stock": 1
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Issue",
+              "price": 18990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Koala Grey",
+              "qty": 1
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Good",
+              "color": "Koala Grey",
+              "qty": 1
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Issue",
+              "color": "Koala Grey",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Motorola Razr 50 Ultra",
+          "options": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Issue",
+              "price": 20990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Motorola Razr 60",
+          "options": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 24990,
+              "stock": 0
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Issue",
+              "price": 21990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        }
+      ]
+    },
+    {
+      "key": "watches",
+      "label": "Watches",
+      "models": [
+        {
+          "model": "Pixel Watch 4",
+          "options": [
+            {
+              "spec": "41mm",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 19990,
+              "stock": 0
+            },
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "New",
+              "price": 26590,
+              "stock": 2
+            },
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 22190,
+              "stock": 3
+            }
+          ],
+          "units": [
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "New",
+              "color": "Black/Obs",
+              "qty": 1
+            },
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "New",
+              "color": "Silver",
+              "qty": 1
+            },
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Black/Obs",
+              "qty": 3
+            }
+          ]
+        },
+        {
+          "model": "Pixel Watch 3",
+          "options": [
+            {
+              "spec": "41mm",
+              "soft": false,
+              "grade": "Good",
+              "price": 12990,
+              "stock": 1
+            },
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "New",
+              "price": 17990,
+              "stock": 2
+            },
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 15990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "41mm",
+              "soft": false,
+              "grade": "Good",
+              "color": "Black/Obs",
+              "qty": 1
+            },
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "New",
+              "color": "Black/Obs",
+              "qty": 2
+            },
+            {
+              "spec": "45mm",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Black/Obs",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel Watch 2",
+          "options": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "New",
+              "price": 10990,
+              "stock": 0
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 7990,
+              "stock": 2
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Good",
+              "price": 6990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Black/Obsidian",
+              "qty": 1
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "Silver/Porcelain",
+              "qty": 1
+            },
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Good",
+              "color": "Gold/Hazel",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Pixel Watch 1",
+          "options": [
+            {
+              "spec": "",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 5990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Fitbit Air",
+          "options": [
+            {
+              "spec": "Obsidian",
+              "soft": false,
+              "grade": "New",
+              "price": 9480,
+              "stock": 0
+            },
+            {
+              "spec": "Steph Curry LE",
+              "soft": false,
+              "grade": "New",
+              "price": 10980,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "Steph Curry LE",
+              "soft": false,
+              "grade": "New",
+              "color": "",
+              "qty": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "laptops",
+      "label": "Laptops",
+      "models": [
+        {
+          "model": "Acer Aspire 3",
+          "options": [
+            {
+              "spec": "15.6-inch / Ryzen 5 / 16GB / 1TB",
+              "soft": false,
+              "grade": "New",
+              "price": 29990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Acer Chromebook 514",
+          "options": [
+            {
+              "spec": "14-inch / i3 / 8GB / 512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 16990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "14-inch / i3 / 8GB / 512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Acer Nitro 16",
+          "options": [
+            {
+              "spec": "16-inch / Ryzen 5 / 8GB / 512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 51990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "ASUS TUF Gaming A16",
+          "options": [
+            {
+              "spec": "16-inch / Ryzen 5 / 16GB / 512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 59990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "ASUS Vivobook 15",
+          "options": [
+            {
+              "spec": "15.6-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Used",
+              "price": 22990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Gateway Ultra Slim",
+          "options": [
+            {
+              "spec": "14.1-inch / Ryzen 5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "New",
+              "price": 20990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "HP EliteBook 640 G11",
+          "options": [
+            {
+              "spec": "14-inch / Ultra 5 / 16GB / 512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 32990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "HP EliteBook 845 G8",
+          "options": [
+            {
+              "spec": "14-inch / Ryzen 5 PRO / 16GB / 256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 20990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "HP EliteBook 850 G6",
+          "options": [
+            {
+              "spec": "15.6-inch / i5 / 16GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 18990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "15.6-inch / i5 / 16GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "HP EliteBook 850 G7",
+          "options": [
+            {
+              "spec": "15-inch / i7 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 18990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "15-inch / i7 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "color": "",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "Lenovo Yoga 7",
+          "options": [
+            {
+              "spec": "14-inch / Ryzen AI 5 / 16GB / 512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 49990,
+              "stock": 1
+            },
+            {
+              "spec": "16-inch / Ryzen 5 8640 / 8GB / 512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 41990,
+              "stock": 1
+            },
+            {
+              "spec": "16-inch / Ryzen AI 5 / 16GB / 512GB",
+              "soft": false,
+              "grade": "New",
+              "price": 45990,
+              "stock": 1
+            }
+          ],
+          "units": [
+            {
+              "spec": "14-inch / Ryzen AI 5 / 16GB / 512GB",
+              "soft": false,
+              "grade": "New",
+              "color": "",
+              "qty": 1
+            },
+            {
+              "spec": "16-inch / Ryzen 5 8640 / 8GB / 512GB",
+              "soft": false,
+              "grade": "New",
+              "color": "",
+              "qty": 1
+            },
+            {
+              "spec": "16-inch / Ryzen AI 5 / 16GB / 512GB",
+              "soft": false,
+              "grade": "New",
+              "color": "",
+              "qty": 1
+            }
+          ]
+        },
+        {
+          "model": "MacBook Air 2017",
+          "options": [
+            {
+              "spec": "13-inch / i5 / 8GB / 128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 13990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 8GB / 128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 12990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 15990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 14990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "MacBook Air 2018",
+          "options": [
+            {
+              "spec": "13-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 18990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 17990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "MacBook Air 2022 (M2)",
+          "options": [
+            {
+              "spec": "13.6-inch / M2 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 43990,
+              "stock": 0
+            },
+            {
+              "spec": "13.6-inch / M2 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 42990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "MacBook Pro 2015",
+          "options": [
+            {
+              "spec": "13-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 14990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 13990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Acceptable",
+              "price": 11990,
+              "stock": 0
+            },
+            {
+              "spec": "15-inch / i7 / 16GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 18990,
+              "stock": 0
+            },
+            {
+              "spec": "15-inch / i7 / 16GB / 256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 17990,
+              "stock": 0
+            },
+            {
+              "spec": "15-inch / i7 / 16GB / 256GB",
+              "soft": false,
+              "grade": "Acceptable",
+              "price": 15990,
+              "stock": 0
+            },
+            {
+              "spec": "15-inch / i7 / 16GB / 512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 20990,
+              "stock": 0
+            },
+            {
+              "spec": "15-inch / i7 / 16GB / 512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 19990,
+              "stock": 0
+            },
+            {
+              "spec": "15-inch / i7 / 16GB / 512GB",
+              "soft": false,
+              "grade": "Acceptable",
+              "price": 17990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "MacBook Pro 2019",
+          "options": [
+            {
+              "spec": "13-inch / i5 / 8GB / 128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 23990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 8GB / 128GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 22990,
+              "stock": 0
+            },
+            {
+              "spec": "15-inch / i7 / 16GB / 256GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 27990,
+              "stock": 0
+            },
+            {
+              "spec": "15-inch / i7 / 16GB / 256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 26990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 16GB / 512GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 25990,
+              "stock": 0
+            },
+            {
+              "spec": "13-inch / i5 / 16GB / 512GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 24990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Samsung Galaxy Chromebook 2",
+          "options": [
+            {
+              "spec": "13.3-inch / 8GB / 128GB",
+              "soft": false,
+              "grade": "Excellent",
+              "price": 21990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Surface Laptop SE",
+          "options": [
+            {
+              "spec": "11.6-inch / 8GB / 128GB",
+              "soft": false,
+              "grade": "New",
+              "price": 15990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        },
+        {
+          "model": "Surface Pro 7",
+          "options": [
+            {
+              "spec": "12.3-inch / i5 / 8GB / 256GB",
+              "soft": false,
+              "grade": "Good",
+              "price": 17990,
+              "stock": 0
+            }
+          ],
+          "units": []
+        }
+      ]
+    }
+  ]
+}

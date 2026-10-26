@@ -1209,6 +1209,28 @@ document.addEventListener('DOMContentLoaded', function() {
         return btn;
     }
 
+    function createInstallmentLink() {
+        const link = document.createElement('a');
+        link.className = 'model-installment-link';
+        link.href = '/installment/';
+
+        const icon = document.createElement('span');
+        icon.className = 'model-installment-link__icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<rect x="2" y="5" width="20" height="14" rx="2"></rect>' +
+            '<line x1="2" y1="10" x2="22" y2="10"></line>' +
+            '<line x1="6" y1="15" x2="10" y2="15"></line>' +
+            '</svg>';
+        link.appendChild(icon);
+
+        const label = document.createElement('span');
+        label.textContent = 'Looking for installments?';
+        link.appendChild(label);
+        return link;
+    }
+
     function createModelGroupElement(modelName, variants, inventoryUnits) {
         inventoryUnits = inventoryUnits || [];
 
@@ -1412,6 +1434,10 @@ document.addEventListener('DOMContentLoaded', function() {
             rowEl.appendChild(priceEl);
             bodyEl.appendChild(rowEl);
         });
+
+        if (bodyEl.querySelector('.variant-row')) {
+            bodyEl.appendChild(createInstallmentLink());
+        }
 
         groupEl.appendChild(headerEl);
         groupEl.appendChild(bodyEl);

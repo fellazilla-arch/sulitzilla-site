@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Installments – sulitzilla</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/installment/installment.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">
+                    <a href="/"><img src="/logo.png" alt="Sulitzilla" /></a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <a href="https://m.me/sulitzilla" target="_blank" rel="noopener noreferrer" class="nav-message-link">
+                    <span>Message us</span>
+                    <span class="nav-message-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 12c0 4.418 3.582 8 8 8 1.335 0 2.59-.324 3.7-.9L20 20l-.9-4.3A7.963 7.963 0 0 0 20 12c0-4.418-3.582-8-8-8S4 7.582 4 12z"></path>
+                            <path d="m8.5 13.5 2.5-3 2.5 3 2.5-3"></path>
+                        </svg>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <a class="inst-back-link" href="/">&larr; Back to straight payment price list</a>
+
+    <main class="main-content">
+        <section class="pricing-header">
+            <h1 class="pricing-title">Credit Card Installments</h1>
+            <p class="inst-zero-interest">0% Interest</p>
+            <ul class="inst-banks" aria-label="Accepted credit cards">
+                <li><img src="/installment/bank-bdo.png" alt="BDO" width="420" height="136"></li>
+                <li><img src="/installment/bank-bpi.png" alt="BPI" width="420" height="136"></li>
+                <li><img src="/installment/bank-hsbc.png" alt="HSBC" width="420" height="136"></li>
+                <li><img src="/installment/bank-unionbank.png" alt="UnionBank" width="420" height="136"></li>
+            </ul>
+            <p class="inst-lede">We also offer installments via <strong>BillEase</strong> and <strong>SPayLater</strong>.</p>
+        </section>
+
+        <div class="inst-tabs" role="tablist" aria-label="Product category" id="inst-tabs"></div>
+
+        <section class="pricing-list-section" aria-label="Installment price list">
+            <div id="pricing-loading" class="pricing-loading" aria-live="polite">
+                <div class="pricing-loading-spinner" aria-hidden="true"></div>
+                <span class="pricing-loading-text">Loading prices…</span>
+            </div>
+            <div id="pricing-list" class="pricing-list" aria-live="polite"></div>
+            <p id="pricing-empty-state" class="pricing-empty" hidden>No products available.</p>
+        </section>
+
+        <div id="plans-overlay" class="stock-overlay" hidden aria-hidden="true">
+            <div class="stock-modal inst-modal" role="dialog" aria-labelledby="plans-modal-title" aria-modal="true">
+                <button type="button" class="stock-modal-close" aria-label="Close">Close</button>
+                <div class="stock-modal-header">
+                    <h2 id="plans-modal-title" class="stock-modal-title"></h2>
+                </div>
+                <div id="plans-modal-body" class="stock-modal-body"></div>
+            </div>
+        </div>
+
+        <div id="soft-unlocked-overlay" class="extracare-overlay soft-unlocked-overlay" hidden aria-hidden="true">
+            <div class="extracare-modal" role="dialog" aria-labelledby="soft-unlocked-title" aria-modal="true">
+                <button type="button" class="extracare-close" aria-label="Close">Close</button>
+                <h2 id="soft-unlocked-title" class="extracare-modal-title">Soft unlocked</h2>
+                <p>Soft unlocked units need to be unlocked before use — we do it for you before shipping. After that it works like a normal phone with physical SIM (if your unit has a slot) and eSIM.</p>
+                <p>Sometimes the unit will lock again, especially after a system update, but we will assist in unlocking after that. The process is usually quick and easy.</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/pixel-catalog.js"></script>
+    <script src="/installment/installment.js"></script>
+</body>
+</html>
