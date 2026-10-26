@@ -1,6 +1,7 @@
 (function () {
     const DATA_URL = '/installment/data.json';
     const INVENTORY_URL = '/api/inventory';
+    const PRICES_URL = '/api/prices';
     const GRADE_ORDER = ['New', 'Excellent', 'Good', 'Acceptable', 'MDM', 'Used', 'Issue'];
     const GRADE_TAG_CLASS = {
         Excellent: 'tag--excellent',
@@ -196,6 +197,120 @@
             return !stockOnly || optionStatus(model, option).type !== 'restock';
         });
         return model;
+    }
+
+    // ---- Variants without a Lazada listing -----------------------------------
+
+    /** Straight-payment price plus 10%, rounded up to the next ₱xx90. */
+    function cashToListingPrice(cash) {
+        return Math.ceil((cash * 11 / 10 + 10) / 100) * 100 - 10;
+    }
+
+    /** Same adjustments as the main price list, where Grist's Used price is the Good price. */
+    function cashPriceFor(base, grade, soft) {
+        if (grade === 'Issue') return null;
+        let price = base;
+        if (grade === 'Excellent') price += 1000;
+        if (grade === 'MDM') price -= 3000;
+        if (soft) price -= 4000;
+        return price;
+    }
+
+    function normalizeSpec(spec) {
+        return String(spec || '').trim().toUpperCase().replace(/\s+/g, '');
+    }
+
+    /** model → { 'SPEC|New' / 'SPEC|Used': straight-payment price } from Grist codes. */
+    function buildCashPricesByModel(list) {
+        const priceByCode = {};
+        list.forEach(function (row) {
+            const code = String(row.code == null ? '' : row.code).trim().toUpperCase();
+            const price = Number(row.price);
+            if (!code || !(price > 0)) return;
+            priceByCode[code] = price;
+            if (/^\d+$/.test(code)) priceByCode['B' + code] = price;
+        });
+        const byModel = new Map();
+        (window.PIXEL_PRICE_CODES || []).forEach(function (row) {
+            const code = String(row.code || '').trim().toUpperCase();
+            const price = priceByCode[code] || priceByCode[code.replace(/^B/, '')];
+            if (!code || !price) return;
+            if (!byModel.has(row.model)) byModel.set(row.model, {});
+            byModel.get(row.model)[normalizeSpec(row.storage) + '|' + row.condition] = price;
+        });
+        return byModel;
+    }
+
+    function modelOrder(modelName) {
+        const codes = window.PIXEL_PRICE_CODES || [];
+        for (let i = codes.length - 1; i >= 0; i--) {
+            if (codes[i].model === modelName) return codes.length - i;
+        }
+        return codes.length + 1;
+    }
+
+    /**
+     * Prices every Pixel variant at the straight-payment price + 10% (our regular Lazada price),
+     * adding variants and models the Lazada sheet doesn't have: New / Good / Excellent for every
+     * priced storage, plus whatever variant an in-stock or incoming unit needs. Issue units have
+     * no straight-payment price, so they keep the Lazada sheet price.
+     */
+    function applyCashPricing(category, cashByModel, liveByModel) {
+        cashByModel.forEach(function (cash, modelName) {
+            let model = category.models.find(function (m) { return m.model === modelName; });
+            if (!model) {
+                model = { model: modelName, options: [], units: [] };
+                category.models.push(model);
+            }
+            const wanted = [];
+            Object.keys(cash).forEach(function (key) {
+                const parts = key.split('|');
+                if (parts[1] === 'New') {
+                    wanted.push({ spec: parts[0], soft: false, grade: 'New' });
+                } else {
+                    wanted.push({ spec: parts[0], soft: false, grade: 'Excellent' });
+                    wanted.push({ spec: parts[0], soft: false, grade: 'Good' });
+                }
+            });
+            ((liveByModel && liveByModel.get(modelName)) || []).forEach(function (unit) {
+                wanted.push({ spec: unit.spec, soft: unit.soft, grade: unit.grade });
+            });
+
+            function listingPrice(o) {
+                const base = cash[o.spec + '|' + (o.grade === 'New' ? 'New' : 'Used')];
+                const cashPrice = base ? cashPriceFor(base, o.grade, o.soft) : null;
+                return cashPrice ? cashToListingPrice(cashPrice) : null;
+            }
+
+            model.options.forEach(function (o) {
+                const price = listingPrice(o);
+                if (price) o.price = price;
+            });
+
+            let added = false;
+            wanted.forEach(function (w) {
+                const exists = model.options.some(function (o) {
+                    return o.spec === w.spec && o.soft === w.soft && o.grade === w.grade;
+                });
+                if (exists) return;
+                const price = listingPrice(w);
+                if (!price) return;
+                model.options.push({ spec: w.spec, soft: w.soft, grade: w.grade, price: price });
+                added = true;
+            });
+            if (added) {
+                model.options.sort(function (a, b) {
+                    return (
+                        storageRank(a.spec) - storageRank(b.spec) ||
+                        Number(a.soft) - Number(b.soft) ||
+                        gradeRank(a.grade) - gradeRank(b.grade)
+                    );
+                });
+            }
+        });
+        category.models.sort(function (a, b) {
+            return modelOrder(a.model) - modelOrder(b.model);
+        });
     }
 
     function headlineOption(model) {
@@ -919,14 +1034,22 @@
         })
         .catch(function () { return null; });
 
+    const cashPricesPromise = fetch(PRICES_URL, { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (json) {
+            const list = Array.isArray(json) ? json : json && json.data;
+            return Array.isArray(list) && list.length ? list : null;
+        })
+        .catch(function () { return null; });
+
     fetch(DATA_URL, { cache: 'no-cache' })
         .then(function (r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
         })
         .then(function (data) {
-            return inventoryPromise.then(function (inventory) {
-                return { data: data, inventory: inventory };
+            return Promise.all([inventoryPromise, cashPricesPromise]).then(function (extra) {
+                return { data: data, inventory: extra[0], cashPrices: extra[1] };
             });
         })
         .then(function (result) {
@@ -936,6 +1059,13 @@
             fromFee = lowestFee();
 
             const liveByModel = result.inventory ? buildLiveUnitsByModel(result.inventory) : null;
+            if (result.cashPrices) {
+                const phones = (data.categories || []).find(function (c) { return c.key === 'phones'; });
+                if (phones) {
+                    phones.models = phones.models || [];
+                    applyCashPricing(phones, buildCashPricesByModel(result.cashPrices), liveByModel);
+                }
+            }
             const categories = (data.categories || []).filter(function (c) {
                 return c.models && c.models.length;
             });
