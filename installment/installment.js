@@ -26,7 +26,6 @@
 
     let banks = [];
     let selectedBank = null;
-    let fromFee = 0;
     let lastTrigger = null;
     let softLastFocus = null;
     const plansState = { openUnit: null, othersOpen: false };
@@ -40,16 +39,6 @@
     function installmentTotal(price, feePct) {
         const raw = price * (1 + feePct / 100);
         return Math.ceil((raw + 10) / 100) * 100 - 10;
-    }
-
-    function lowestFee() {
-        let min = Infinity;
-        banks.forEach(function (bank) {
-            Object.values(bank.fees).forEach(function (fee) {
-                if (fee < min) min = fee;
-            });
-        });
-        return min;
     }
 
     function storageRank(spec) {
@@ -462,7 +451,15 @@
         fromLabel.textContent = 'from ';
         const amount = document.createElement('span');
         amount.className = 'variant-price-amount';
-        amount.textContent = formatPeso(installmentTotal(headline.price, fromFee));
+        const lowest = banks.reduce(function (best, bank) {
+            const monthly = lowestMonthly(headline.price, bank);
+            return best === null || monthly < best ? monthly : best;
+        }, null);
+        amount.textContent = formatPeso(lowest);
+        const perMonth = document.createElement('span');
+        perMonth.className = 'inst-per-month';
+        perMonth.textContent = '/mo';
+        amount.appendChild(perMonth);
         priceEl.appendChild(fromLabel);
         priceEl.appendChild(amount);
 
@@ -519,6 +516,13 @@
     }
 
     // ---- Plans view ----------------------------------------------------------
+
+    function lowestMonthly(price, bank) {
+        return Object.keys(bank.fees).reduce(function (best, months) {
+            const monthly = Math.ceil(installmentTotal(price, bank.fees[months]) / Number(months));
+            return best === null || monthly < best ? monthly : best;
+        }, null);
+    }
 
     function createPlansTable(price, bank) {
         const table = document.createElement('div');
@@ -690,10 +694,10 @@
 
     function createBankButtons(onPick, pressedBank) {
         const strip = document.createElement('div');
-        strip.className = 'inst-unit-banks';
+        strip.className = 'inst-card-picker';
 
         const label = document.createElement('p');
-        label.className = 'inst-unit-banks__label';
+        label.className = 'inst-card-picker__label';
         label.textContent = 'Choose your card:';
         strip.appendChild(label);
         strip.appendChild(createBankLogos(onPick, pressedBank));
@@ -702,7 +706,7 @@
 
     function createBankLogos(onPick, pressedBank) {
         const logos = document.createElement('span');
-        logos.className = 'inst-unit-banks__logos';
+        logos.className = 'inst-card-picker__logos';
         banks.forEach(function (bank) {
             const btn = document.createElement('button');
             btn.type = 'button';
@@ -739,7 +743,7 @@
         }
     }
 
-    /** Units in stock or incoming; tapping a card under a unit expands its plans in place. */
+    /** Units in stock or incoming, each with its lowest monthly for the chosen card; tapping expands all terms. */
     function createStockList(model, category, rerender) {
         const group = document.createElement('div');
         group.className = 'inst-choice-group';
@@ -784,12 +788,6 @@
                 rerender();
             }
 
-            function pickBank(bank) {
-                plansState.openUnit = isOpen && bank === selectedBank ? null : index;
-                selectedBank = bank;
-                rerender();
-            }
-
             // A div rather than a <button> so the Soft badge's "?" button can sit inside it.
             if (unitOption) {
                 row.setAttribute('role', 'button');
@@ -823,14 +821,31 @@
             unitEl.appendChild(row);
 
             if (unitOption) {
-                const plans = document.createElement('div');
-                plans.className = 'inst-unit-plans';
-                plans.appendChild(createBankButtons(pickBank, isOpen ? selectedBank : null));
+                const priceBtn = document.createElement('button');
+                priceBtn.type = 'button';
+                priceBtn.className = 'inst-unit-price';
+                priceBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                const from = document.createElement('span');
+                from.className = 'inst-unit-price__from';
+                from.appendChild(document.createTextNode('from '));
+                const amount = document.createElement('strong');
+                amount.textContent = formatPeso(lowestMonthly(unitOption.price, selectedBank)) + '/mo';
+                from.appendChild(amount);
+                const more = document.createElement('span');
+                more.className = 'inst-unit-price__more';
+                more.textContent = isOpen ? 'Hide terms' : 'All terms';
+                priceBtn.appendChild(from);
+                priceBtn.appendChild(more);
+                priceBtn.addEventListener('click', toggle);
+                unitEl.appendChild(priceBtn);
+
                 if (isOpen) {
+                    const plans = document.createElement('div');
+                    plans.className = 'inst-unit-plans';
                     plans.appendChild(createPlansTable(unitOption.price, selectedBank));
                     addOptionNotes(plans, unitOption, unit.ungraded);
+                    unitEl.appendChild(plans);
                 }
-                unitEl.appendChild(plans);
             }
             tbody.appendChild(unitEl);
         });
@@ -839,7 +854,7 @@
         return group;
     }
 
-    /** Condition / storage / unlock / card pickers covering the options we'd order for a reservation. */
+    /** Condition / grade / storage / unlock pickers covering the options we'd order for a reservation. */
     function appendPickers(container, model, category, option, rerender) {
         const options = model.reserveOptions;
 
@@ -913,18 +928,6 @@
             );
         }
 
-        const bankGroup = document.createElement('div');
-        bankGroup.className = 'inst-choice-group';
-        const bankLabel = document.createElement('p');
-        bankLabel.className = 'inst-choice-label';
-        bankLabel.textContent = 'Your credit card';
-        bankGroup.appendChild(bankLabel);
-        bankGroup.appendChild(createBankLogos(function (bank) {
-            selectedBank = bank;
-            rerender(option);
-        }, selectedBank));
-        container.appendChild(bankGroup);
-
         container.appendChild(createPlansTable(option.price, selectedBank));
         addOptionNotes(container, option);
     }
@@ -939,6 +942,11 @@
         function rerender(nextOption) {
             renderPlansBody(model, category, nextOption || option);
         }
+
+        body.appendChild(createBankButtons(function (bank) {
+            selectedBank = bank;
+            rerender();
+        }, selectedBank));
 
         if (model.stockUnits.length) {
             body.appendChild(createStockList(model, category, rerender));
@@ -1067,7 +1075,6 @@
             const data = result.data;
             banks = data.banks || [];
             selectedBank = banks[0];
-            fromFee = lowestFee();
 
             const liveByModel = result.inventory ? buildLiveUnitsByModel(result.inventory) : null;
             if (result.cashPrices) {

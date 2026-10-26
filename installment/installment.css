@@ -143,6 +143,12 @@
     margin-left: auto;
 }
 
+.inst-per-month {
+    font-size: 0.75em;
+    font-weight: 400;
+    color: #5f7ea8;
+}
+
 .inst-plans-link {
     padding: 0;
     font: inherit;
@@ -212,17 +218,39 @@
     text-align: right;
 }
 
-.inst-unit {
-    border-bottom: 1px solid #e5e7eb;
+/* Each unit is its own card so separate units read apart at a glance. */
+.inst-stock-table {
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
 }
 
-.inst-unit:last-child {
+.inst-stock-table .inventory-table__header {
+    min-height: 0;
+    padding-bottom: 6px;
+    background: none;
     border-bottom: none;
 }
 
+.inst-stock-table .inventory-table__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.inst-unit,
+.inst-unit:last-child {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
 .inst-unit.is-open {
+    border-color: #1976d2;
     background: #f7fbff;
-    box-shadow: inset 3px 0 0 #1976d2;
+    box-shadow: 0 0 0 1px #1976d2;
 }
 
 .inst-stock-row {
@@ -235,7 +263,7 @@
     cursor: pointer;
 }
 
-.inst-unit.is-open .inst-stock-row:hover {
+.inst-stock-row:hover {
     background: transparent;
 }
 
@@ -244,24 +272,83 @@
     outline-offset: -2px;
 }
 
-.inst-unit-banks {
+.inst-card-picker {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
+    gap: 8px;
 }
 
-.inst-unit-banks__label {
+.inst-card-picker__label {
     margin: 0;
-    font-size: 0.78rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    color: #374151;
+    color: #0a1929;
 }
 
-.inst-unit-banks__logos {
+.inst-card-picker__logos {
     display: flex;
     flex-wrap: wrap;
+    gap: 8px;
+}
+
+.inst-card-picker .inst-bank-btn img {
+    width: 76px;
+}
+
+.inst-unit-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 0 14px 12px;
+    font: inherit;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.inst-unit-price__from {
+    font-size: 0.82rem;
+    color: #5f6368;
+}
+
+.inst-unit-price__from strong {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1976d2;
+}
+
+.inst-unit-price__more {
+    display: inline-flex;
+    align-items: center;
     gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1976d2;
+}
+
+.inst-unit-price__more::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+}
+
+.inst-unit-price[aria-expanded="true"] .inst-unit-price__more::after {
+    margin-top: 3px;
+    transform: rotate(-135deg);
+}
+
+.inst-unit-price:focus-visible {
+    outline: 2px solid #0b72e7;
+    outline-offset: -2px;
+    border-radius: 10px;
 }
 
 .inst-bank-btn {
@@ -363,34 +450,8 @@
 
 /* Card rows when the popup is too narrow for the table, like the main stock popup. */
 @container stock-modal-body (max-width: 560px) {
-    .inst-stock-table {
-        border: none;
-        border-radius: 0;
-        overflow: visible;
-        background: transparent;
-    }
-
     .inst-stock-table .inventory-table__header {
         display: none;
-    }
-
-    .inst-stock-table .inventory-table__body {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .inst-unit,
-    .inst-unit:last-child {
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        background: #fff;
-    }
-
-    .inst-unit.is-open {
-        border-color: #1976d2;
-        background: #f7fbff;
-        box-shadow: 0 0 0 1px #1976d2;
     }
 
     .inst-stock-table .inventory-unit-row,
@@ -417,10 +478,6 @@
     .inst-stock-table .inventory-unit-color-col { grid-area: color; }
     .inst-stock-table .inventory-unit-condition-col { grid-area: condition; }
     .inst-stock-table .inventory-unit-status { grid-area: status; }
-
-    .inst-stock-row:hover {
-        background: transparent;
-    }
 
     .inst-stock-table .status-pill-eta {
         white-space: normal;
