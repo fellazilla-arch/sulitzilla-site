@@ -41,7 +41,7 @@ CATEGORY_LABELS = {"phones": "Phones", "watches": "Watches", "laptops": "Laptops
 # Seller-paid Lazada installment fees (% of price) by bank and tenure in months.
 BANKS = [
     {"name": "BDO", "fees": {"3": 2.81, "6": 5.10, "9": 10.20, "12": 10.20, "18": 17.85, "24": 17.85}},
-    {"name": "BPI", "fees": {"3": 2.24, "6": 4.59, "9": 7.65, "12": 8.67, "18": 18.36, "24": 11.22}},
+    {"name": "BPI", "fees": {"3": 2.24, "6": 4.59, "9": 7.65, "12": 8.67, "18": 11.22, "24": 18.36}},
     {"name": "HSBC", "fees": {"3": 2.04, "6": 4.08, "12": 8.67, "24": 10.20}},
     {"name": "UnionBank", "fees": {"3": 2.04, "6": 4.59, "12": 9.18, "24": 12.24, "36": 16.32}},
 ]
