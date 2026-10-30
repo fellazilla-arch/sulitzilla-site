@@ -141,7 +141,7 @@
     var dates = P.dueDates($('#s-handover').value, Number(dueSel.value), p.months);
     out.className = 'setup-preview';
     out.textContent = p.months + ' monthly payments of ' + peso(p.monthlyPayment) +
-      (p.finalPayment !== p.monthlyPayment ? ' (last one ' + peso(p.finalPayment) + ')' : '') +
+      (p.finalPayment !== p.monthlyPayment ? ' (final payment amount ' + peso(p.finalPayment) + ')' : '') +
       ' · ' + p.yearlyRatePct.toFixed(1) + '% a year · total ' + peso(p.total) +
       (dates.length ? ' · first due ' + fmtDate(dates[0]) + ', last due ' + fmtDate(dates[dates.length - 1]) : '');
   }
