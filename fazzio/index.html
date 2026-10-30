@@ -4,594 +4,144 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
-  <title>2025 Yamaha Fazzio – Private Financing Offer</title>
+  <title>2025 Yamaha Fazzio – Installment Calculator</title>
   <meta name="theme-color" content="#0d1b2a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/fazzio/fazzio.css">
 </head>
 <body>
-  <div class="print-header" aria-hidden="true">
-    <strong>Financing proposal — <span data-cfg="bike.year"></span> <span data-cfg="bike.name"></span></strong>
-    <span id="print-meta"></span>
-  </div>
-
-  <header class="topbar">
-    <div class="wrap topbar-inner">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true">FZ</span>
-        <span class="brand-text">Private Financing Offer</span>
-      </div>
-      <nav class="topnav" aria-label="Sections">
-        <a href="#calculator">Calculator</a>
-        <a href="#schedule">Schedule</a>
-        <a href="#terms">Terms</a>
-        <a href="#submit" class="topnav-cta">Submit plan</a>
-      </nav>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Installment offer</p>
+      <h1>2025 Yamaha Fazzio</h1>
+      <p class="price"><span id="cash-price">₱65,000</span></p>
+      <ul class="specs">
+        <li>≈ 1,200 km</li>
+        <li>Excellent condition</li>
+        <li>Completely stock</li>
+        <li>Registered · Original OR/CR</li>
+      </ul>
+      <p class="hero-note">
+        Same price as the cheapest 2025 Fazzio we found on Marketplace, which has about 5,000 km.
+        No dealer, no waiting list.
+      </p>
     </div>
   </header>
 
-  <!-- 1. Motorcycle introduction -->
-  <section class="hero" id="top">
-    <div class="wrap hero-grid">
-      <div class="hero-copy">
-        <p class="eyebrow">Private sale · Flexible installments</p>
-        <h1><span data-cfg="bike.year"></span> <span data-cfg="bike.name"></span></h1>
-        <p class="hero-lede">
-          Ride now, pay in comfortable monthly installments — no dealer, no waiting list,
-          and no penalty for paying early. Build a plan that fits your budget below and send it for approval.
-        </p>
-        <div class="hero-price">
-          <div>
-            <span class="label">Cash price</span>
-            <strong data-cfg="cashPrice" data-fmt="peso"></strong>
-          </div>
-          <div>
-            <span class="label">Installments from</span>
-            <strong><span id="hero-from-monthly">—</span><small>/mo</small></strong>
-          </div>
+  <main class="wrap">
+    <section class="calc" aria-label="Installment calculator">
+      <div class="inputs">
+        <div class="field" id="field-down">
+          <label for="in-down">Down payment</label>
+          <div class="money"><span aria-hidden="true">₱</span><input id="in-down" type="text" inputmode="numeric" autocomplete="off"></div>
+          <div class="chips" id="chips-down"></div>
         </div>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#calculator">Build my payment plan</a>
-          <a class="btn btn-ghost-light" href="#why">Why it’s a good deal</a>
+        <div class="field" id="field-monthly">
+          <label for="in-monthly">Monthly payment</label>
+          <div class="money"><span aria-hidden="true">₱</span><input id="in-monthly" type="text" inputmode="numeric" autocomplete="off"></div>
+          <input id="rng-monthly" type="range" step="50" aria-label="Monthly payment slider">
+          <div class="chips" id="chips-monthly"></div>
+          <p class="hint" id="hint-monthly"></p>
         </div>
       </div>
-      <div class="hero-card">
-        <div class="hero-photo" id="hero-photo">
-          <div class="hero-photo-fallback" aria-hidden="true">
-            <span class="hp-year" data-cfg="bike.year"></span>
-            <span class="hp-name">Fazzio</span>
-            <span class="hp-km"><span data-cfg="bike.odometerKm" data-fmt="int"></span> km</span>
+
+      <div class="results" aria-live="polite">
+        <div class="warning" id="warning" hidden>
+          <ul id="problems"></ul>
+          <div class="fixes" id="fixes"></div>
+        </div>
+
+        <div class="big">
+          <div class="big-item">
+            <span class="label">You’ll pay for</span>
+            <strong id="r-months">—</strong>
+            <small id="r-months-sub"></small>
+          </div>
+          <div class="big-item">
+            <span class="label">Interest rate</span>
+            <strong id="r-rate">—</strong>
+            <small id="r-rate-sub"></small>
+          </div>
+          <div class="big-item">
+            <span class="label">Total you’ll pay</span>
+            <strong id="r-total">—</strong>
+            <small id="r-total-sub"></small>
           </div>
         </div>
-        <div class="hero-thumbs" id="hero-thumbs" hidden></div>
-        <dl class="spec-grid">
-          <div><dt>Model</dt><dd><span data-cfg="bike.year"></span> <span data-cfg="bike.name"></span></dd></div>
-          <div><dt>Odometer</dt><dd>≈ <span data-cfg="bike.odometerKm" data-fmt="int"></span> km</dd></div>
-          <div><dt>Condition</dt><dd data-cfg="bike.condition"></dd></div>
-          <div><dt>Modifications</dt><dd data-cfg="bike.modifications"></dd></div>
-          <div><dt>Registration</dt><dd data-cfg="bike.registration"></dd></div>
-          <div><dt>Documents</dt><dd data-cfg="bike.documents"></dd></div>
-          <div data-show-if="bike.color"><dt>Color</dt><dd data-cfg="bike.color"></dd></div>
+
+        <dl class="details">
+          <div><dt>Down payment</dt><dd id="d-down">—</dd></div>
+          <div><dt>Monthly payment</dt><dd id="d-monthly">—</dd></div>
+          <div><dt>Last payment</dt><dd id="d-last">—</dd></div>
+          <div><dt>Amount borrowed</dt><dd id="d-borrowed">—</dd></div>
+          <div><dt>Total interest</dt><dd id="d-interest">—</dd></div>
+          <div><dt>Paid off by</dt><dd id="d-end">—</dd></div>
         </dl>
+
+        <p class="rate-note">
+          Shorter plans get a lower rate. Paying more each month means fewer months and less interest.
+          The longest plan is <span id="max-months">36</span> months.
+        </p>
       </div>
+    </section>
+
+    <section class="card">
+      <h2>Compared with the Honda Click dealer financing</h2>
+      <p class="muted">
+        Fazzio figures use <strong id="cmp-down">₱10,000</strong> down. Dealer figures use the Sumisho quote
+        (₱5,968 down, ₱500 monthly rebate applied every month) for a cheaper ₱59,682 motorcycle.
+      </p>
+      <div class="table-scroll">
+        <table class="compare" id="compare">
+          <thead>
+            <tr>
+              <th scope="col">Months</th>
+              <th scope="col">Dealer monthly</th>
+              <th scope="col">Dealer total</th>
+              <th scope="col">Dealer rate</th>
+              <th scope="col" class="hl">Fazzio monthly</th>
+              <th scope="col" class="hl">Fazzio total</th>
+              <th scope="col" class="hl">Fazzio rate</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="muted small">Rates are flat yearly rates on the amount borrowed, the same way dealer financing is quoted.</p>
+    </section>
+
+    <section class="card">
+      <details class="schedule-box" id="schedule-box">
+        <summary>See every payment</summary>
+        <div class="table-scroll">
+          <table class="schedule" id="schedule">
+            <thead><tr><th scope="col">Payment</th><th scope="col">Month</th><th scope="col" class="num">Amount</th><th scope="col" class="num">Balance left</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>Good to know</h2>
+      <ul class="notes">
+        <li><strong>Pay off early anytime, no penalty.</strong> You only pay the rest of the price you still owe. The interest for the unused months is dropped.</li>
+        <li>The OR/CR stays in the seller’s name until the last payment. After that, ownership is transferred to you (transfer fees are yours).</li>
+        <li>You handle registration renewal, insurance, and maintenance while you have the motorcycle.</li>
+        <li>Payments have a 5-day grace period. After that there’s a small late fee (₱100, up to ₱300 per payment). It never compounds.</li>
+        <li>This is an estimate to help you choose. The final plan will be put in a simple written agreement that we both sign.</li>
+      </ul>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn" id="btn-print">Save or print this plan</button>
     </div>
-  </section>
-
-  <main>
-    <!-- 2. Why this is a good deal -->
-    <section class="section" id="why">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow dark">Why this is a good deal</p>
-          <h2>Lower mileage, same price, far lower financing cost</h2>
-        </div>
-        <div class="why-grid">
-          <article class="why-card">
-            <span class="why-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9" /><path d="M12 12l5-5" /><circle cx="12" cy="12" r="1.5" /></svg>
-            </span>
-            <h3>About ¼ of the mileage</h3>
-            <p>
-              The lowest comparable listing we found — a <span data-cfg="comparable.label"></span> —
-              asks <strong data-cfg="comparable.askingPrice" data-fmt="peso"></strong> with about
-              <strong><span data-cfg="comparable.odometerKm" data-fmt="int"></span> km</strong>.
-              This one has only <strong><span data-cfg="bike.odometerKm" data-fmt="int"></span> km</strong>
-              and is offered at the same <strong data-cfg="cashPrice" data-fmt="peso"></strong>.
-            </p>
-          </article>
-          <article class="why-card">
-            <span class="why-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
-            </span>
-            <h3>No waiting list</h3>
-            <p>
-              Skip the dealer queue. The motorcycle is registered, completely stock, comes with its original OR/CR,
-              and is ready for handover as soon as the plan is approved.
-            </p>
-          </article>
-          <article class="why-card">
-            <span class="why-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M4 17l5-5 4 4 7-8" /><path d="M14 8h6v6" /></svg>
-            </span>
-            <h3>A fraction of dealer interest</h3>
-            <p>
-              The financing charge is a simple, published rate on the amount you owe — roughly
-              <strong id="why-rate-compare">a third</strong> of what typical dealer financing costs.
-              Pay early and the unused financing charge is waived.
-            </p>
-          </article>
-        </div>
-
-        <div class="compare-card">
-          <div class="compare-head">
-            <h3>Compared with the dealer quote you received</h3>
-            <p class="muted">
-              Dealer figures: <span data-cfg="dealerComparison.label"></span>,
-              cash price <span data-cfg="dealerComparison.cashPrice" data-fmt="peso"></span>,
-              <span data-cfg="dealerComparison.downPayment" data-fmt="peso"></span> down, with the
-              <span data-cfg="dealerComparison.monthlyRebate" data-fmt="peso"></span> monthly rebate applied every month.
-              Fazzio figures use <strong id="compare-down">₱10,000</strong> down.
-            </p>
-          </div>
-          <div class="table-scroll">
-            <table class="compare-table" id="compare-table">
-              <thead>
-                <tr>
-                  <th scope="col">Term</th>
-                  <th scope="col">Dealer monthly<br><small>after rebate</small></th>
-                  <th scope="col">Dealer total</th>
-                  <th scope="col">Dealer cost over cash</th>
-                  <th scope="col" class="hl">Fazzio monthly</th>
-                  <th scope="col" class="hl">Fazzio total</th>
-                  <th scope="col" class="hl">Fazzio cost over cash</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. Interactive calculator (centerpiece) -->
-    <section class="section section-calc" id="calculator">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow dark">Build your plan</p>
-          <h2>Choose your down payment and monthly budget</h2>
-          <p class="muted">Everything updates as you type. Nothing is final until the seller approves your plan.</p>
-        </div>
-
-        <div class="calc">
-          <form class="calc-inputs" id="calc-form" novalidate onsubmit="return false">
-            <div class="field" data-field="downPayment">
-              <label for="in-down">Down payment</label>
-              <div class="money-input">
-                <span aria-hidden="true">₱</span>
-                <input id="in-down" name="downPayment" type="text" inputmode="numeric" autocomplete="off">
-              </div>
-              <input id="rng-down" type="range" aria-label="Down payment slider" step="500">
-              <div class="chips" id="chips-down"></div>
-              <p class="field-hint">Minimum <span data-cfg="minDownPayment" data-fmt="peso"></span>. A bigger down payment lowers what you finance.</p>
-            </div>
-
-            <div class="mode-toggle" role="radiogroup" aria-label="How do you want to plan?">
-              <button type="button" role="radio" data-mode="monthly" aria-checked="true">I’ll set my monthly budget</button>
-              <button type="button" role="radio" data-mode="term" aria-checked="false">I’ll choose how many months</button>
-            </div>
-
-            <div class="field" data-field="monthlyPayment" id="field-monthly">
-              <label for="in-monthly">Monthly payment</label>
-              <div class="money-input">
-                <span aria-hidden="true">₱</span>
-                <input id="in-monthly" name="monthlyPayment" type="text" inputmode="numeric" autocomplete="off">
-              </div>
-              <input id="rng-monthly" type="range" aria-label="Monthly payment slider" step="50">
-              <div class="chips" id="chips-monthly"></div>
-              <p class="field-hint" id="hint-monthly"></p>
-            </div>
-
-            <div class="field" data-field="termMonths" id="field-term" hidden>
-              <label for="in-term">Number of months</label>
-              <div class="term-input">
-                <input id="in-term" name="termMonths" type="number" inputmode="numeric" min="1" step="1">
-                <span>months</span>
-              </div>
-              <input id="rng-term" type="range" aria-label="Number of months slider" min="1" step="1">
-              <div class="chips" id="chips-term"></div>
-              <p class="field-hint">From <span data-cfg="minTermMonths"></span> to <span data-cfg="maxTermMonths"></span> months.</p>
-            </div>
-
-            <div class="field" data-field="handoverDate">
-              <label for="in-handover">Preferred handover date</label>
-              <input id="in-handover" name="handoverDate" type="date" class="date-input">
-              <p class="field-hint" id="hint-due"></p>
-            </div>
-          </form>
-
-          <div class="calc-results" aria-live="polite">
-            <div class="status-pill" id="status-pill">Within approved terms</div>
-
-            <div class="big-three">
-              <div class="big">
-                <span class="label">Monthly commitment</span>
-                <strong id="r-monthly">—</strong>
-                <small id="r-monthly-sub"></small>
-              </div>
-              <div class="big">
-                <span class="label">You’ll be paying for</span>
-                <strong id="r-months">—</strong>
-                <small id="r-months-sub"></small>
-              </div>
-              <div class="big">
-                <span class="label">Total purchase price</span>
-                <strong id="r-total">—</strong>
-                <small id="r-total-sub"></small>
-              </div>
-            </div>
-
-            <div class="issues" id="issues" hidden>
-              <ul id="issue-list"></ul>
-              <div class="suggestions" id="suggestions"></div>
-            </div>
-            <p class="notes" id="notes" hidden></p>
-
-            <dl class="detail-list">
-              <div><dt>Down payment (due at handover)</dt><dd id="d-down">—</dd></div>
-              <div><dt>Monthly installment</dt><dd id="d-monthly">—</dd></div>
-              <div><dt>Number of monthly payments</dt><dd id="d-count">—</dd></div>
-              <div><dt>Final payment</dt><dd id="d-final">—</dd></div>
-              <div><dt>Balance after down payment</dt><dd id="d-remaining">—</dd></div>
-              <div><dt>Financing rate for this term</dt><dd id="d-rate">—</dd></div>
-              <div><dt>Financing premium over cash price</dt><dd id="d-premium">—</dd></div>
-              <div class="dl-strong"><dt>Total installment price</dt><dd id="d-total">—</dd></div>
-              <div><dt>First payment due</dt><dd id="d-first">—</dd></div>
-              <div><dt>Final payment due</dt><dd id="d-last">—</dd></div>
-            </dl>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Financing summary -->
-    <section class="section" id="summary">
-      <div class="wrap">
-        <div class="summary-card" id="summary-card">
-          <div class="summary-top">
-            <p class="eyebrow">Your proposed financing plan</p>
-            <h2><span data-cfg="bike.year"></span> <span data-cfg="bike.name"></span></h2>
-            <span class="summary-badge" id="summary-badge">Within approved terms</span>
-          </div>
-          <dl class="summary-grid">
-            <div><dt>Down payment</dt><dd id="s-down">—</dd></div>
-            <div><dt>Monthly payment</dt><dd id="s-monthly">—</dd></div>
-            <div><dt>Duration</dt><dd id="s-months">—</dd></div>
-            <div><dt>Total installment price</dt><dd id="s-total">—</dd></div>
-            <div><dt>Financing premium</dt><dd id="s-premium">—</dd></div>
-            <div><dt>Final payment date</dt><dd id="s-last">—</dd></div>
-          </dl>
-          <div class="summary-actions">
-            <a class="btn btn-primary btn-lg" href="#submit" id="btn-goto-submit">Submit My Preferred Plan</a>
-            <button type="button" class="btn btn-ghost-light" data-print>Print / Save as PDF</button>
-          </div>
-          <p class="summary-fine">
-            Submitting sends this plan to the seller for review. It is a proposal, not a binding agreement —
-            the seller must approve it, and the final terms will be put in a written, signed agreement.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. Payment schedule -->
-    <section class="section" id="schedule">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow dark">Payment schedule</p>
-          <h2>Every payment, with its due date</h2>
-          <p class="muted">
-            “Pay-off amount” is what you would pay to settle everything right after that installment — the remaining
-            share of the cash price only. The unused financing charge is waived and there is no early-payment penalty.
-          </p>
-        </div>
-        <div class="table-scroll schedule-wrap">
-          <table class="schedule" id="schedule-table">
-            <thead>
-              <tr>
-                <th scope="col">Payment</th>
-                <th scope="col">Due date</th>
-                <th scope="col" class="num">Amount</th>
-                <th scope="col" class="num">Remaining balance</th>
-                <th scope="col" class="num col-payoff">Pay-off amount</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- How the price is calculated -->
-    <section class="section section-soft" id="pricing">
-      <div class="wrap pricing-grid">
-        <div>
-          <p class="eyebrow dark">How the price is calculated</p>
-          <h2>One simple, published rate</h2>
-          <p>
-            The amount you finance is the cash price minus your down payment. A flat financing charge is added for
-            each month of the plan, at the rate for your plan length below. Shorter plans pay a lower rate.
-          </p>
-          <p class="formula">
-            Financing premium = amount financed × monthly rate × number of months
-          </p>
-          <p class="muted">
-            Example: <span id="example-line">—</span>
-          </p>
-        </div>
-        <div class="tier-card">
-          <table class="tier-table" id="tier-table">
-            <thead><tr><th scope="col">Plan length</th><th scope="col">Rate per month</th><th scope="col">Cost on ₱10,000 financed</th></tr></thead>
-            <tbody></tbody>
-          </table>
-          <ul class="rules-list" id="rules-list"></ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. Terms and conditions -->
-    <section class="section" id="terms">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow dark">Proposed terms</p>
-          <h2>What you agree to when you take the motorcycle home</h2>
-          <p class="muted">
-            These are the proposed terms for discussion. The final written agreement will be reviewed for compliance with
-            Philippine law (including the Civil Code rules on installment sales and LTO registration and transfer
-            requirements) and will govern if anything differs from this page.
-          </p>
-        </div>
-
-        <div class="terms">
-          <details open>
-            <summary>Ownership</summary>
-            <ul>
-              <li>The Seller keeps legal ownership until every installment is paid, subject to the final legally reviewed ownership and financing structure.</li>
-              <li>The Certificate of Registration (CR) stays in the Seller’s name during the installment period. The Seller keeps the original CR.</li>
-              <li>The Buyer receives possession of and responsibility for the motorcycle from handover. The Seller provides the current Official Receipt (OR), a copy of the CR, and a signed authorization to use the motorcycle so the Buyer can ride legally.</li>
-              <li>The Buyer may not sell, transfer, pawn, lease, mortgage, or otherwise dispose of the motorcycle without the Seller’s written permission.</li>
-              <li>When the full installment price is paid, the Seller will sign a Deed of Sale and hand over the original CR and the documents needed to transfer ownership with the LTO.</li>
-              <li>Transfer expenses (LTO fees, any required clearance, emission test, notarization) are the Buyer’s responsibility.</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>Registration and insurance</summary>
-            <p>The Buyer is responsible for:</p>
-            <ul>
-              <li>Annual registration renewal, on time.</li>
-              <li>Compulsory Third-Party Liability (CTPL) insurance.</li>
-              <li>Any comprehensive insurance agreed with the Seller.</li>
-              <li>All registration-related expenses.</li>
-              <li>Keeping valid insurance throughout the installment period.</li>
-            </ul>
-            <p class="callout">
-              <strong>Recommended:</strong> comprehensive insurance with theft coverage, naming the Seller as loss payee
-              until the plan is paid. Without it, the Buyer still owes the remaining balance if the motorcycle is stolen
-              or written off.
-            </p>
-          </details>
-
-          <details>
-            <summary>Maintenance and repairs</summary>
-            <p>The Buyer is responsible for:</p>
-            <ul>
-              <li>Oil changes and routine servicing.</li>
-              <li>Tire, battery, and brake pad replacement.</li>
-              <li>Normal wear and tear.</li>
-              <li>Repairs resulting from accidents, misuse, or negligence.</li>
-            </ul>
-            <p>Pre-existing mechanical defects disclosed or discovered after delivery will be handled according to the final written agreement. The motorcycle’s condition will be documented with photos and the odometer reading at handover.</p>
-          </details>
-
-          <details>
-            <summary>Accidents and damage</summary>
-            <p>The Buyer must:</p>
-            <ul>
-              <li>Tell the Seller immediately about any accident.</li>
-              <li>Tell the Seller immediately if the motorcycle is stolen or impounded.</li>
-              <li>Keep the motorcycle in reasonable condition.</li>
-              <li>Pay for damage resulting from his use, subject to applicable insurance coverage.</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>Usage restrictions</summary>
-            <ul>
-              <li>No modifications without the Seller’s approval.</li>
-              <li>No sale or transfer without written permission.</li>
-              <li>No use for illegal activities.</li>
-              <li>No taking the motorcycle outside the Philippines without permission.</li>
-              <li>No letting another person become the main rider without approval.</li>
-            </ul>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <!-- Late payment policy -->
-    <section class="section section-soft" id="late">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow dark">Late payment policy</p>
-          <h2>Clear, capped, and never compounded</h2>
-        </div>
-        <div class="late-grid">
-          <div class="table-scroll">
-            <table class="late-table" id="late-table">
-              <thead><tr><th scope="col">Payment status</th><th scope="col">What happens</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <ul class="late-notes">
-            <li>Late fees apply <strong>once per overdue installment</strong> — they are not charged daily and are never compounded.</li>
-            <li>The most any single installment can incur in late fees is <strong id="late-cap">—</strong>.</li>
-            <li>Payments are applied first to the oldest overdue installment, then to its late fees.</li>
-            <li>If you know a payment will be late, tell the Seller before the due date — a revised date can be agreed in writing.</li>
-            <li>Final amounts and enforcement procedures will be reviewed for legal compliance.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- Default and early repayment -->
-    <section class="section" id="default">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow dark">Default and early repayment</p>
-          <h2>What happens if things go wrong — and if you pay early</h2>
-        </div>
-        <div class="terms">
-          <details open>
-            <summary>Paying early (encouraged)</summary>
-            <ul>
-              <li>You can pay off the whole balance at any time with <strong>no penalty</strong>.</li>
-              <li>The early pay-off amount is the remaining share of the cash price (shown in the schedule’s “Pay-off amount” column) plus any unpaid late fees. The unused financing charge is waived.</li>
-              <li>Extra payments of any size are welcome. They are applied to the balance and shorten the plan, and the remaining financing charge is reduced in the same proportion.</li>
-              <li>Every payment is split in a fixed proportion between the cash price and the financing charge, so you can always see how much of the cash price you still owe.</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>How the outstanding balance is calculated</summary>
-            <ul>
-              <li><strong>Remaining balance</strong> = the scheduled installments not yet paid, plus any unpaid late fees.</li>
-              <li><strong>Early pay-off amount</strong> = the remaining share of the cash price plus any unpaid late fees (unused financing charge waived).</li>
-              <li>The Seller will give a written statement of the balance within 3 days of any request.</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>Written notices</summary>
-            <ul>
-              <li>Notices are sent by text message or Messenger <strong>and</strong> by email or a signed letter to the address in the final agreement.</li>
-              <li>A notice sent electronically counts as received on the day it is sent. Either party may update their contact details in writing.</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>What counts as default</summary>
-            <ul>
-              <li><span data-cfg="defaultRules.formalNoticeAfterConsecutiveMissed"></span> consecutive missed installments trigger a formal default notice.</li>
-              <li>Default occurs if, after that notice, the overdue amount is not paid within the cure period, or a total of <span data-cfg="defaultRules.remediesAfterMissed"></span> installments are unpaid.</li>
-              <li>Selling, pawning, transferring, or hiding the motorcycle without permission is also default.</li>
-              <li>Letting the registration or required insurance lapse, and not fixing it within 15 days of a written notice, is also default.</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>Your chance to fix a default</summary>
-            <ul>
-              <li>After a formal default notice you have <strong><span data-cfg="defaultRules.cureDays"></span> days</strong> to pay the overdue installments and late fees. Doing so restores the plan to good standing as if nothing happened.</li>
-              <li>The Seller may also agree to a revised schedule in writing. Asking for one early is always better than missing payments.</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>Remedies if a default isn’t fixed</summary>
-            <ul>
-              <li>The Seller may only use the remedies allowed by law for installment sales of personal property (Civil Code, Art. 1484). These are: requiring payment of the overdue amounts; cancelling the sale if two or more installments are unpaid; or foreclosing a chattel mortgage if one was set up.</li>
-              <li>If the Seller takes back the motorcycle by cancelling the sale or foreclosing, the Seller cannot also go after the Buyer for the rest of the unpaid balance.</li>
-              <li>The motorcycle will only be recovered through voluntary surrender or proper legal process — never by force or without notice.</li>
-              <li>Payments already made are not automatically forfeited. Any settlement follows the final agreement and applicable law.</li>
-            </ul>
-          </details>
-
-          <details>
-            <summary>Returning the motorcycle voluntarily</summary>
-            <ul>
-              <li>If the plan no longer works for you, you may return the motorcycle by written notice at any time. You will not be treated as in default if you raise it early.</li>
-              <li>The motorcycle is inspected together and valued at fair market value (agreed by both parties, or the average of two independent dealer quotes), less the cost of any damage beyond normal wear.</li>
-              <li>If that value is <strong>more</strong> than your early pay-off amount plus unpaid late fees, the Seller refunds you the difference after selling the motorcycle. If it is <strong>less</strong>, the Seller absorbs the shortfall.</li>
-            </ul>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <!-- 7 & 8. Acknowledgment + submit -->
-    <section class="section section-calc" id="submit">
-      <div class="wrap narrow">
-        <div class="submit-card" id="submit-card">
-          <p class="eyebrow dark">Submit for approval</p>
-          <h2>Send your preferred plan to the seller</h2>
-
-          <div class="submit-recap" id="submit-recap"></div>
-
-          <form id="submit-form" novalidate>
-            <div class="form-row">
-              <div class="field">
-                <label for="buyer-name">Your full name</label>
-                <input id="buyer-name" name="name" type="text" autocomplete="name" required maxlength="120">
-              </div>
-              <div class="field">
-                <label for="buyer-contact">Mobile number or Messenger name</label>
-                <input id="buyer-contact" name="contact" type="text" autocomplete="tel" required maxlength="160">
-              </div>
-            </div>
-            <div class="field">
-              <label for="buyer-message">Message to the seller <span class="optional">(optional)</span></label>
-              <textarea id="buyer-message" name="message" rows="3" maxlength="2000" placeholder="e.g. preferred pay day, questions about the terms"></textarea>
-            </div>
-
-            <div class="ack">
-              <p>I confirm that I have read and understood:</p>
-              <ul>
-                <li>The installment arrangement and payment schedule</li>
-                <li>The ownership arrangements</li>
-                <li>My registration and insurance responsibilities</li>
-                <li>My maintenance and repair responsibilities</li>
-                <li>The late payment rules</li>
-                <li>The default procedures</li>
-              </ul>
-              <label class="check">
-                <input type="checkbox" id="ack-box">
-                <span>I have read and understood the above. I understand this is a proposal for the seller’s review and not a signed financing agreement.</span>
-              </label>
-            </div>
-
-            <p class="form-error" id="submit-error" role="alert" hidden></p>
-            <div class="submit-actions">
-              <button type="submit" class="btn btn-primary btn-lg" id="btn-submit">Submit My Preferred Plan</button>
-              <button type="button" class="btn btn-ghost" data-print>Print / Save as PDF</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="submit-card success-card" id="success-card" hidden>
-          <span class="success-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-          </span>
-          <h2>Proposal sent</h2>
-          <p>Reference <strong id="success-ref"></strong></p>
-          <p class="muted" id="success-note">The seller will review your plan and get back to you. Nothing is final until you both sign the written agreement.</p>
-          <div class="submit-actions center">
-            <button type="button" class="btn btn-primary" data-print>Save a copy (PDF)</button>
-            <button type="button" class="btn btn-ghost" id="btn-new-plan">Try a different plan</button>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
 
-  <footer class="footer">
-    <div class="wrap">
-      <p>
-        Private offer prepared for one prospective buyer. Figures are estimates generated from the seller’s published
-        pricing rules and are subject to the seller’s approval and a final written agreement. This page is not legal advice.
-      </p>
-    </div>
+  <footer class="footer wrap">
+    <p>Private offer. Figures are estimates.</p>
   </footer>
 
   <script src="/fazzio/pricing.js"></script>

@@ -407,8 +407,7 @@ app.use('/labels', sendLabelStatic, labelsStatic);
 // and would redirect /print/ → /print/ forever. Trailing-slash redirect is in nginx.
 app.use('/print', sendLabelStatic, labelsStatic);
 
-// Private Fazzio financing proposal page (/fazzio/) and its API.
-app.use('/api/fazzio', require('./fazzio').createRouter());
+// Private Fazzio financing calculator (/fazzio/), shared by link only.
 app.use('/fazzio', function (req, res, next) {
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   next();
@@ -429,7 +428,6 @@ app.listen(PORT, () => {
   console.log(`  Label print:                        http://localhost:${PORT}/print/`);
   console.log(`  Label print (alias):                http://localhost:${PORT}/labels/`);
   console.log(`  Fazzio financing (private):         http://localhost:${PORT}/fazzio/`);
-  console.log(`  Fazzio seller admin:                http://localhost:${PORT}/fazzio/admin/`);
   console.log(`  Grist auto-sync:                    daily at ${GRIST_SYNC_HOUR}:${String(GRIST_SYNC_MINUTE).padStart(2, '0')} ${GRIST_SYNC_TIMEZONE}`);
   if (envTrim('GRIST_SYNC_SECRET')) {
     console.log('  Manual sync:                        GET/POST /api/admin/sync?key=…');

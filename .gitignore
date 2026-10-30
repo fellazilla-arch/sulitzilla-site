@@ -3,9 +3,6 @@ server/.env
 .env
 .env.local
 
-# Runtime data (Fazzio proposals + saved settings)
-server/.data/
-
 # Dependencies
 node_modules/
 server/node_modules/
