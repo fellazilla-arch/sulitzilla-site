@@ -141,7 +141,6 @@
   // ---------- boot ----------
 
   set('#cash-price', peso(C.cashPrice));
-  set('#max-months', String(C.maxMonths));
   set('#max-months-hint', String(C.maxMonths));
   $('#late-rule').innerHTML = P.lateRuleLines().map(function (l) {
     var d = document.createElement('li');

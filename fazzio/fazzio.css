@@ -82,8 +82,6 @@ main { margin-top: -60px; }
 .details div { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-bottom: 1px dashed var(--line); }
 .details dt { color: var(--muted); font-size: 0.92rem; }
 .details dd { margin: 0; font-weight: 700; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
-.rate-note { margin: 14px 0 0; font-size: 0.86rem; color: var(--muted); }
-
 /* cards */
 .card { margin-top: 18px; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 22px 24px; box-shadow: var(--shadow); }
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
