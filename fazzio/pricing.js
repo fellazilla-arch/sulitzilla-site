@@ -11,7 +11,7 @@
 
   var CONFIG = {
     cashPrice: 65000,
-    minDownPayment: 10000,
+    minDownPayment: 0,
     minMonthlyPayment: 1000,
     maxMonths: 36,
     // Monthly rate (% of amount borrowed) = base + step × months. 12 mo ≈ 0.68%, 24 mo ≈ 0.86%, 36 mo ≈ 1.04%.

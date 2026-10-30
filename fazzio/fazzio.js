@@ -178,7 +178,7 @@
     d.textContent = l;
     return d.outerHTML;
   }).join('');
-  chips('#chips-down', [10000, 15000, 20000, 30000].filter(function (v) { return v >= C.minDownPayment; }), peso, 'downPayment');
+  chips('#chips-down', [0, 10000, 15000, 20000, 30000].filter(function (v) { return v >= C.minDownPayment; }), peso, 'downPayment');
   chips('#chips-monthly', [2500, 3000, 3500, 4000, 5000], peso, 'monthlyPayment');
 
   var rng = $('#rng-monthly');

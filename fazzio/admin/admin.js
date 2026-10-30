@@ -319,8 +319,8 @@
     var downPaid = Number(d.paidAmount) || 0;
     var downShort = Math.max(0, ledger.downPayment - downPaid);
     var downBadge = $('#ledger tr[data-i="down"] [data-out="status"]');
-    downBadge.textContent = downShort ? (downPaid ? 'Partly paid' : 'Not received') : 'Received';
-    downBadge.className = 'badge ' + (downShort ? 'late' : 'paid');
+    downBadge.textContent = !ledger.downPayment ? 'No down payment' : downShort ? (downPaid ? 'Partly paid' : 'Not received') : 'Received';
+    downBadge.className = 'badge ' + (!ledger.downPayment ? '' : downShort ? 'late' : 'paid');
 
     var s = P.ledgerSummary(ledger, today);
     var totalPrice = ledger.downPayment + s.totalDue;
