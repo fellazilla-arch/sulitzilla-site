@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>2025 Yamaha Fazzio – Installment Calculator</title>
+  <meta name="theme-color" content="#0d1b2a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/fazzio/fazzio.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <a class="admin-link" href="/fazzio/admin/">Admin</a>
+      <p class="eyebrow">Installment offer</p>
+      <h1>2025 Yamaha Fazzio</h1>
+      <p class="price"><span id="cash-price">₱65,000</span> <span class="price-label">cash price</span></p>
+      <ul class="specs">
+        <li>1,2++ km</li>
+        <li>Excellent condition</li>
+        <li>Completely stock</li>
+        <li>Registered · Original OR/CR</li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="calc" aria-label="Installment calculator">
+      <div class="inputs">
+        <div class="field" id="field-down">
+          <label for="in-down">Down payment</label>
+          <div class="money"><span aria-hidden="true">₱</span><input id="in-down" type="text" inputmode="numeric" autocomplete="off"></div>
+          <p class="hint">Type how much you want to pay upfront. ₱0 is okay.</p>
+        </div>
+        <div class="field" id="field-monthly">
+          <label for="in-monthly">Monthly payment</label>
+          <div class="money"><span aria-hidden="true">₱</span><input id="in-monthly" type="text" inputmode="numeric" autocomplete="off"></div>
+          <p class="hint">Type how much you want to pay each month.</p>
+          <p class="hint hint-strong">The maximum time to pay is <span id="max-months-hint">36</span> months.</p>
+          <p class="hint" id="hint-monthly"></p>
+        </div>
+      </div>
+
+      <div class="results" aria-live="polite">
+        <div class="warning" id="warning" hidden>
+          <ul id="problems"></ul>
+        </div>
+
+        <div class="big">
+          <div class="big-item">
+            <span class="label">You’ll pay for</span>
+            <strong id="r-months">—</strong>
+            <small id="r-months-sub"></small>
+          </div>
+          <div class="big-item">
+            <span class="label">Interest rate</span>
+            <strong id="r-rate">—</strong>
+            <small id="r-rate-sub"></small>
+          </div>
+          <div class="big-item">
+            <span class="label">Total you’ll pay</span>
+            <strong id="r-total">—</strong>
+            <small id="r-total-sub"></small>
+          </div>
+        </div>
+
+        <dl class="details">
+          <div><dt>Down payment</dt><dd id="d-down">—</dd></div>
+          <div><dt>Monthly payment</dt><dd id="d-monthly">—</dd></div>
+          <div><dt>Final payment amount</dt><dd id="d-last">—</dd></div>
+          <div><dt>Amount borrowed</dt><dd id="d-borrowed">—</dd></div>
+          <div><dt>Total interest</dt><dd id="d-interest">—</dd></div>
+          <div><dt>Paid off by</dt><dd id="d-end">—</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Compared with the Sumisho Honda Click financing</h2>
+      <p class="muted">Change the downpayment and monthly payment numbers above to see a different comparison below.</p>
+      <p class="muted" id="cmp-empty">Enter a down payment and monthly payment above to see the comparison.</p>
+      <div class="table-scroll" id="cmp-box" hidden>
+        <table class="compare" id="compare">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col" class="hl">This Fazzio</th>
+              <th scope="col">Sumisho Honda Click</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <ul class="muted small cmp-notes" id="cmp-notes"></ul>
+    </section>
+
+    <section class="card">
+      <details class="schedule-box" id="schedule-box">
+        <summary>See every payment</summary>
+        <div class="table-scroll">
+          <table class="schedule" id="schedule">
+            <thead><tr><th scope="col">Payment</th><th scope="col">Month</th><th scope="col" class="num">Amount</th><th scope="col" class="num">Balance left</th><th scope="col" class="num">Pay off now</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="muted small">“Pay off now” is what it costs to finish early right after that payment: just the principal still owed, with the remaining interest dropped.</p>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>Good to know</h2>
+      <ul class="notes">
+        <li><strong>Pay off the principal anytime, no penalty.</strong> You only pay the part of the ₱65,000 you still owe. All the interest for the remaining months is dropped. See “Pay off now” in the payment list.</li>
+        <li>The OR/CR stays in the seller’s name until the last payment. After that, ownership is transferred to you (transfer fees are yours).</li>
+        <li>You handle registration renewal, insurance, and maintenance while you have the motorcycle.</li>
+        <li>This is an estimate to help you choose. The final plan will be put in a simple written agreement that we both sign.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>If a payment is late</h2>
+      <p class="muted">Life happens, so there’s a grace period. A message before the due date is always appreciated.</p>
+      <ul class="notes" id="late-rule"></ul>
+    </section>
+  </main>
+  <script src="/fazzio/pricing.js"></script>
+  <script src="/fazzio/fazzio.js"></script>
+</body>
+</html>

@@ -18,6 +18,7 @@
       <div class="bar-right">
         <span class="save-state" id="save-state"></span>
         <a href="/fazzio/" target="_blank" rel="noopener">Buyer page ↗</a>
+        <a href="/fazzio/calculator/" target="_blank" rel="noopener">Calculator ↗</a>
         <button type="button" class="link-btn" id="btn-logout" hidden>Log out</button>
       </div>
     </div>
@@ -71,6 +72,7 @@
         <div class="stat"><span>Months paid</span><strong id="st-paid">—</strong><small id="st-paid-sub"></small></div>
         <div class="stat"><span>Late payments</span><strong id="st-late">—</strong><small id="st-late-sub"></small></div>
         <div class="stat"><span>Late fees owed</span><strong id="st-fees">—</strong><small id="st-fees-sub"></small></div>
+        <div class="stat"><span>Pay off today</span><strong id="st-payoff">—</strong><small id="st-payoff-sub"></small></div>
       </div>
 
       <div class="card table-card">
@@ -93,13 +95,84 @@
       </div>
 
       <div class="card">
+        <h2>Extra payments</h2>
+        <p class="muted" id="x-help"></p>
+        <form class="x-form" id="x-form">
+          <label>Date received<input type="date" id="x-date"></label>
+          <label>Amount (₱)<input type="text" inputmode="numeric" id="x-amount" placeholder="e.g. 5,000" required></label>
+          <button class="btn btn-sm" type="submit">Add extra payment</button>
+        </form>
+        <p class="error" id="x-error" hidden></p>
+        <div class="table-scroll">
+          <table class="ledger x-table">
+            <thead><tr><th>Date</th><th class="num">Amount</th><th></th></tr></thead>
+            <tbody id="x-list"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
         <h2>Late payment rule</h2>
         <ul class="notes" id="rule-list"></ul>
       </div>
     </section>
+    <section class="card" id="ag-admin" hidden>
+      <div class="tracker-head">
+        <div>
+          <h2>Agreement</h2>
+          <p class="muted" id="ag-state"></p>
+        </div>
+        <div class="row-actions">
+          <a class="btn btn-ghost btn-link" id="ag-view" href="#" target="_blank" rel="noopener">Open his signing page ↗</a>
+        </div>
+      </div>
+
+      <div id="ag-edit">
+        <p class="muted">These fill in the blanks in the agreement. They’re stored only on the server, not in the site’s code. He fills in his own name, address and ID when he signs.</p>
+        <div class="setup-grid" id="ag-fields"></div>
+        <div class="row-actions">
+          <button class="btn" type="button" id="ag-save">Save details</button>
+          <button class="btn btn-ghost" type="button" id="ag-open">Open for signing</button>
+          <span class="save-state" id="ag-saved"></span>
+        </div>
+        <p class="error" id="ag-error" hidden></p>
+      </div>
+
+      <div class="ag-link-box">
+        <label class="field-label">His private signing link (send only to him)
+          <input type="text" id="ag-link" readonly>
+        </label>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-sm" type="button" id="ag-copy">Copy link</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="ag-newcode">Make a new link</button>
+        </div>
+      </div>
+
+      <div id="ag-countersign" hidden>
+        <h3 class="sub-h">Countersign</h3>
+        <p class="muted">He has signed. Review the signed agreement, then sign as the seller.</p>
+        <label class="field-label">Your full name
+          <input type="text" id="ag-seller-name" autocomplete="name">
+        </label>
+        <div class="pad-wrap">
+          <canvas class="sig-pad" id="ag-pad" aria-label="Signature box"></canvas>
+          <span class="pad-hint" id="ag-pad-hint">Sign here</span>
+          <button type="button" class="pad-clear" id="ag-pad-clear">Clear</button>
+        </div>
+        <button class="btn" type="button" id="ag-sign">Countersign</button>
+        <p class="error" id="ag-sign-error" hidden></p>
+      </div>
+
+      <p class="muted small ag-reset-row" id="ag-reset-row" hidden>
+        Need to fix something after he signed? <button type="button" class="link-btn danger" id="ag-reset">Clear both signatures</button> (he’ll have to sign again).
+      </p>
+    </section>
   </main>
 
   <script src="/fazzio/pricing.js"></script>
+  <script src="/fazzio/agreement.js"></script>
+  <script src="/fazzio/signature-pad.js"></script>
   <script src="/fazzio/admin/admin.js"></script>
+  <script src="/fazzio/admin/agreement-admin.js"></script>
 </body>
 </html>

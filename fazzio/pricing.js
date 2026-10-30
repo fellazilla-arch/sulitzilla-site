@@ -314,6 +314,10 @@
     today = today || todayManila();
     var due = Number(row.amountDue) || 0;
     var paid = Number(row.paidAmount) || 0;
+    if (due === 0 && row.covered > 0) {
+      return { fullyPaid: true, covered: true, shortfall: 0, autoDaysLate: 0, daysLate: 0, penalty: 0, penaltyBeforeWaiver: 0,
+        key: 'covered', label: 'Covered by extra payment' };
+    }
     var fullyPaid = paid >= due && due > 0;
     var auto = 0;
     if (fullyPaid && row.paidDate) auto = Math.max(0, daysBetween(row.dueDate, row.paidDate));
@@ -366,38 +370,75 @@
     return lines;
   }
 
+  /**
+   * Extra payments go straight to the principal. Each peso settles (total of monthly ÷ borrowed) pesos of the
+   * schedule, because its share of interest is dropped, and comes off the last payments first.
+   * Returns copies of the rows with `amountDue` reduced, `originalDue` and `covered` set, plus totals.
+   */
+  function effectiveRows(ledger) {
+    var rows = (ledger.rows || []).map(function (r) {
+      var copy = {};
+      for (var k in r) if (Object.prototype.hasOwnProperty.call(r, k)) copy[k] = r[k];
+      copy.originalDue = Number(r.amountDue) || 0;
+      copy.covered = 0;
+      return copy;
+    });
+    var totalOfMonthly = rows.reduce(function (s, r) { return s + r.originalDue; }, 0);
+    var borrowed = Number(ledger.borrowed) || 0;
+    var extraPaid = (ledger.extraPayments || []).reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
+    var open = function (r) { return Math.max(0, r.originalDue - (Number(r.paidAmount) || 0)); };
+    var unpaid = rows.reduce(function (s, r) { return s + open(r); }, 0);
+    var credit = borrowed > 0 ? Math.min(unpaid, Math.round((extraPaid * totalOfMonthly) / borrowed)) : 0;
+    var left = credit;
+    for (var i = rows.length - 1; i >= 0 && left > 0; i--) {
+      var c = Math.min(open(rows[i]), left);
+      rows[i].covered = c;
+      rows[i].amountDue = rows[i].originalDue - c;
+      left -= c;
+    }
+    return { rows: rows, totalOfMonthly: totalOfMonthly, borrowed: borrowed, extraPaid: extraPaid, credit: credit };
+  }
+
   /** Totals for a tracked plan (see admin page for the ledger shape). */
   function ledgerSummary(ledger, today) {
     today = today || todayManila();
-    var rows = ledger.rows || [];
-    var totalDue = 0;
-    var totalPaid = 0;
+    var eff = effectiveRows(ledger);
+    var rows = eff.rows;
+    var regularPaid = 0;
+    var balance = 0;
     var penaltiesOwed = 0;
     var penaltiesPaid = 0;
+    var paymentsMade = 0;
+    var paymentsCovered = 0;
     var next = null;
     var streak = 0;
-    rows.forEach(function (r) {
+    rows.forEach(function (r, i) {
       var s = rowStatus(r, today);
-      totalDue += Number(r.amountDue) || 0;
-      totalPaid += Number(r.paidAmount) || 0;
+      regularPaid += Number(r.paidAmount) || 0;
+      balance += Math.max(0, r.amountDue - (Number(r.paidAmount) || 0));
+      if (s.covered) paymentsCovered += 1;
+      else if (s.fullyPaid) paymentsMade += 1;
       if (s.penalty > 0) {
         if (r.penaltyPaid) penaltiesPaid += s.penalty;
         else penaltiesOwed += s.penalty;
       }
-      if (!s.fullyPaid && !next) next = { row: r, status: s };
+      if (!s.fullyPaid && !next) next = { index: i, row: r, status: s };
       if (s.fullyPaid) streak = 0;
       else if (s.key === 'late') streak += 1;
     });
-    var balance = Math.max(0, totalDue - totalPaid);
-    var borrowed = Number(ledger.borrowed) || 0;
-    var payoff = principalLeft(borrowed, balance, totalDue);
+    var principal = principalLeft(eff.borrowed, balance, eff.totalOfMonthly);
     return {
-      totalDue: totalDue,
-      totalPaid: totalPaid,
+      totalDue: eff.totalOfMonthly,
+      totalPaid: regularPaid,
+      extraPaid: eff.extraPaid,
       balance: balance,
+      principalLeft: principal,
       penaltiesOwed: penaltiesOwed,
       penaltiesPaid: penaltiesPaid,
-      payoff: payoff + penaltiesOwed,
+      payoff: principal + penaltiesOwed,
+      paymentsMade: paymentsMade,
+      paymentsCovered: paymentsCovered,
+      paymentsLeft: rows.length - paymentsMade - paymentsCovered,
       next: next,
       overdueInARow: streak,
       noticeDue: streak >= CONFIG.lateFees.overdueInARowForNotice,
@@ -419,6 +460,7 @@
     daysBetween: daysBetween,
     todayManila: todayManila,
     rowStatus: rowStatus,
+    effectiveRows: effectiveRows,
     ledgerSummary: ledgerSummary,
   };
 });

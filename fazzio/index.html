@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
-  <title>2025 Yamaha Fazzio – Installment Calculator</title>
+  <title>2025 Yamaha Fazzio – Your payment plan</title>
   <meta name="theme-color" content="#0d1b2a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,9 +15,9 @@
   <header class="hero">
     <div class="wrap">
       <a class="admin-link" href="/fazzio/admin/">Admin</a>
-      <p class="eyebrow">Installment offer</p>
+      <p class="eyebrow">Your payment plan</p>
       <h1>2025 Yamaha Fazzio</h1>
-      <p class="price"><span id="cash-price">₱65,000</span> <span class="price-label">cash price</span></p>
+      <p class="price"><span id="h-monthly">₱3,000</span> <span class="price-label">a month for <span id="h-months">26</span> months</span></p>
       <ul class="specs">
         <li>1,2++ km</li>
         <li>Excellent condition</li>
@@ -28,96 +28,106 @@
   </header>
 
   <main class="wrap">
-    <section class="calc" aria-label="Installment calculator">
-      <div class="inputs">
-        <div class="field" id="field-down">
-          <label for="in-down">Down payment</label>
-          <div class="money"><span aria-hidden="true">₱</span><input id="in-down" type="text" inputmode="numeric" autocomplete="off"></div>
-          <p class="hint">Type how much you want to pay upfront. ₱0 is okay.</p>
+    <section class="plan-top" aria-label="Payment status">
+      <div class="big">
+        <div class="big-item">
+          <span class="label">Payments made</span>
+          <strong id="s-made">—</strong>
+          <small id="s-made-sub"></small>
         </div>
-        <div class="field" id="field-monthly">
-          <label for="in-monthly">Monthly payment</label>
-          <div class="money"><span aria-hidden="true">₱</span><input id="in-monthly" type="text" inputmode="numeric" autocomplete="off"></div>
-          <p class="hint">Type how much you want to pay each month.</p>
-          <p class="hint hint-strong">The maximum time to pay is <span id="max-months-hint">36</span> months.</p>
-          <p class="hint" id="hint-monthly"></p>
+        <div class="big-item">
+          <span class="label">Next payment</span>
+          <strong id="s-next">—</strong>
+          <small id="s-next-sub"></small>
+        </div>
+        <div class="big-item">
+          <span class="label">Balance left</span>
+          <strong id="s-balance">—</strong>
+          <small id="s-balance-sub"></small>
+        </div>
+        <div class="big-item">
+          <span class="label">Pay off today</span>
+          <strong id="s-payoff">—</strong>
+          <small id="s-payoff-sub">Principal only, no more interest</small>
         </div>
       </div>
-
-      <div class="results" aria-live="polite">
-        <div class="warning" id="warning" hidden>
-          <ul id="problems"></ul>
-        </div>
-
-        <div class="big">
-          <div class="big-item">
-            <span class="label">You’ll pay for</span>
-            <strong id="r-months">—</strong>
-            <small id="r-months-sub"></small>
-          </div>
-          <div class="big-item">
-            <span class="label">Interest rate</span>
-            <strong id="r-rate">—</strong>
-            <small id="r-rate-sub"></small>
-          </div>
-          <div class="big-item">
-            <span class="label">Total you’ll pay</span>
-            <strong id="r-total">—</strong>
-            <small id="r-total-sub"></small>
-          </div>
-        </div>
-
-        <dl class="details">
-          <div><dt>Down payment</dt><dd id="d-down">—</dd></div>
-          <div><dt>Monthly payment</dt><dd id="d-monthly">—</dd></div>
-          <div><dt>Final payment amount</dt><dd id="d-last">—</dd></div>
-          <div><dt>Amount borrowed</dt><dd id="d-borrowed">—</dd></div>
-          <div><dt>Total interest</dt><dd id="d-interest">—</dd></div>
-          <div><dt>Paid off by</dt><dd id="d-end">—</dd></div>
-        </dl>
-      </div>
+      <div class="progress" aria-hidden="true"><span class="p-paid" id="p-paid"></span><span class="p-extra" id="p-extra"></span></div>
+      <p class="progress-legend">
+        <span><i style="background:#10b981"></i><span id="lg-paid">Paid</span></span>
+        <span id="lg-extra-wrap" hidden><i style="background:#8b5cf6"></i><span id="lg-extra">Covered by extra payments</span></span>
+      </p>
+      <div class="warning" id="s-alert" hidden></div>
+      <p class="status-note" id="s-note"></p>
     </section>
 
     <section class="card">
-      <h2>Compared with the Sumisho Honda Click financing</h2>
-      <p class="muted">Change the downpayment and monthly payment numbers above to see a different comparison below.</p>
-      <p class="muted" id="cmp-empty">Enter a down payment and monthly payment above to see the comparison.</p>
-      <div class="table-scroll" id="cmp-box" hidden>
-        <table class="compare" id="compare">
-          <thead>
-            <tr>
-              <th scope="col"></th>
-              <th scope="col" class="hl">This Fazzio</th>
-              <th scope="col">Sumisho Honda Click</th>
-            </tr>
-          </thead>
+      <div class="sign-status">
+        <div>
+          <h2>Your agreement</h2>
+          <p class="muted" id="ag-status">Loading…</p>
+        </div>
+        <a class="btn btn-link" id="ag-link" href="/fazzio/agreement/">Review and sign</a>
+      </div>
+      <p class="muted small">You sign online using the private link the seller sends you. After you both sign, you can open that link anytime to see or download the signed copy. The full agreement is at the bottom of this page.</p>
+    </section>
+
+    <section class="card">
+      <h2>Your plan</h2>
+      <dl class="details two-col">
+        <div><dt>Cash price</dt><dd id="d-price">—</dd></div>
+        <div><dt>Down payment</dt><dd id="d-down">—</dd></div>
+        <div><dt>Amount financed</dt><dd id="d-borrowed">—</dd></div>
+        <div><dt>Monthly payment</dt><dd id="d-monthly">—</dd></div>
+        <div><dt>Interest</dt><dd id="d-interest">—</dd></div>
+        <div><dt>Total you’ll pay</dt><dd id="d-total">—</dd></div>
+        <div><dt>First payment due</dt><dd id="d-first">—</dd></div>
+        <div><dt>Last payment due</dt><dd id="d-last">—</dd></div>
+      </dl>
+    </section>
+
+    <section class="card">
+      <h2>How this works</h2>
+      <ol class="how-steps">
+        <li><strong>Sign the agreement.</strong> Read it at the bottom of this page, then sign online with the private link the seller sends you.</li>
+        <li><strong>Handover.</strong> You pay the <span data-deal="down">₱4,000</span> down payment and take the motorcycle. From then on, this page shows your due dates.</li>
+        <li><strong>Every month.</strong> Send <span data-deal="monthly">₱3,000</span> to the seller by the due date. Once it’s received, that payment turns green (“Paid”) below. Up to 5 days late, there’s no fee.</li>
+        <li><strong>Extra money.</strong> Whenever you have extra, send it to the seller. Once it’s recorded, it shows up on this page: your balance and payoff amount go down, and your last payments are crossed off.</li>
+        <li><strong>Need a break?</strong> Tell the seller and hand back the motorcycle, as long as you’re no more than one payment behind. Payments pause for up to 6 months with no fees or interest, everything you’ve paid stays credited, and your due dates move back.</li>
+        <li><strong>Last payment.</strong> Within 7 days you get the signed Deed of Absolute Sale and the original OR/CR, and you handle the transfer.</li>
+      </ol>
+      <p class="muted small">Payments are marked here by the seller when they’re received, so a new payment may take a little while to show.</p>
+    </section>
+
+    <section class="card">
+      <h2>Payments</h2>
+      <p class="muted">Each payment is marked once it’s received.</p>
+      <div class="table-scroll">
+        <table class="schedule" id="schedule">
+          <thead><tr><th scope="col">#</th><th scope="col">Due</th><th scope="col" class="num">Amount</th><th scope="col">Status</th><th scope="col" class="num">Balance after</th><th scope="col" class="num">Pay off after</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
-      <ul class="muted small cmp-notes" id="cmp-notes"></ul>
+      <p class="muted small">“Pay off after” is what it would take to finish right after that payment: just the principal still owed, with the remaining interest dropped.</p>
     </section>
 
     <section class="card">
-      <details class="schedule-box" id="schedule-box">
-        <summary>See every payment</summary>
+      <h2>Pay down the principal anytime</h2>
+      <p>Whenever you have extra, send it to the seller on top of your monthly. Extra payments go straight to the principal, and the interest on that amount is dropped. Once it’s recorded, it shows up on this page.</p>
+      <ul class="notes">
+        <li id="x-rate"></li>
+        <li>Extra payments come off your last payments first. Your monthly stays the same, and you finish sooner.</li>
+        <li>No penalty for paying early, and you can pay off the whole balance at any time.</li>
+      </ul>
+      <div class="payoff-box"><span class="muted">To pay everything off today</span><strong id="x-payoff">—</strong></div>
+      <div id="x-box" hidden>
+        <h3 class="sub-h">Extra payments received</h3>
         <div class="table-scroll">
-          <table class="schedule" id="schedule">
-            <thead><tr><th scope="col">Payment</th><th scope="col">Month</th><th scope="col" class="num">Amount</th><th scope="col" class="num">Balance left</th><th scope="col" class="num">Pay off now</th></tr></thead>
-            <tbody></tbody>
+          <table class="schedule extra-list">
+            <thead><tr><th scope="col">Date</th><th scope="col" class="num">Amount</th></tr></thead>
+            <tbody id="x-list"></tbody>
           </table>
         </div>
-        <p class="muted small">“Pay off now” is what it costs to finish early right after that payment: just the principal still owed, with the remaining interest dropped.</p>
-      </details>
-    </section>
-
-    <section class="card">
-      <h2>Good to know</h2>
-      <ul class="notes">
-        <li><strong>Pay off the principal anytime, no penalty.</strong> You only pay the part of the ₱65,000 you still owe. All the interest for the remaining months is dropped. See “Pay off now” in the payment list.</li>
-        <li>The OR/CR stays in the seller’s name until the last payment. After that, ownership is transferred to you (transfer fees are yours).</li>
-        <li>You handle registration renewal, insurance, and maintenance while you have the motorcycle.</li>
-        <li>This is an estimate to help you choose. The final plan will be put in a simple written agreement that we both sign.</li>
-      </ul>
+      </div>
     </section>
 
     <section class="card">
@@ -125,8 +135,27 @@
       <p class="muted">Life happens, so there’s a grace period. A message before the due date is always appreciated.</p>
       <ul class="notes" id="late-rule"></ul>
     </section>
+
+    <section class="card">
+      <h2>Main rules at a glance</h2>
+      <ul class="notes">
+        <li><strong>Ownership.</strong> The motorcycle and its OR/CR stay in the seller’s name until the last payment. Then it’s yours, and the transfer fees are yours (clauses 6 and 13).</li>
+        <li><strong>While you have it.</strong> You pay for maintenance, registration renewal and the required CTPL insurance. You’re responsible for traffic violations, camera (NCAP) tickets and accidents (clauses 7 to 9).</li>
+        <li><strong>Not allowed until fully paid.</strong> Selling, pawning, renting out, lending it out for long periods, using it as collateral, or major modifications (clause 7).</li>
+        <li><strong>Paying early.</strong> Pay extra or pay off anytime, with no penalty. You only pay the principal still owed (clause 4).</li>
+        <li><strong>Pausing.</strong> You can pause anytime, as often as you need, by handing back the motorcycle, for up to 6 months each time, as long as you’re no more than one payment behind. Any overdue payment is paid with your first payment after resuming. The seller holds it at his own risk. If registration or CTPL comes due during a pause, the seller pays it and you repay it with your first payment after resuming. If you don’t resume within 6 months, the seller may sell the motorcycle and keep what has been paid (clause 12).</li>
+        <li><strong>Falling behind.</strong> If two payments are overdue, you get a written notice and 15 days to catch up. If you don’t, the seller may cancel the agreement: you return the motorcycle within 7 days, and what you’ve paid is kept as rent for its use (clauses 10 and 11).</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>The full agreement</h2>
+      <p class="muted"><span id="ag-intro">This is the agreement you’ll sign.</span> The <span class="blank">highlighted</span> parts are filled in with your details and the seller’s on the signing page.</p>
+      <div class="doc doc-scroll" id="full-agreement"></div>
+    </section>
   </main>
   <script src="/fazzio/pricing.js"></script>
-  <script src="/fazzio/fazzio.js"></script>
+  <script src="/fazzio/agreement.js"></script>
+  <script src="/fazzio/plan.js"></script>
 </body>
 </html>
