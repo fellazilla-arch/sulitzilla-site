@@ -7,8 +7,6 @@
   var state = { downPayment: C.defaults.downPayment, monthlyPayment: C.defaults.monthlyPayment };
 
   var $ = function (s) { return document.querySelector(s); };
-  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
-
   function fmtInt(n) {
     return Number(n).toLocaleString('en-PH');
   }
@@ -36,21 +34,7 @@
 
   // ---------- inputs ----------
 
-  function chips(sel, values, label, key) {
-    var box = $(sel);
-    box.innerHTML = values.map(function (v) {
-      return '<button type="button" class="chip" data-v="' + v + '">' + esc(label(v)) + '</button>';
-    }).join('');
-    box.addEventListener('click', function (e) {
-      var b = e.target.closest('.chip');
-      if (!b) return;
-      state[key] = Number(b.dataset.v);
-      sync();
-      update();
-    });
-  }
-
-  function moneyInput(sel, key, onChange) {
+  function moneyInput(sel, key) {
     var input = $(sel);
     input.addEventListener('input', function () {
       var raw = input.value.replace(/[^\d]/g, '');
@@ -60,7 +44,6 @@
       input.value = raw === '' ? '' : fmtInt(Number(raw));
       var at = Math.max(0, pos + input.value.length - before);
       try { input.setSelectionRange(at, at); } catch (_) {}
-      if (onChange) onChange();
       update();
     });
   }
@@ -68,7 +51,6 @@
   function sync() {
     $('#in-down').value = isFinite(state.downPayment) ? fmtInt(state.downPayment) : '';
     $('#in-monthly').value = isFinite(state.monthlyPayment) ? fmtInt(state.monthlyPayment) : '';
-    $('#rng-monthly').value = isFinite(state.monthlyPayment) ? state.monthlyPayment : 0;
   }
 
   // ---------- output ----------
@@ -79,24 +61,10 @@
 
   function update() {
     var r = P.calculate(state.downPayment, state.monthlyPayment);
-    var p = r.plan;
+    var p = r.ok ? r.plan : null;
 
     $('#warning').hidden = r.ok;
     $('#problems').innerHTML = r.problems.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('');
-    $('#fixes').innerHTML = r.fixes.length
-      ? '<span>Try:</span>' + r.fixes.map(function (f, i) {
-          return '<button type="button" class="chip chip-fix" data-i="' + i + '">' + esc(f.label) + '</button>';
-        }).join('')
-      : '';
-    $$('#fixes .chip-fix').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var f = r.fixes[Number(b.dataset.i)];
-        if (f.downPayment != null) state.downPayment = f.downPayment;
-        if (f.monthlyPayment != null) state.monthlyPayment = f.monthlyPayment;
-        sync();
-        update();
-      });
-    });
     document.querySelector('.results').classList.toggle('is-off', !r.ok);
 
     var downOk = isFinite(state.downPayment) ? Math.max(state.downPayment, C.minDownPayment) : C.minDownPayment;
@@ -105,8 +73,6 @@
         ' (' + C.maxMonths + ' months).'
       : '';
 
-    $$('#chips-down .chip').forEach(function (c) { c.classList.toggle('active', Number(c.dataset.v) === state.downPayment); });
-    $$('#chips-monthly .chip').forEach(function (c) { c.classList.toggle('active', Number(c.dataset.v) === state.monthlyPayment); });
 
     if (!p) {
       ['#r-months', '#r-rate', '#r-total', '#d-down', '#d-monthly', '#d-last', '#d-borrowed', '#d-interest', '#d-end']
@@ -178,21 +144,8 @@
     d.textContent = l;
     return d.outerHTML;
   }).join('');
-  chips('#chips-down', [0, 10000, 15000, 20000, 30000].filter(function (v) { return v >= C.minDownPayment; }), peso, 'downPayment');
-  chips('#chips-monthly', [2500, 3000, 3500, 4000, 5000], peso, 'monthlyPayment');
-
-  var rng = $('#rng-monthly');
-  rng.min = 1000;
-  rng.max = 10000;
-  rng.addEventListener('input', function () {
-    state.monthlyPayment = Number(rng.value);
-    $('#in-monthly').value = fmtInt(state.monthlyPayment);
-    update();
-  });
   moneyInput('#in-down', 'downPayment');
-  moneyInput('#in-monthly', 'monthlyPayment', function () {
-    if (isFinite(state.monthlyPayment)) rng.value = state.monthlyPayment;
-  });
+  moneyInput('#in-monthly', 'monthlyPayment');
 
   var box = $('#schedule-box');
   var wasOpen = false;

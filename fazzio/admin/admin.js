@@ -133,7 +133,7 @@
     var r = P.calculate(money($('#s-down').value), money($('#s-monthly').value));
     var out = $('#setup-preview');
     var p = r.plan;
-    if (!p || p.cash) {
+    if (!r.ok || !p || p.cash) {
       out.className = 'setup-preview bad';
       out.textContent = p && p.cash ? 'That’s a full cash payment, so there’s nothing to track.' : r.problems.join(' ');
       $('#btn-create').disabled = true;
@@ -141,12 +141,11 @@
     }
     $('#btn-create').disabled = false;
     var dates = P.dueDates($('#s-handover').value, Number(dueSel.value), p.months);
-    out.className = 'setup-preview' + (r.ok ? '' : ' warn');
+    out.className = 'setup-preview';
     out.textContent = p.months + ' monthly payments of ' + peso(p.monthlyPayment) +
       (p.finalPayment !== p.monthlyPayment ? ' (last one ' + peso(p.finalPayment) + ')' : '') +
       ' · ' + p.yearlyRatePct.toFixed(1) + '% a year · total ' + peso(p.total) +
-      (dates.length ? ' · first due ' + fmtDate(dates[0]) + ', last due ' + fmtDate(dates[dates.length - 1]) : '') +
-      (r.ok ? '' : ' · Note: ' + r.problems.join(' '));
+      (dates.length ? ' · first due ' + fmtDate(dates[0]) + ', last due ' + fmtDate(dates[dates.length - 1]) : '');
   }
 
   ['#s-down', '#s-monthly'].forEach(function (s) {
@@ -164,7 +163,7 @@
     var down = money($('#s-down').value);
     var r = P.calculate(down, money($('#s-monthly').value));
     var p = r.plan;
-    if (!p || p.cash) return;
+    if (!r.ok || !p || p.cash) return;
     var handover = $('#s-handover').value || P.todayManila();
     var dueDay = Number(dueSel.value);
     if (ledger && ledger.rows && !confirm('Recreate the schedule? Recorded payments are kept by payment number.')) return;

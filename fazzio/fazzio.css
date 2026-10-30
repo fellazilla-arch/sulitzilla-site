@@ -61,19 +61,10 @@ main { margin-top: -60px; }
 .money:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255, 106, 61, 0.14); }
 .money span { font: 700 1.4rem/1 var(--display); color: var(--muted); }
 .money input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; padding: 14px 0; font: 800 1.7rem/1 var(--display); color: var(--ink); font-variant-numeric: tabular-nums; }
-input[type='range'] { width: 100%; margin: 14px 0 4px; accent-color: var(--accent); }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.chip { border: 1.5px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 7px 14px; font: 600 0.85rem/1 var(--font); cursor: pointer; }
-.chip:hover { border-color: #cbd5e1; }
-.chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
 .hint { margin: 10px 0 0; font-size: 0.85rem; color: var(--muted); }
 
 .warning { background: var(--warn-soft); border: 1px solid #fed7bf; border-radius: 14px; padding: 12px 16px; margin-bottom: 16px; }
 .warning ul { margin: 0; padding-left: 18px; color: #9a3412; font-size: 0.92rem; }
-.fixes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
-.fixes:empty { display: none; }
-.fixes span { font-size: 0.82rem; font-weight: 700; color: #9a3412; }
-.chip-fix { border-color: #fdba8c; color: #9a3412; }
 .results.is-off .big-item strong { color: var(--muted); }
 
 .big { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
@@ -146,7 +137,7 @@ thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em
   .hero-note { color: #444; }
   main { margin-top: 0; }
   .calc { display: block; box-shadow: none; }
-  .inputs, .chips, .hint, .warning .fixes, .actions, input[type='range'] { display: none !important; }
+  .inputs, .hint, .actions { display: none !important; }
   .big-item:nth-child(2) { background: #fff; border-color: #ccc; }
   .big-item:nth-child(2) strong { color: #000; }
   .big-item:nth-child(2) .label, .big-item:nth-child(2) small { color: #444; }

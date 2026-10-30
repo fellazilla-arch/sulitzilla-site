@@ -32,13 +32,12 @@
         <div class="field" id="field-down">
           <label for="in-down">Down payment</label>
           <div class="money"><span aria-hidden="true">₱</span><input id="in-down" type="text" inputmode="numeric" autocomplete="off"></div>
-          <div class="chips" id="chips-down"></div>
+          <p class="hint">Type how much you want to pay upfront. ₱0 is okay.</p>
         </div>
         <div class="field" id="field-monthly">
           <label for="in-monthly">Monthly payment</label>
           <div class="money"><span aria-hidden="true">₱</span><input id="in-monthly" type="text" inputmode="numeric" autocomplete="off"></div>
-          <input id="rng-monthly" type="range" step="50" aria-label="Monthly payment slider">
-          <div class="chips" id="chips-monthly"></div>
+          <p class="hint">Type how much you want to pay each month.</p>
           <p class="hint" id="hint-monthly"></p>
         </div>
       </div>
@@ -46,7 +45,6 @@
       <div class="results" aria-live="polite">
         <div class="warning" id="warning" hidden>
           <ul id="problems"></ul>
-          <div class="fixes" id="fixes"></div>
         </div>
 
         <div class="big">

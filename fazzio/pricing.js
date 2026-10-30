@@ -144,10 +144,11 @@
     var borrowed = cash - down;
     var p = monthsFor(borrowed, monthly);
     if (!p || p.months > CONFIG.maxMonths) {
-      problems.push(p
-        ? 'At ' + peso(monthly) + ' a month it would take ' + p.months + ' months. The longest plan is ' + CONFIG.maxMonths + ' months.'
-        : 'At ' + peso(monthly) + ' a month it would take too long to pay off.');
       var minM = lowestMonthly(cash - fixDown);
+      problems.push((p
+        ? 'At ' + peso(monthly) + ' a month it would take ' + p.months + ' months. The longest plan is ' + CONFIG.maxMonths + ' months.'
+        : 'At ' + peso(monthly) + ' a month it would take too long to pay off.') +
+        ' With ' + peso(fixDown) + ' down, enter at least ' + peso(minM) + ' a month, or a bigger down payment.');
       fixes.push({ label: 'Pay ' + peso(minM) + ' a month', downPayment: fixDown, monthlyPayment: minM });
       var keep = Math.max(monthly, CONFIG.minMonthlyPayment);
       var needDown = downNeededFor(keep);
