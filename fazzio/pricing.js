@@ -19,6 +19,16 @@
     rateStepPct: 0.015,
     monthlyRoundTo: 10,
     defaults: { downPayment: 10000, monthlyPayment: 3000 },
+    // Late payment rule: a fee is added once each `afterDays` threshold is passed (per payment, never compounded).
+    lateFees: {
+      graceDays: 5,
+      steps: [
+        { afterDays: 5, amount: 100 },
+        { afterDays: 15, amount: 200 },
+      ],
+      overdueInARowForNotice: 2,
+      cureDays: 15,
+    },
     dealer: {
       label: 'Honda Click 125 SE (Sumisho)',
       cashPrice: 59682,
@@ -210,6 +220,151 @@
     });
   }
 
+  // ---------- late fees and payment tracking ----------
+
+  function penaltyFor(daysLate) {
+    return CONFIG.lateFees.steps.reduce(function (sum, s) {
+      return daysLate > s.afterDays ? sum + s.amount : sum;
+    }, 0);
+  }
+
+  function maxPenalty() {
+    return penaltyFor(Infinity);
+  }
+
+  function parseISO(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+    return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN;
+  }
+
+  function toISO(ms) {
+    return new Date(ms).toISOString().slice(0, 10);
+  }
+
+  function daysBetween(fromISO, toISOStr) {
+    return Math.round((parseISO(toISOStr) - parseISO(fromISO)) / 86400000);
+  }
+
+  function todayManila() {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' })
+      .format(new Date());
+  }
+
+  /** Due dates one month apart starting the month after handover. dueDay 0 = same day of month as handover. */
+  function dueDates(handoverISO, dueDay, count) {
+    var t = parseISO(handoverISO);
+    if (isNaN(t)) return [];
+    var d = new Date(t);
+    var day = dueDay >= 1 && dueDay <= 28 ? dueDay : d.getUTCDate();
+    var out = [];
+    for (var i = 1; i <= count; i++) {
+      var y = d.getUTCFullYear();
+      var mo = d.getUTCMonth() + i;
+      var last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+      out.push(toISO(Date.UTC(y, mo, Math.min(day, last))));
+    }
+    return out;
+  }
+
+  /**
+   * Status of one installment row:
+   * { number, dueDate, amountDue, paidAmount, paidDate, daysLateOverride, penaltyWaived, penaltyPaid, note }
+   * Days late count from the due date to the payment date, or to today while unpaid. An admin override wins.
+   */
+  function rowStatus(row, today) {
+    today = today || todayManila();
+    var due = Number(row.amountDue) || 0;
+    var paid = Number(row.paidAmount) || 0;
+    var fullyPaid = paid >= due && due > 0;
+    var auto = 0;
+    if (fullyPaid && row.paidDate) auto = Math.max(0, daysBetween(row.dueDate, row.paidDate));
+    else if (!fullyPaid) auto = Math.max(0, daysBetween(row.dueDate, today));
+    var override = row.daysLateOverride;
+    var daysLate = override === null || override === undefined || override === '' ? auto : Math.max(0, Number(override) || 0);
+    var penalty = penaltyFor(daysLate);
+    var grace = CONFIG.lateFees.graceDays;
+    var key;
+    var label;
+    if (fullyPaid) {
+      key = daysLate > grace ? 'paid-late' : 'paid';
+      label = daysLate > grace ? 'Paid late' : 'Paid';
+    } else if (daysBetween(row.dueDate, today) < 0 && !(override > 0)) {
+      key = paid > 0 ? 'partial' : 'upcoming';
+      label = paid > 0 ? 'Partly paid' : 'Upcoming';
+    } else if (daysLate <= grace) {
+      key = 'grace';
+      label = paid > 0 ? 'Partly paid · grace period' : 'Due · grace period';
+    } else {
+      key = 'late';
+      label = (paid > 0 ? 'Partly paid · ' : 'Overdue · ') + daysLate + ' days late';
+    }
+    return {
+      fullyPaid: fullyPaid,
+      shortfall: Math.max(0, due - paid),
+      autoDaysLate: auto,
+      daysLate: daysLate,
+      penalty: row.penaltyWaived ? 0 : penalty,
+      penaltyBeforeWaiver: penalty,
+      key: key,
+      label: label,
+    };
+  }
+
+  /** Plain-language late payment rule, shared by the buyer page and the tracker. */
+  function lateRuleLines() {
+    var lf = CONFIG.lateFees;
+    var lines = ['Up to ' + lf.graceDays + ' days late: grace period, no fee.'];
+    var total = 0;
+    lf.steps.forEach(function (s, i) {
+      total += s.amount;
+      var next = lf.steps[i + 1];
+      var range = next ? (s.afterDays + 1) + '–' + next.afterDays + ' days late' : 'More than ' + s.afterDays + ' days late';
+      lines.push(range + ': ' + (i === 0 ? peso(s.amount) + ' late fee.' : 'another ' + peso(s.amount) + ' (' + peso(total) + ' total).'));
+    });
+    lines.push('The most a single payment can be charged is ' + peso(maxPenalty()) + '. Fees are per payment, never daily, never compounded.');
+    lines.push(lf.overdueInARowForNotice + ' overdue payments in a row: written notice, with ' + lf.cureDays +
+      ' days to catch up before any further steps.');
+    return lines;
+  }
+
+  /** Totals for a tracked plan (see admin page for the ledger shape). */
+  function ledgerSummary(ledger, today) {
+    today = today || todayManila();
+    var rows = ledger.rows || [];
+    var totalDue = 0;
+    var totalPaid = 0;
+    var penaltiesOwed = 0;
+    var penaltiesPaid = 0;
+    var next = null;
+    var streak = 0;
+    rows.forEach(function (r) {
+      var s = rowStatus(r, today);
+      totalDue += Number(r.amountDue) || 0;
+      totalPaid += Number(r.paidAmount) || 0;
+      if (s.penalty > 0) {
+        if (r.penaltyPaid) penaltiesPaid += s.penalty;
+        else penaltiesOwed += s.penalty;
+      }
+      if (!s.fullyPaid && !next) next = { row: r, status: s };
+      if (s.fullyPaid) streak = 0;
+      else if (s.key === 'late') streak += 1;
+    });
+    var balance = Math.max(0, totalDue - totalPaid);
+    var borrowed = Number(ledger.borrowed) || 0;
+    var payoff = totalDue > 0 ? Math.round((borrowed * balance) / totalDue) : 0;
+    return {
+      totalDue: totalDue,
+      totalPaid: totalPaid,
+      balance: balance,
+      penaltiesOwed: penaltiesOwed,
+      penaltiesPaid: penaltiesPaid,
+      payoff: payoff + penaltiesOwed,
+      next: next,
+      overdueInARow: streak,
+      noticeDue: streak >= CONFIG.lateFees.overdueInARowForNotice,
+    };
+  }
+
   return {
     CONFIG: CONFIG,
     calculate: calculate,
@@ -217,5 +372,13 @@
     lowestMonthly: lowestMonthly,
     monthlyRatePct: monthlyRatePct,
     peso: peso,
+    penaltyFor: penaltyFor,
+    maxPenalty: maxPenalty,
+    lateRuleLines: lateRuleLines,
+    dueDates: dueDates,
+    daysBetween: daysBetween,
+    todayManila: todayManila,
+    rowStatus: rowStatus,
+    ledgerSummary: ledgerSummary,
   };
 });

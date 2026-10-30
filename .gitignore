@@ -3,6 +3,9 @@ server/.env
 .env
 .env.local
 
+# Runtime data (Fazzio payment tracker)
+server/.data/
+
 # Dependencies
 node_modules/
 server/node_modules/

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Fazzio – Payment tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/fazzio/fazzio.css">
+  <link rel="stylesheet" href="/fazzio/admin/admin.css">
+</head>
+<body class="admin">
+  <header class="bar">
+    <div class="wrap bar-inner">
+      <strong>Fazzio payment tracker</strong>
+      <div class="bar-right">
+        <span class="save-state" id="save-state"></span>
+        <a href="/fazzio/" target="_blank" rel="noopener">Buyer page ↗</a>
+        <button type="button" class="link-btn" id="btn-logout" hidden>Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap admin-main">
+    <section class="card login" id="login">
+      <h2>Seller login</h2>
+      <form id="login-form">
+        <input type="password" id="login-key" placeholder="Password" autocomplete="current-password" required>
+        <button class="btn" type="submit">Open</button>
+      </form>
+      <p class="error" id="login-error" hidden></p>
+    </section>
+
+    <section class="card" id="setup" hidden>
+      <h2 id="setup-title">Set up the agreed plan</h2>
+      <p class="muted">Enter the plan you both agreed on. This creates the payment schedule you’ll track below.</p>
+      <div class="setup-grid">
+        <label>Buyer name<input type="text" id="s-name" placeholder="e.g. Juan"></label>
+        <label>Down payment (₱)<input type="text" inputmode="numeric" id="s-down"></label>
+        <label>Monthly payment (₱)<input type="text" inputmode="numeric" id="s-monthly"></label>
+        <label>Handover date<input type="date" id="s-handover"></label>
+        <label>Payments due on
+          <select id="s-dueday"></select>
+        </label>
+      </div>
+      <p class="setup-preview" id="setup-preview"></p>
+      <div class="row-actions">
+        <button class="btn" type="button" id="btn-create">Create schedule</button>
+        <button class="btn btn-ghost" type="button" id="btn-cancel-setup" hidden>Cancel</button>
+      </div>
+      <p class="muted small" id="setup-warning" hidden>Recreating keeps what you’ve recorded for each payment number (amounts paid, dates, late marks, notes). Due dates and amounts due are recalculated.</p>
+    </section>
+
+    <section id="tracker" hidden>
+      <div class="tracker-head">
+        <div>
+          <h1 id="t-title">Payments</h1>
+          <p class="muted" id="t-plan"></p>
+        </div>
+        <div class="row-actions">
+          <button class="btn btn-ghost" type="button" id="btn-edit-plan">Edit plan</button>
+          <button class="btn btn-ghost" type="button" id="btn-print">Print statement</button>
+        </div>
+      </div>
+
+      <div class="notice" id="notice" hidden></div>
+
+      <div class="stats">
+        <div class="stat"><span>Paid so far</span><strong id="st-paid">—</strong><small id="st-paid-sub"></small></div>
+        <div class="stat"><span>Balance left</span><strong id="st-balance">—</strong><small id="st-balance-sub"></small></div>
+        <div class="stat"><span>Late fees owed</span><strong id="st-fees">—</strong><small id="st-fees-sub"></small></div>
+        <div class="stat"><span>Next payment</span><strong id="st-next">—</strong><small id="st-next-sub"></small></div>
+        <div class="stat"><span>Pay-off amount today</span><strong id="st-payoff">—</strong><small>Remaining price + late fees owed</small></div>
+      </div>
+
+      <div class="card table-card">
+        <div class="table-scroll">
+          <table class="ledger" id="ledger">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Due date</th>
+                <th>Amount due</th>
+                <th>Amount paid</th>
+                <th>Date paid</th>
+                <th>Status</th>
+                <th title="Leave blank to count automatically from the dates">Days late</th>
+                <th>Late fee</th>
+                <th>Note</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="row-actions table-foot">
+          <button class="btn btn-ghost btn-sm" type="button" id="btn-add-row">+ Add a payment row</button>
+          <span class="muted small">Days late fill in automatically from the dates. Type a number to mark a payment late yourself; clear it to go back to automatic.</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Late payment rule</h2>
+        <ul class="notes" id="rule-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <script src="/fazzio/pricing.js"></script>
+  <script src="/fazzio/admin/admin.js"></script>
+</body>
+</html>

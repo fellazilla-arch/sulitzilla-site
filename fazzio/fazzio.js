@@ -173,6 +173,11 @@
 
   set('#cash-price', peso(C.cashPrice));
   set('#max-months', String(C.maxMonths));
+  $('#late-rule').innerHTML = P.lateRuleLines().map(function (l) {
+    var d = document.createElement('li');
+    d.textContent = l;
+    return d.outerHTML;
+  }).join('');
   chips('#chips-down', [10000, 15000, 20000, 30000].filter(function (v) { return v >= C.minDownPayment; }), peso, 'downPayment');
   chips('#chips-monthly', [2500, 3000, 3500, 4000, 5000], peso, 'monthlyPayment');
 
