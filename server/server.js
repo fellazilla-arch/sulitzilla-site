@@ -407,6 +407,18 @@ app.use('/labels', sendLabelStatic, labelsStatic);
 // and would redirect /print/ → /print/ forever. Trailing-slash redirect is in nginx.
 app.use('/print', sendLabelStatic, labelsStatic);
 
+// Private Fazzio financing proposal page (/fazzio/) and its API.
+app.use('/api/fazzio', require('./fazzio').createRouter());
+app.use('/fazzio', function (req, res, next) {
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  next();
+});
+
+// The static handler below serves the repo root; never expose server code or data.
+app.use('/server', function (req, res) {
+  res.status(404).end();
+});
+
 // Serve the static site (index.html, script.js, etc.) from the project root.
 app.use(express.static(path.join(__dirname, '..')));
 
@@ -416,6 +428,8 @@ app.listen(PORT, () => {
   console.log(`  New site (WIP, local dev):          http://localhost:${PORT}/site/`);
   console.log(`  Label print:                        http://localhost:${PORT}/print/`);
   console.log(`  Label print (alias):                http://localhost:${PORT}/labels/`);
+  console.log(`  Fazzio financing (private):         http://localhost:${PORT}/fazzio/`);
+  console.log(`  Fazzio seller admin:                http://localhost:${PORT}/fazzio/admin/`);
   console.log(`  Grist auto-sync:                    daily at ${GRIST_SYNC_HOUR}:${String(GRIST_SYNC_MINUTE).padStart(2, '0')} ${GRIST_SYNC_TIMEZONE}`);
   if (envTrim('GRIST_SYNC_SECRET')) {
     console.log('  Manual sync:                        GET/POST /api/admin/sync?key=…');
