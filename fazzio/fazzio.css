@@ -91,7 +91,10 @@ thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em
 .compare { margin-top: 8px; }
 .compare .hl { background: #fff6f2; }
 .compare thead .hl { color: var(--accent-ink); }
-.compare tbody th { color: var(--ink); }
+.compare tbody th { color: var(--ink); font-weight: 600; text-align: left; }
+.compare .row-total th, .compare .row-total td { font-weight: 800; color: var(--ink); }
+.cmp-notes { margin: 12px 0 0; padding-left: 18px; }
+.cmp-notes li + li { margin-top: 4px; }
 
 .schedule-box summary { cursor: pointer; font: 700 1.1rem var(--display); color: var(--ink); list-style: none; display: flex; justify-content: space-between; }
 .schedule-box summary::-webkit-details-marker { display: none; }

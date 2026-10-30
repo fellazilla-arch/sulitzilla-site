@@ -72,6 +72,10 @@
   }
 
   function monthlyRatePct(months) {
+    return dealerMonthlyRatePct(months) * CONFIG.shareOfDealerRate;
+  }
+
+  function dealerMonthlyRatePct(months) {
     var pts = dealerMonthlyRates();
     var rate = pts[pts.length - 1].ratePct;
     if (months <= pts[0].months) rate = pts[0].ratePct;
@@ -85,7 +89,7 @@
         }
       }
     }
-    return rate * CONFIG.shareOfDealerRate;
+    return rate;
   }
 
   function priceFor(borrowed, months) {
@@ -125,11 +129,6 @@
    */
   function principalLeft(borrowed, balance, totalOfMonthly) {
     return totalOfMonthly > 0 ? Math.round((borrowed * balance) / totalOfMonthly) : 0;
-  }
-
-  /** Flat yearly rate implied by a plan (for comparing with dealer quotes). */
-  function flatYearlyPct(borrowed, interest, months) {
-    return borrowed > 0 && months > 0 ? (interest / borrowed / months) * 12 * 100 : 0;
   }
 
   /**
@@ -228,29 +227,36 @@
   }
 
   /** Same-length plans side by side with the dealer quote (rebate applied every month). */
-  function comparison(down) {
+  /**
+   * The Sumisho Honda Click with the same down payment and monthly payment (rebate already taken off the monthly),
+   * at the dealer's own rate for that length. Returns { cash, minDownMissing, tooLong, months, ... } or null.
+   */
+  function dealerSameTerms(down, monthly) {
     var d = CONFIG.dealer;
-    var dealerBorrowed = d.cashPrice - d.downPayment;
-    return d.plans.map(function (q) {
-      var net = q.monthly - d.monthlyRebate;
-      var dealerTotal = d.downPayment + net * q.months;
-      var ours = null;
-      if (q.months <= CONFIG.maxMonths) {
-        var borrowed = CONFIG.cashPrice - down;
-        var p = priceFor(borrowed, q.months);
-        var m = ceilTo(p.totalOfMonthly / q.months, CONFIG.monthlyRoundTo);
-        ours = { monthly: m, total: down + p.totalOfMonthly, yearlyRatePct: p.monthlyRatePct * 12 };
+    var maxMonths = d.plans.reduce(function (m, q) { return Math.max(m, q.months); }, 0);
+    var out = { price: d.cashPrice, minDown: d.downPayment, minDownMissing: down < d.downPayment, maxMonths: maxMonths };
+    var borrowed = d.cashPrice - down;
+    if (borrowed <= 0) {
+      out.cash = true;
+      out.total = d.cashPrice;
+      return out;
+    }
+    for (var n = 1; n <= SEARCH_LIMIT; n++) {
+      var rate = dealerMonthlyRatePct(n);
+      var interest = Math.round((borrowed * rate * n) / 100);
+      if (n * monthly >= borrowed + interest) {
+        out.months = n;
+        out.monthlyRatePct = rate;
+        out.yearlyRatePct = rate * 12;
+        out.interest = interest;
+        out.total = down + borrowed + interest;
+        out.finalPayment = borrowed + interest - (n - 1) * monthly;
+        out.tooLong = n > maxMonths;
+        return out;
       }
-      return {
-        months: q.months,
-        dealer: {
-          monthly: net,
-          total: dealerTotal,
-          yearlyRatePct: flatYearlyPct(dealerBorrowed, net * q.months - dealerBorrowed, q.months),
-        },
-        ours: ours,
-      };
-    });
+    }
+    out.tooLong = true;
+    return out;
   }
 
   // ---------- late fees and payment tracking ----------
@@ -401,7 +407,7 @@
   return {
     CONFIG: CONFIG,
     calculate: calculate,
-    comparison: comparison,
+    dealerSameTerms: dealerSameTerms,
     lowestMonthly: lowestMonthly,
     monthlyRatePct: monthlyRatePct,
     peso: peso,

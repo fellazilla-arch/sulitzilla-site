@@ -75,7 +75,7 @@
       ? 'With this down payment, the lowest monthly is ' + peso(P.lowestMonthly(C.cashPrice - downOk)) +
         ' (' + C.maxMonths + ' months).'
       : '';
-    renderComparison(isFinite(state.downPayment) ? Math.max(0, state.downPayment) : 0);
+    renderComparison(r.ok ? r.plan : null);
 
     if (!p) {
       ['#r-months', '#r-rate', '#r-total', '#d-down', '#d-monthly', '#d-last', '#d-borrowed', '#d-interest', '#d-end']
@@ -125,19 +125,43 @@
     $('#schedule tbody').innerHTML = rows.join('');
   }
 
-  function renderComparison(down) {
-    var cash = down >= C.cashPrice;
-    set('#cmp-down', peso(Math.min(down, C.cashPrice)));
-    $('#compare tbody').innerHTML = P.comparison(Math.min(down, C.cashPrice)).map(function (c) {
-      var ours = cash
-        ? '<td class="hl muted" colspan="3">Paid in full, no interest</td>'
-        : c.ours
-        ? '<td class="hl">' + peso(c.ours.monthly) + '</td><td class="hl">' + peso(c.ours.total) +
-          '</td><td class="hl"><strong>' + pct(c.ours.yearlyRatePct) + '</strong></td>'
-        : '<td class="hl muted" colspan="3">Max ' + C.maxMonths + ' months</td>';
-      return '<tr><th scope="row">' + c.months + '</th><td>' + peso(c.dealer.monthly) + '</td><td>' + peso(c.dealer.total) +
-        '</td><td>' + pct(c.dealer.yearlyRatePct) + '</td>' + ours + '</tr>';
+  /** Same down payment and monthly payment on both motorcycles; `p` is the buyer's valid plan or null. */
+  function renderComparison(p) {
+    $('#cmp-empty').hidden = !!p;
+    $('#cmp-box').hidden = !p;
+    var notes = [];
+    if (!p) {
+      $('#cmp-notes').innerHTML = '';
+      return;
+    }
+    var d = P.dealerSameTerms(p.downPayment, p.monthlyPayment);
+    var dealerMonths = d.cash ? 'Paid in full' : d.months ? monthsLabel(d.months) : 'Too long';
+    var rows = [
+      ['Motorcycle price', peso(C.cashPrice), peso(d.price)],
+      ['Down payment', peso(p.downPayment), peso(p.downPayment)],
+      ['Monthly payment', p.cash ? '—' : peso(p.monthlyPayment), d.cash ? '—' : peso(p.monthlyPayment)],
+      ['Months to pay', p.cash ? 'Paid in full' : monthsLabel(p.months), dealerMonths],
+      ['Interest rate', p.cash ? '0%' : pct(p.yearlyRatePct) + ' a year', d.cash ? '0%' : d.yearlyRatePct ? pct(d.yearlyRatePct) + ' a year' : '—'],
+      ['Total interest', peso(p.interest), d.cash ? peso(0) : d.interest != null ? peso(d.interest) : '—'],
+      ['Total you pay', peso(p.total), d.total != null ? peso(d.total) : '—'],
+    ];
+    $('#compare tbody').innerHTML = rows.map(function (row, i) {
+      var strong = i === rows.length - 1;
+      return '<tr' + (strong ? ' class="row-total"' : '') + '><th scope="row">' + row[0] + '</th><td class="hl">' + row[1] +
+        '</td><td>' + row[2] + '</td></tr>';
     }).join('');
+
+    if (!d.cash && d.total != null && !p.cash) {
+      var diff = d.total - p.total;
+      notes.push(diff > 0
+        ? 'With the same payments, you’d pay ' + peso(diff) + ' less in total for the Fazzio than for the Honda Click.'
+        : 'With these payments the Honda Click costs ' + peso(-diff) + ' less in total, mostly because it’s a cheaper motorcycle (' + peso(d.price) + ').');
+    }
+    if (d.tooLong) notes.push('Sumisho’s longest plan is ' + d.maxMonths + ' months, so they wouldn’t accept this monthly payment.');
+    if (d.minDownMissing && !d.cash) notes.push('Sumisho also requires at least ' + peso(d.minDown) + ' down (10%).');
+    notes.push('Sumisho figures use their quote for the Honda Click 125 SE, with the ₱' + C.dealer.monthlyRebate +
+      ' on-time rebate already taken off the monthly. Rates are flat yearly rates on the amount borrowed.');
+    $('#cmp-notes').innerHTML = notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('');
   }
 
   // ---------- boot ----------
