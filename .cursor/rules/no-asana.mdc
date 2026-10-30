@@ -1,0 +1,6 @@
+---
+description: No Asana tasks for this project
+alwaysApply: true
+---
+
+Do not create Asana tasks for anything in this repo (including Fazzio price or rate changes). This overrides the "Update shop prices – <model>" user rule here.
