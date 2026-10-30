@@ -75,7 +75,7 @@
       ? 'With this down payment, the lowest monthly is ' + peso(P.lowestMonthly(C.cashPrice - downOk)) +
         ' (' + C.maxMonths + ' months).'
       : '';
-
+    renderComparison(isFinite(state.downPayment) ? Math.max(0, state.downPayment) : 0);
 
     if (!p) {
       ['#r-months', '#r-rate', '#r-total', '#d-down', '#d-monthly', '#d-last', '#d-borrowed', '#d-interest', '#d-end']
@@ -125,11 +125,13 @@
     $('#schedule tbody').innerHTML = rows.join('');
   }
 
-  function renderComparison() {
-    var down = C.compareDownPayment;
-    set('#cmp-down', peso(down));
-    $('#compare tbody').innerHTML = P.comparison(down).map(function (c) {
-      var ours = c.ours
+  function renderComparison(down) {
+    var cash = down >= C.cashPrice;
+    set('#cmp-down', peso(Math.min(down, C.cashPrice)));
+    $('#compare tbody').innerHTML = P.comparison(Math.min(down, C.cashPrice)).map(function (c) {
+      var ours = cash
+        ? '<td class="hl muted" colspan="3">Paid in full, no interest</td>'
+        : c.ours
         ? '<td class="hl">' + peso(c.ours.monthly) + '</td><td class="hl">' + peso(c.ours.total) +
           '</td><td class="hl"><strong>' + pct(c.ours.yearlyRatePct) + '</strong></td>'
         : '<td class="hl muted" colspan="3">Max ' + C.maxMonths + ' months</td>';
@@ -156,7 +158,6 @@
   window.addEventListener('afterprint', function () { box.open = wasOpen; });
   $('#btn-print').addEventListener('click', function () { window.print(); });
 
-  renderComparison();
   sync();
   update();
 })();
