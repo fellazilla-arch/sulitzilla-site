@@ -420,7 +420,7 @@ app.use('/server', function (req, res) {
 });
 
 // Serve the static site (index.html, script.js, etc.) from the project root.
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, '..'), { dotfiles: 'ignore' }));
 
 app.listen(PORT, () => {
   console.log(`Listening on http://localhost:${PORT}`);
