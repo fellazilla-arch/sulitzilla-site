@@ -33,19 +33,8 @@ jobs:
             if git diff ORIG_HEAD HEAD --name-only | grep -qE '^server/package(-lock)?\.json'; then
               npm install --no-audit --no-fund
             fi
-            if [ -n "$GRIST_SYNC_SECRET" ]; then
-              if grep -q '^GRIST_SYNC_SECRET=' .env 2>/dev/null; then
-                sed -i "s/^GRIST_SYNC_SECRET=.*/GRIST_SYNC_SECRET=${GRIST_SYNC_SECRET}/" .env
-              else
-                echo "GRIST_SYNC_SECRET=${GRIST_SYNC_SECRET}" >> .env
-              fi
-            fi
-            if [ -n "$FAZZIO_ADMIN_KEY" ]; then
-              if grep -q '^FAZZIO_ADMIN_KEY=' .env 2>/dev/null; then
-                sed -i "s/^FAZZIO_ADMIN_KEY=.*/FAZZIO_ADMIN_KEY=${FAZZIO_ADMIN_KEY}/" .env
-              else
-                echo "FAZZIO_ADMIN_KEY=${FAZZIO_ADMIN_KEY}" >> .env
-              fi
-            fi
+            # script_stop aborts on any failing line, so each secret update is one command that always succeeds.
+            if [ -n "$GRIST_SYNC_SECRET" ]; then touch .env && sed -i '/^GRIST_SYNC_SECRET=/d' .env && echo "GRIST_SYNC_SECRET=${GRIST_SYNC_SECRET}" >> .env; fi
+            if [ -n "$FAZZIO_ADMIN_KEY" ]; then touch .env && sed -i '/^FAZZIO_ADMIN_KEY=/d' .env && echo "FAZZIO_ADMIN_KEY=${FAZZIO_ADMIN_KEY}" >> .env; fi
             pm2 restart sulitzilla || pm2 start server.js --name sulitzilla
           script_stop: true
