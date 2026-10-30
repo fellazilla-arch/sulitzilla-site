@@ -96,7 +96,7 @@
       ['#d-monthly', '#d-last', '#d-end'].forEach(function (s) { set(s, '—'); });
       set('#d-borrowed', peso(0));
       set('#d-interest', peso(0));
-      $('#schedule tbody').innerHTML = '<tr><td colspan="4" class="muted">Nothing to pay monthly.</td></tr>';
+      $('#schedule tbody').innerHTML = '<tr><td colspan="5" class="muted">Nothing to pay monthly.</td></tr>';
       return;
     }
 
@@ -116,12 +116,12 @@
     set('#d-end', monthName(p.months));
 
     var rows = ['<tr class="row-down"><td>Down payment</td><td>At handover</td><td class="num">' + peso(p.downPayment) +
-      '</td><td class="num">' + peso(p.totalOfMonthly) + '</td></tr>'];
+      '</td><td class="num">' + peso(p.totalOfMonthly) + '</td><td class="num">' + peso(p.borrowed) + '</td></tr>'];
     p.schedule.forEach(function (s) {
       rows.push('<tr><td>' + s.number + '</td><td>' + monthName(s.number) + '</td><td class="num">' + peso(s.amount) +
-        '</td><td class="num">' + peso(s.balance) + '</td></tr>');
+        '</td><td class="num">' + peso(s.balance) + '</td><td class="num">' + (s.balance ? peso(s.payoff) : '—') + '</td></tr>');
     });
-    rows.push('<tr class="row-total"><td colspan="2">Total</td><td class="num">' + peso(p.total) + '</td><td></td></tr>');
+    rows.push('<tr class="row-total"><td colspan="2">Total</td><td class="num">' + peso(p.total) + '</td><td></td><td></td></tr>');
     $('#schedule tbody').innerHTML = rows.join('');
   }
 

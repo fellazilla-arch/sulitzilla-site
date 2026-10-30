@@ -97,6 +97,14 @@
     return CONFIG.cashPrice;
   }
 
+  /**
+   * Principal still owed when `balance` of the monthly total is unpaid. Each payment is part principal and part
+   * interest in the same ratio, so paying this amount settles the plan and drops all remaining interest.
+   */
+  function principalLeft(borrowed, balance, totalOfMonthly) {
+    return totalOfMonthly > 0 ? Math.round((borrowed * balance) / totalOfMonthly) : 0;
+  }
+
   /** Flat yearly rate implied by a plan (for comparing with dealer quotes). */
   function flatYearlyPct(borrowed, interest, months) {
     return borrowed > 0 && months > 0 ? (interest / borrowed / months) * 12 * 100 : 0;
@@ -172,7 +180,8 @@
     for (var i = 1; i <= p.months; i++) {
       var amount = i === p.months ? finalPayment : pay;
       left -= amount;
-      schedule.push({ number: i, amount: amount, balance: Math.max(0, left) });
+      schedule.push({ number: i, amount: amount, balance: Math.max(0, left),
+        payoff: principalLeft(borrowed, Math.max(0, left), p.totalOfMonthly) });
     }
 
     return {
@@ -353,7 +362,7 @@
     });
     var balance = Math.max(0, totalDue - totalPaid);
     var borrowed = Number(ledger.borrowed) || 0;
-    var payoff = totalDue > 0 ? Math.round((borrowed * balance) / totalDue) : 0;
+    var payoff = principalLeft(borrowed, balance, totalDue);
     return {
       totalDue: totalDue,
       totalPaid: totalPaid,
@@ -374,6 +383,7 @@
     lowestMonthly: lowestMonthly,
     monthlyRatePct: monthlyRatePct,
     peso: peso,
+    principalLeft: principalLeft,
     penaltyFor: penaltyFor,
     maxPenalty: maxPenalty,
     lateRuleLines: lateRuleLines,
