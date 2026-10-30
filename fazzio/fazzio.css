@@ -48,7 +48,7 @@ p { margin: 0 0 0.75em; }
 .specs li { padding: 6px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); font-size: 0.85rem; font-weight: 600; }
 .hero-note { margin: 0; max-width: 40em; color: rgba(255, 255, 255, 0.72); font-size: 0.95rem; }
 
-main { margin-top: -60px; }
+main { margin-top: -60px; padding-bottom: 36px; }
 
 /* calculator */
 .calc {
@@ -120,9 +120,6 @@ thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em
   background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font: 700 0.98rem var(--font);
   box-shadow: 0 6px 18px rgba(255, 106, 61, 0.35);
 }
-.footer { padding: 20px 0 36px; text-align: center; font-size: 0.82rem; color: var(--muted); }
-.footer p { margin: 0; }
-
 @media (max-width: 760px) {
   .calc { grid-template-columns: minmax(0, 1fr); border-radius: 20px; }
   .inputs { border-right: 0; border-bottom: 1px solid var(--line); padding: 20px; }
