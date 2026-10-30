@@ -1,7 +1,7 @@
 /**
  * Fazzio installment math. All adjustable numbers live in CONFIG.
  * Interest is a flat monthly rate on the amount borrowed (the way dealer financing is quoted),
- * and the rate rises gently with the number of months.
+ * set to a share of the dealer's rate for the same number of months.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -14,9 +14,9 @@
     minDownPayment: 0,
     minMonthlyPayment: 1000,
     maxMonths: 36,
-    // Monthly rate (% of amount borrowed) = base + step × months. 12 mo ≈ 0.68%, 24 mo ≈ 0.86%, 36 mo ≈ 1.04%.
-    rateBasePct: 0.5,
-    rateStepPct: 0.015,
+    // Our rate = this share of the dealer's flat rate for the same length. Lengths between dealer quotes are
+    // interpolated; shorter than the shortest quote uses the shortest quote's rate.
+    shareOfDealerRate: 0.5,
     monthlyRoundTo: 10,
     defaults: { downPayment: 0, monthlyPayment: 0 },
     compareDownPayment: 10000,
@@ -62,8 +62,31 @@
     return Math.ceil(x / step - 1e-9) * step;
   }
 
+  /** Dealer's flat monthly rate (% of amount borrowed) for each quoted length, rebate applied. */
+  function dealerMonthlyRates() {
+    var d = CONFIG.dealer;
+    var borrowed = d.cashPrice - d.downPayment;
+    return d.plans.map(function (q) {
+      var interest = (q.monthly - d.monthlyRebate) * q.months - borrowed;
+      return { months: q.months, ratePct: (interest / borrowed / q.months) * 100 };
+    }).sort(function (a, b) { return a.months - b.months; });
+  }
+
   function monthlyRatePct(months) {
-    return CONFIG.rateBasePct + CONFIG.rateStepPct * months;
+    var pts = dealerMonthlyRates();
+    var rate = pts[pts.length - 1].ratePct;
+    if (months <= pts[0].months) rate = pts[0].ratePct;
+    else {
+      for (var i = 1; i < pts.length; i++) {
+        if (months <= pts[i].months) {
+          var a = pts[i - 1];
+          var b = pts[i];
+          rate = a.ratePct + ((b.ratePct - a.ratePct) * (months - a.months)) / (b.months - a.months);
+          break;
+        }
+      }
+    }
+    return rate * CONFIG.shareOfDealerRate;
   }
 
   function priceFor(borrowed, months) {
