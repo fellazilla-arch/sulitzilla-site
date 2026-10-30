@@ -180,7 +180,6 @@
   var wasOpen = false;
   window.addEventListener('beforeprint', function () { wasOpen = box.open; box.open = true; });
   window.addEventListener('afterprint', function () { box.open = wasOpen; });
-  $('#btn-print').addEventListener('click', function () { window.print(); });
 
   sync();
   update();

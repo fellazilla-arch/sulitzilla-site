@@ -115,7 +115,6 @@ thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em
 .notes li { margin: 8px 0; }
 .notes strong { color: var(--ink); }
 
-.actions { display: flex; justify-content: center; margin: 24px 0 8px; }
 .btn {
   min-height: 48px; padding: 0 24px; border: 0; border-radius: 999px; cursor: pointer;
   background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; font: 700 0.98rem var(--font);
@@ -146,7 +145,7 @@ thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em
   .hero-note { color: #444; }
   main { margin-top: 0; }
   .calc { display: block; box-shadow: none; }
-  .inputs, .hint, .actions { display: none !important; }
+  .inputs, .hint { display: none !important; }
   .big-item:nth-child(2) { background: #fff; border-color: #ccc; }
   .big-item:nth-child(2) strong { color: #000; }
   .big-item:nth-child(2) .label, .big-item:nth-child(2) small { color: #444; }
