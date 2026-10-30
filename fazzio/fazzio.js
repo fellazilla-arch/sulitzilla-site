@@ -5,6 +5,7 @@
   var C = P.CONFIG;
   var peso = P.peso;
   var state = { downPayment: C.defaults.downPayment, monthlyPayment: C.defaults.monthlyPayment };
+  var entered = { downPayment: false, monthlyPayment: false };
 
   var $ = function (s) { return document.querySelector(s); };
   function fmtInt(n) {
@@ -36,9 +37,11 @@
 
   function moneyInput(sel, key) {
     var input = $(sel);
+    input.addEventListener('focus', function () { input.select(); });
     input.addEventListener('input', function () {
       var raw = input.value.replace(/[^\d]/g, '');
       state[key] = raw === '' ? NaN : Number(raw);
+      entered[key] = raw !== '';
       var pos = input.selectionStart;
       var before = input.value.length;
       input.value = raw === '' ? '' : fmtInt(Number(raw));
@@ -63,7 +66,7 @@
     var r = P.calculate(state.downPayment, state.monthlyPayment);
     var p = r.ok ? r.plan : null;
 
-    $('#warning').hidden = r.ok;
+    $('#warning').hidden = r.ok || !(entered.downPayment && entered.monthlyPayment);
     $('#problems').innerHTML = r.problems.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('');
     document.querySelector('.results').classList.toggle('is-off', !r.ok);
 
@@ -123,7 +126,7 @@
   }
 
   function renderComparison() {
-    var down = C.defaults.downPayment;
+    var down = C.compareDownPayment;
     set('#cmp-down', peso(down));
     $('#compare tbody').innerHTML = P.comparison(down).map(function (c) {
       var ours = c.ours

@@ -18,7 +18,8 @@
     rateBasePct: 0.5,
     rateStepPct: 0.015,
     monthlyRoundTo: 10,
-    defaults: { downPayment: 10000, monthlyPayment: 3000 },
+    defaults: { downPayment: 0, monthlyPayment: 0 },
+    compareDownPayment: 10000,
     // Late payment rule: a fee is added once each `afterDays` threshold is passed (per payment, never compounded).
     lateFees: {
       graceDays: 5,
