@@ -34,8 +34,8 @@
     </section>
 
     <section class="card" id="setup" hidden>
-      <h2 id="setup-title">Set up the agreed plan</h2>
-      <p class="muted">Enter the plan you both agreed on. This creates the payment schedule you’ll track below.</p>
+      <h2 id="setup-title">Enter the deal he chose</h2>
+      <p class="muted">Type the same down payment and monthly payment he picked on the calculator. The number of months, each month’s amount, and the due dates are worked out the same way his page does.</p>
       <div class="setup-grid">
         <label>Buyer name<input type="text" id="s-name" placeholder="e.g. Juan"></label>
         <label>Down payment (₱)<input type="text" inputmode="numeric" id="s-down"></label>
@@ -47,10 +47,10 @@
       </div>
       <p class="setup-preview" id="setup-preview"></p>
       <div class="row-actions">
-        <button class="btn" type="button" id="btn-create">Create schedule</button>
+        <button class="btn" type="button" id="btn-create">Start tracking</button>
         <button class="btn btn-ghost" type="button" id="btn-cancel-setup" hidden>Cancel</button>
       </div>
-      <p class="muted small" id="setup-warning" hidden>Recreating keeps what you’ve recorded for each payment number (amounts paid, dates, late marks, notes). Due dates and amounts due are recalculated.</p>
+      <p class="muted small" id="setup-warning" hidden>Months already marked paid or late stay marked. Amounts and due dates are recalculated for the new deal.</p>
     </section>
 
     <section id="tracker" hidden>
@@ -60,7 +60,7 @@
           <p class="muted" id="t-plan"></p>
         </div>
         <div class="row-actions">
-          <button class="btn btn-ghost" type="button" id="btn-edit-plan">Edit plan</button>
+          <button class="btn btn-ghost" type="button" id="btn-edit-plan">Change the deal</button>
           <button class="btn btn-ghost" type="button" id="btn-print">Print statement</button>
         </div>
       </div>
@@ -68,11 +68,9 @@
       <div class="notice" id="notice" hidden></div>
 
       <div class="stats">
-        <div class="stat"><span>Paid so far</span><strong id="st-paid">—</strong><small id="st-paid-sub"></small></div>
-        <div class="stat"><span>Balance left</span><strong id="st-balance">—</strong><small id="st-balance-sub"></small></div>
+        <div class="stat"><span>Months paid</span><strong id="st-paid">—</strong><small id="st-paid-sub"></small></div>
+        <div class="stat"><span>Late payments</span><strong id="st-late">—</strong><small id="st-late-sub"></small></div>
         <div class="stat"><span>Late fees owed</span><strong id="st-fees">—</strong><small id="st-fees-sub"></small></div>
-        <div class="stat"><span>Next payment</span><strong id="st-next">—</strong><small id="st-next-sub"></small></div>
-        <div class="stat"><span>Pay-off amount today</span><strong id="st-payoff">—</strong><small>Principal still owed + late fees owed (remaining interest dropped)</small></div>
       </div>
 
       <div class="card table-card">
@@ -80,25 +78,18 @@
           <table class="ledger" id="ledger">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Due date</th>
-                <th>Amount due</th>
-                <th>Amount paid</th>
-                <th>Date paid</th>
+                <th>Month</th>
+                <th>Due</th>
+                <th class="num">Amount</th>
+                <th>Payment</th>
                 <th>Status</th>
-                <th title="Leave blank to count automatically from the dates">Days late</th>
                 <th>Late fee</th>
-                <th>Note</th>
-                <th></th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
-        <div class="row-actions table-foot">
-          <button class="btn btn-ghost btn-sm" type="button" id="btn-add-row">+ Add a payment row</button>
-          <span class="muted small">Days late fill in automatically from the dates. Type a number to mark a payment late yourself; clear it to go back to automatic.</span>
-        </div>
+        <p class="muted small table-foot">Unpaid months turn overdue automatically after the due date. When a payment comes in, pick how late it was.</p>
       </div>
 
       <div class="card">

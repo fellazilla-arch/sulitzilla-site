@@ -9,8 +9,6 @@
   var saveTimer = null;
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
-  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -116,10 +114,10 @@
   function showSetup(editing) {
     $('#setup').hidden = false;
     $('#tracker').hidden = true;
-    $('#setup-title').textContent = editing ? 'Edit the agreed plan' : 'Set up the agreed plan';
+    $('#setup-title').textContent = editing ? 'Change the deal' : 'Enter the deal he chose';
     $('#btn-cancel-setup').hidden = !editing;
     $('#setup-warning').hidden = !editing;
-    $('#btn-create').textContent = editing ? 'Recreate schedule' : 'Create schedule';
+    $('#btn-create').textContent = editing ? 'Update months' : 'Start tracking';
     var src = editing && ledger ? ledger : null;
     $('#s-name').value = src ? src.buyerName || '' : '';
     $('#s-down').value = fmtMoneyInput(src ? src.downPayment : P.CONFIG.defaults.downPayment);
@@ -166,25 +164,20 @@
     if (!r.ok || !p || p.cash) return;
     var handover = $('#s-handover').value || P.todayManila();
     var dueDay = Number(dueSel.value);
-    if (ledger && ledger.rows && !confirm('Recreate the schedule? Recorded payments are kept by payment number.')) return;
+    if (ledger && ledger.rows && !confirm('Update the months for this deal? Months already marked paid or late stay marked.')) return;
     var old = ledger && ledger.rows ? ledger.rows : [];
     var dates = P.dueDates(handover, dueDay, p.months);
     var rows = p.schedule.map(function (s, i) {
-      var prev = old[i] || {};
-      return {
-        number: s.number,
-        dueDate: dates[i],
-        amountDue: s.amount,
-        paidAmount: prev.paidAmount || 0,
-        paidDate: prev.paidDate || '',
-        daysLateOverride: prev.daysLateOverride == null ? null : prev.daysLateOverride,
-        penaltyWaived: !!prev.penaltyWaived,
-        penaltyPaid: !!prev.penaltyPaid,
-        note: prev.note || '',
-      };
+      var row = { number: s.number, dueDate: dates[i], amountDue: s.amount, paidAmount: 0, paidDate: '',
+        daysLateOverride: null, penaltyWaived: false, penaltyPaid: false, note: '' };
+      if (old[i]) {
+        applyChoice(row, choiceFor(old[i]));
+        row.penaltyPaid = !!old[i].penaltyPaid && row.daysLateOverride > 0;
+      }
+      return row;
     });
-    var lostRecords = old.slice(rows.length).filter(function (x) { return x.paidAmount || x.note; }).length;
-    if (lostRecords && !confirm(lostRecords + ' recorded payment row(s) beyond the new plan length will be removed. Continue?')) return;
+    var lostRecords = old.slice(rows.length).filter(function (x) { return choiceFor(x) !== 'unpaid'; }).length;
+    if (lostRecords && !confirm(lostRecords + ' marked month(s) beyond the new deal’s length will be removed. Continue?')) return;
     ledger = {
       buyerName: $('#s-name').value.trim(),
       downPayment: down,
@@ -196,7 +189,6 @@
       months: p.months,
       monthlyRatePct: p.monthlyRatePct,
       total: p.total,
-      down: ledger && ledger.down ? ledger.down : { paidAmount: down, paidDate: handover },
       rows: rows,
       createdAt: (ledger && ledger.createdAt) || new Date().toISOString(),
     };
@@ -218,74 +210,71 @@
     refresh();
   }
 
+  var LF = P.CONFIG.lateFees;
+
+  /** Dropdown choices: not paid, on time, then one "paid late" choice per late-fee step. */
+  function paymentChoices() {
+    var total = 0;
+    var out = [{ v: 'unpaid', label: 'Not paid yet' }, { v: 'ontime', label: 'Paid on time' }];
+    LF.steps.forEach(function (s, i) {
+      total += s.amount;
+      var next = LF.steps[i + 1];
+      var range = next ? (s.afterDays + 1) + '–' + next.afterDays + ' days' : 'over ' + s.afterDays + ' days';
+      out.push({ v: 'late-' + i, label: 'Paid late, ' + range + ' (' + peso(total) + ')' });
+    });
+    return out;
+  }
+
+  function choiceFor(r) {
+    var s = P.rowStatus(r);
+    if (!s.fullyPaid) return 'unpaid';
+    var tier = -1;
+    LF.steps.forEach(function (step, i) { if (s.daysLate > step.afterDays) tier = i; });
+    return tier < 0 ? 'ontime' : 'late-' + tier;
+  }
+
+  function applyChoice(r, v) {
+    r.penaltyWaived = false;
+    if (v === 'unpaid') {
+      r.paidAmount = 0;
+      r.paidDate = '';
+      r.daysLateOverride = null;
+      r.penaltyPaid = false;
+    } else {
+      r.paidAmount = r.amountDue;
+      r.paidDate = r.paidDate || P.todayManila();
+      r.daysLateOverride = v === 'ontime' ? 0 : LF.steps[Number(v.split('-')[1])].afterDays + 1;
+      if (v === 'ontime') r.penaltyPaid = false;
+    }
+  }
+
   function rowHtml(r, i) {
+    var current = choiceFor(r);
+    var options = paymentChoices().map(function (c) {
+      return '<option value="' + c.v + '"' + (c.v === current ? ' selected' : '') + '>' + esc(c.label) + '</option>';
+    }).join('');
     return '<tr data-i="' + i + '">' +
       '<td class="num-col">' + r.number + '</td>' +
-      '<td><input type="date" data-k="dueDate" value="' + esc(r.dueDate) + '"></td>' +
-      '<td><input type="text" inputmode="numeric" class="m" data-k="amountDue" value="' + fmtMoneyInput(r.amountDue) + '"></td>' +
-      '<td><input type="text" inputmode="numeric" class="m" data-k="paidAmount" value="' + fmtMoneyInput(r.paidAmount) + '" placeholder="0"></td>' +
-      '<td><input type="date" data-k="paidDate" value="' + esc(r.paidDate) + '"></td>' +
+      '<td>' + fmtDate(r.dueDate) + '</td>' +
+      '<td class="num">' + peso(r.amountDue) + '</td>' +
+      '<td><select data-k="payment">' + options + '</select></td>' +
       '<td><span class="badge" data-out="status"></span></td>' +
-      '<td><input type="number" min="0" step="1" class="days" data-k="daysLateOverride" value="' +
-        (r.daysLateOverride == null ? '' : esc(r.daysLateOverride)) + '"></td>' +
       '<td class="fee"><strong data-out="fee"></strong>' +
-        '<label><input type="checkbox" data-k="penaltyWaived"' + (r.penaltyWaived ? ' checked' : '') + '> waive</label>' +
-        '<label><input type="checkbox" data-k="penaltyPaid"' + (r.penaltyPaid ? ' checked' : '') + '> paid</label></td>' +
-      '<td><input type="text" class="note" data-k="note" value="' + esc(r.note) + '" placeholder="Note"></td>' +
-      '<td><button type="button" class="btn btn-sm" data-act="paid-today">Paid today</button></td>' +
+        '<label data-out="fee-paid"><input type="checkbox" data-k="penaltyPaid"' + (r.penaltyPaid ? ' checked' : '') + '> fee paid</label></td>' +
       '</tr>';
   }
 
   function renderTable() {
-    var d = ledger.down || { paidAmount: 0, paidDate: '' };
-    var downRow = '<tr class="down-row" data-i="down">' +
-      '<td class="num-col">Down</td><td>' + fmtDate(ledger.handoverDate) + '</td>' +
-      '<td>' + peso(ledger.downPayment) + '</td>' +
-      '<td><input type="text" inputmode="numeric" class="m" data-k="paidAmount" value="' + fmtMoneyInput(d.paidAmount) + '" placeholder="0"></td>' +
-      '<td><input type="date" data-k="paidDate" value="' + esc(d.paidDate) + '"></td>' +
-      '<td><span class="badge" data-out="status"></span></td><td></td><td></td><td></td><td></td></tr>';
-    $('#ledger tbody').innerHTML = downRow + ledger.rows.map(rowHtml).join('');
+    $('#ledger tbody').innerHTML = ledger.rows.map(rowHtml).join('');
   }
 
-  function onEdit(e) {
+  $('#ledger').addEventListener('change', function (e) {
     var input = e.target;
-    var k = input.dataset.k;
-    if (!k) return;
     var tr = input.closest('tr');
-    var target = tr.dataset.i === 'down' ? (ledger.down = ledger.down || {}) : ledger.rows[Number(tr.dataset.i)];
-    if (input.type === 'checkbox') target[k] = input.checked;
-    else if (input.classList.contains('m')) {
-      var raw = input.value.replace(/[^\d]/g, '');
-      target[k] = raw ? Number(raw) : 0;
-      if (e.type === 'change') input.value = fmtMoneyInput(target[k]);
-    } else if (k === 'daysLateOverride') target[k] = input.value === '' ? null : Math.max(0, Number(input.value));
-    else target[k] = input.value;
-    refresh();
-    queueSave();
-  }
-
-  $('#ledger').addEventListener('input', onEdit);
-  $('#ledger').addEventListener('change', onEdit);
-
-  $('#ledger').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-act="paid-today"]');
-    if (!b) return;
-    var tr = b.closest('tr');
+    if (!tr || !input.dataset.k) return;
     var r = ledger.rows[Number(tr.dataset.i)];
-    r.paidAmount = r.amountDue;
-    r.paidDate = P.todayManila();
-    $('[data-k="paidAmount"]', tr).value = fmtMoneyInput(r.paidAmount);
-    $('[data-k="paidDate"]', tr).value = r.paidDate;
-    refresh();
-    queueSave();
-  });
-
-  $('#btn-add-row').addEventListener('click', function () {
-    var last = ledger.rows[ledger.rows.length - 1];
-    var nextDue = last ? P.dueDates(last.dueDate, 0, 1)[0] : P.dueDates(ledger.handoverDate, ledger.dueDay, 1)[0];
-    ledger.rows.push({ number: ledger.rows.length + 1, dueDate: nextDue, amountDue: 0, paidAmount: 0, paidDate: '',
-      daysLateOverride: null, penaltyWaived: false, penaltyPaid: false, note: '' });
-    renderTable();
+    if (input.dataset.k === 'payment') applyChoice(r, input.value);
+    else if (input.dataset.k === 'penaltyPaid') r.penaltyPaid = input.checked;
     refresh();
     queueSave();
   });
@@ -295,49 +284,31 @@
 
   function refresh() {
     var today = P.todayManila();
-    var waived = 0;
+    var paidCount = 0;
+    var lateCount = 0;
+    var overdueCount = 0;
     ledger.rows.forEach(function (r, i) {
       var tr = $('#ledger tbody tr[data-i="' + i + '"]');
       if (!tr) return;
       var s = P.rowStatus(r, today);
+      if (s.fullyPaid) paidCount += 1;
+      if (s.key === 'paid-late') lateCount += 1;
+      if (s.key === 'late') overdueCount += 1;
       var badge = $('[data-out="status"]', tr);
       badge.textContent = s.label;
       badge.className = 'badge ' + s.key;
       tr.className = 'st-' + s.key;
-      var days = $('[data-k="daysLateOverride"]', tr);
-      days.placeholder = String(s.autoDaysLate);
-      days.classList.toggle('overridden', r.daysLateOverride != null);
-      var fee = $('[data-out="fee"]', tr);
-      fee.textContent = s.penaltyBeforeWaiver ? peso(s.penaltyBeforeWaiver) : '—';
-      fee.className = r.penaltyWaived && s.penaltyBeforeWaiver ? 'waived' : '';
-      if (r.penaltyWaived) waived += s.penaltyBeforeWaiver;
-      $('[data-act="paid-today"]', tr).hidden = s.fullyPaid;
+      $('[data-out="fee"]', tr).textContent = s.penalty ? peso(s.penalty) : '—';
+      $('[data-out="fee-paid"]', tr).hidden = !s.penalty;
     });
 
-    var d = ledger.down || {};
-    var downPaid = Number(d.paidAmount) || 0;
-    var downShort = Math.max(0, ledger.downPayment - downPaid);
-    var downBadge = $('#ledger tr[data-i="down"] [data-out="status"]');
-    downBadge.textContent = !ledger.downPayment ? 'No down payment' : downShort ? (downPaid ? 'Partly paid' : 'Not received') : 'Received';
-    downBadge.className = 'badge ' + (!ledger.downPayment ? '' : downShort ? 'late' : 'paid');
-
     var s = P.ledgerSummary(ledger, today);
-    var totalPrice = ledger.downPayment + s.totalDue;
-    var left = ledger.rows.filter(function (r) { return !P.rowStatus(r, today).fullyPaid; }).length;
-    $('#st-paid').textContent = peso(downPaid + s.totalPaid);
-    $('#st-paid-sub').textContent = 'of ' + peso(totalPrice);
-    $('#st-balance').textContent = peso(s.balance + downShort);
-    $('#st-balance-sub').textContent = left ? left + (left === 1 ? ' payment left' : ' payments left') : 'Fully paid';
+    $('#st-paid').textContent = paidCount + ' of ' + ledger.rows.length;
+    $('#st-paid-sub').textContent = paidCount === ledger.rows.length ? 'Fully paid' : (ledger.rows.length - paidCount) + ' to go';
+    $('#st-late').textContent = String(lateCount + overdueCount);
+    $('#st-late-sub').textContent = lateCount + ' paid late · ' + overdueCount + ' overdue now';
     $('#st-fees').textContent = peso(s.penaltiesOwed);
-    $('#st-fees-sub').textContent = peso(s.penaltiesPaid) + ' paid' + (waived ? ' · ' + peso(waived) + ' waived' : '');
-    if (s.next) {
-      $('#st-next').textContent = peso(s.next.status.shortfall);
-      $('#st-next-sub').textContent = 'Due ' + fmtDate(s.next.row.dueDate) + ' · ' + s.next.status.label;
-    } else {
-      $('#st-next').textContent = '—';
-      $('#st-next-sub').textContent = 'All payments made';
-    }
-    $('#st-payoff').textContent = peso(s.payoff + downShort);
+    $('#st-fees-sub').textContent = peso(s.penaltiesPaid) + ' already paid';
 
     var notice = $('#notice');
     notice.hidden = !s.noticeDue;
