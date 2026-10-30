@@ -16,7 +16,7 @@
     maxMonths: 36,
     // Our rate = this share of the dealer's flat rate for the same length. Lengths between dealer quotes are
     // interpolated; shorter than the shortest quote uses the shortest quote's rate.
-    shareOfDealerRate: 0.591,
+    shareOfDealerRate: 0.592,
     monthlyRoundTo: 10,
     defaults: { downPayment: 0, monthlyPayment: 0 },
     // Late payment rule: a fee is added once each `afterDays` threshold is passed (per payment, never compounded).
