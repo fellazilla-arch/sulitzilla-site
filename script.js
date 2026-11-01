@@ -684,40 +684,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return chip;
     }
 
-    function isUnitInStock(unit) {
-        return String(unit.availability || '') === 'In Stock';
-    }
-
-    function unitHasVideo(unit) {
-        return /^https?:\/\//i.test(String(unit.video || '').trim());
-    }
-
-    function createUnitVideoLink(unit) {
-        const url = String(unit.video || '').trim();
-        const link = document.createElement('a');
-        link.className = 'unit-video-link';
-        link.href = url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.setAttribute('aria-label', 'View video of this unit (opens in new tab)');
-
-        const icon = document.createElement('span');
-        icon.className = 'unit-video-link__icon';
-        icon.setAttribute('aria-hidden', 'true');
-        icon.innerHTML =
-            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-            '<circle cx="12" cy="12" r="10"></circle>' +
-            '<polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"></polygon>' +
-            '</svg>';
-        link.appendChild(icon);
-
-        const label = document.createElement('span');
-        label.className = 'unit-video-link__label';
-        label.textContent = 'Video';
-        link.appendChild(label);
-
-        return link;
-    }
+    const UNIT_ROW_EXTRAS = window.UNIT_ROW_EXTRAS;
 
     function appendUsedGradeBadge(conditionCol, unit, sectionType) {
         if (sectionType !== 'used') return;
@@ -725,9 +692,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (gradeChip) conditionCol.appendChild(gradeChip);
     }
 
-    function appendUnitVideoLinkIfNeeded(conditionCol, unit, sectionType) {
-        if (sectionType !== 'used' || !isUnitInStock(unit) || !unitHasVideo(unit)) return;
-        conditionCol.appendChild(createUnitVideoLink(unit));
+    function appendUnitVideoLinkIfNeeded(conditionCol, unit) {
+        if (!UNIT_ROW_EXTRAS.unitShowsVideo(unit)) return;
+        conditionCol.appendChild(UNIT_ROW_EXTRAS.createUnitVideoLink(unit.video));
     }
 
     function getUsedConditionExtra(unit) {
@@ -779,7 +746,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const merged = [];
         const indexByKey = new Map();
         units.forEach(function (unit) {
-            const key = getUnitMergeKey(unit, sectionType, basePrice);
+            // Units with a CODE stay on their own row so customers can pick one (and see its own video).
+            const code = String(unit.code || '').trim();
+            const key = code || getUnitMergeKey(unit, sectionType, basePrice);
             if (indexByKey.has(key)) {
                 merged[indexByKey.get(key)].quantity += 1;
             } else {
@@ -845,16 +814,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const colorCol = document.createElement('div');
         colorCol.className = 'inventory-unit-color-col';
+        const colorText = document.createElement('span');
+        colorText.className = 'inventory-unit-color-text';
+        const colorName = document.createElement('span');
+        colorName.className = 'inventory-unit-color-name';
         if (unit.color) {
             colorCol.appendChild(createColorDot(unit.color));
-            const colorName = document.createElement('span');
-            colorName.className = 'inventory-unit-color-name';
             colorName.textContent = unit.color;
-            colorCol.appendChild(colorName);
         } else {
-            colorCol.textContent = '—';
+            colorName.textContent = '—';
             colorCol.classList.add('inventory-unit-color-col--empty');
         }
+        colorText.appendChild(colorName);
+        const codeEl = UNIT_ROW_EXTRAS.createUnitCodeLabel(unit.code);
+        if (codeEl) colorText.appendChild(codeEl);
+        colorCol.appendChild(colorText);
         rowEl.appendChild(colorCol);
 
         const conditionCol = document.createElement('div');
@@ -867,7 +841,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (entry.quantity > 1) {
             conditionCol.appendChild(createQuantityBadge(entry.quantity));
         }
-        appendUnitVideoLinkIfNeeded(conditionCol, unit, sectionType);
+        appendUnitVideoLinkIfNeeded(conditionCol, unit);
         rowEl.appendChild(conditionCol);
 
         const priceEl = document.createElement('div');

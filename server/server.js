@@ -1,7 +1,7 @@
 /**
  * Prices API for sulitzilla.com (DigitalOcean or local).
  * GET /api/prices → fetches Grist table, returns [{ code, price }, ...].
- * GET /api/inventory → available Pixel units [{ model, storage, color, condition, grade, availability, hasIssue, issueDescription, video? }, ...].
+ * GET /api/inventory → available Pixel units [{ code, model, storage, color, condition, grade, availability, hasIssue, issueDescription, video? }, ...].
  * GET /api/issue-notes → confirmed Issue descriptions for in-stock units of any category [{ category, model, storage, color, description }, ...].
  * Grist data is cached server-side and refreshed daily at 6pm (Asia/Manila) on the server;
  * confirmed Issue descriptions (ISSUE_CONFIRMED) are re-read every 5 minutes.
@@ -289,6 +289,7 @@ function mapInventoryRecord(fields, id, issueNotes) {
   const issueNote = hasIssue && issueNotes && issueNotes.get(id);
 
   return {
+    code: String(fields.CODE ?? '').trim(),
     model,
     storage: String(fields.STORAGE ?? '').trim(),
     color: String(fields.COLOR_FLAVOR ?? '').trim(),

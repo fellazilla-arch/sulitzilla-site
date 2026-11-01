@@ -104,9 +104,11 @@
                 status: status.type,
                 eta: status.eta,
                 issueDescription: gradeInfo.grade === 'Issue' ? unit.issueDescription || '' : '',
-                qty: 1
+                qty: 1,
+                code: String(unit.code || '').trim(),
+                video: window.UNIT_ROW_EXTRAS.unitShowsVideo(unit) ? unit.video : ''
             };
-            const key = [entry.spec, entry.soft, entry.grade, entry.ungraded, entry.color, entry.status, entry.eta, entry.issueDescription].join('|');
+            const key = entry.code || [entry.spec, entry.soft, entry.grade, entry.ungraded, entry.color, entry.status, entry.eta, entry.issueDescription].join('|');
             if (!byModel.has(unit.model)) byModel.set(unit.model, new Map());
             const units = byModel.get(unit.model);
             if (units.has(key)) units.get(key).qty += 1;
@@ -712,16 +714,17 @@
         }) || null;
     }
 
-    function createColorCell(color) {
+    function createColorCell(color, code) {
         const cell = document.createElement('span');
         cell.className = 'inventory-unit-color-col';
-        if (!color) {
+        if (!color && !code) {
             cell.classList.add('inventory-unit-color-col--empty');
             cell.textContent = '—';
             return cell;
         }
+        if (!color) cell.classList.add('inventory-unit-color-col--empty');
         const catalog = window.PIXEL_CATALOG;
-        if (catalog && catalog.getPixelColorHex) {
+        if (color && catalog && catalog.getPixelColorHex) {
             const info = catalog.getPixelColorHex(color);
             const dot = document.createElement('span');
             dot.className = 'color-dot' + (info.light ? ' color-dot--light' : '');
@@ -729,10 +732,15 @@
             dot.setAttribute('aria-hidden', 'true');
             cell.appendChild(dot);
         }
+        const text = document.createElement('span');
+        text.className = 'inventory-unit-color-text';
         const name = document.createElement('span');
         name.className = 'inventory-unit-color-name';
-        name.textContent = color;
-        cell.appendChild(name);
+        name.textContent = color || '—';
+        text.appendChild(name);
+        const codeEl = window.UNIT_ROW_EXTRAS.createUnitCodeLabel(code);
+        if (codeEl) text.appendChild(codeEl);
+        cell.appendChild(text);
         return cell;
     }
 
@@ -890,7 +898,7 @@
             }
 
             if (showSpec) row.appendChild(createSpecCell(unit.spec || '—', category.key));
-            row.appendChild(createColorCell(unit.color));
+            row.appendChild(createColorCell(unit.color, unit.code));
 
             const condition = createConditionTags(unit, {
                 ungraded: unit.ungraded,
@@ -904,6 +912,7 @@
                 qty.setAttribute('aria-label', unit.qty + ' units');
                 condition.appendChild(qty);
             }
+            if (unit.video) condition.appendChild(window.UNIT_ROW_EXTRAS.createUnitVideoLink(unit.video));
             if (!unitOption) condition.appendChild(createInquireLink());
             row.appendChild(condition);
 
