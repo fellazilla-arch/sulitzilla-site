@@ -38,6 +38,16 @@
         return '₱' + amount.toLocaleString('en-PH');
     }
 
+    /** The bank bills total ÷ months to the centavo, so show centavos unless it divides evenly. */
+    function monthlyAmount(total, months) {
+        return Math.round(total * 100 / months) / 100;
+    }
+
+    function formatMonthly(amount) {
+        if (Number.isInteger(amount)) return formatPeso(amount);
+        return '₱' + amount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     /** Price plus the bank fee, rounded up to the next ₱xx90. */
     function installmentTotal(price, feePct) {
         const raw = price * (1 + feePct / 100);
@@ -514,7 +524,7 @@
             const monthly = lowestMonthly(headline.price, bank);
             return best === null || monthly < best ? monthly : best;
         }, null);
-        amount.textContent = formatPeso(lowest);
+        amount.textContent = formatMonthly(lowest);
         const perMonth = document.createElement('span');
         perMonth.className = 'inst-per-month';
         perMonth.textContent = '/mo';
@@ -578,7 +588,7 @@
 
     function lowestMonthly(price, bank) {
         return Object.keys(bank.fees).reduce(function (best, months) {
-            const monthly = Math.ceil(installmentTotal(price, bank.fees[months]) / Number(months));
+            const monthly = monthlyAmount(installmentTotal(price, bank.fees[months]), Number(months));
             return best === null || monthly < best ? monthly : best;
         }, null);
     }
@@ -610,7 +620,7 @@
 
                 const monthly = document.createElement('div');
                 monthly.className = 'inst-plans-monthly';
-                monthly.textContent = formatPeso(Math.ceil(total / months));
+                monthly.textContent = formatMonthly(monthlyAmount(total, months));
                 const perMonth = document.createElement('span');
                 perMonth.textContent = '/mo';
                 monthly.appendChild(perMonth);
@@ -928,7 +938,7 @@
                 from.className = 'inst-unit-price__from';
                 from.appendChild(document.createTextNode('from '));
                 const amount = document.createElement('strong');
-                amount.textContent = formatPeso(lowestMonthly(unitOption.price, selectedBank)) + '/mo';
+                amount.textContent = formatMonthly(lowestMonthly(unitOption.price, selectedBank)) + '/mo';
                 from.appendChild(amount);
                 const more = document.createElement('span');
                 more.className = 'inst-unit-price__more';
