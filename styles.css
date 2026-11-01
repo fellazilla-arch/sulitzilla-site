@@ -906,6 +906,61 @@ body {
     color: #c5221f;
 }
 
+.tag--issue-tappable {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 4px;
+    font-family: inherit;
+    line-height: inherit;
+    cursor: pointer;
+    text-decoration: underline dotted rgba(197, 34, 31, 0.55);
+    text-underline-offset: 2px;
+}
+
+.tag--issue-tappable:hover {
+    background-color: #fad2cf;
+}
+
+.tag--issue-tappable:focus-visible {
+    outline: 2px solid #ea4335;
+    outline-offset: 1px;
+}
+
+.tag-issue-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: rgba(197, 34, 31, 0.16);
+    font-size: 0.55rem;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.issue-overlay {
+    z-index: 2200;
+}
+
+.extracare-modal .issue-overlay-unit {
+    font-weight: 600;
+    color: #0a1929;
+}
+
+.extracare-modal .issue-overlay-text {
+    font-size: 0.95rem;
+    color: #0a1929;
+    background: #fce8e6;
+    border: 1px solid #f9cbc8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    white-space: pre-line;
+}
+
 .tag--mdm {
     border-color: #c5cae9;
     background-color: #e8eaf6;

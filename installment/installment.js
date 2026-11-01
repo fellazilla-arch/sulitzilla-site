@@ -2,6 +2,7 @@
     const DATA_URL = '/installment/data.json';
     const INVENTORY_URL = '/api/inventory';
     const PRICES_URL = '/api/prices';
+    const ISSUE_NOTES_URL = '/api/issue-notes';
     const GRADE_ORDER = ['New', 'Excellent', 'Good', 'Acceptable', 'MDM', 'Used', 'Issue'];
     const GRADE_TAG_CLASS = {
         Excellent: 'tag--excellent',
@@ -24,6 +25,7 @@
     const modalCloseEl = overlayEl.querySelector('.stock-modal-close');
     const softOverlayEl = document.getElementById('soft-unlocked-overlay');
     const gradingOverlayEl = document.getElementById('good-vs-excellent-overlay');
+    const issueOverlayEl = document.getElementById('issue-overlay');
 
     let banks = [];
     let selectedBank = null;
@@ -101,9 +103,10 @@
                 color: unit.color || '',
                 status: status.type,
                 eta: status.eta,
+                issueDescription: gradeInfo.grade === 'Issue' ? unit.issueDescription || '' : '',
                 qty: 1
             };
-            const key = [entry.spec, entry.soft, entry.grade, entry.ungraded, entry.color, entry.status, entry.eta].join('|');
+            const key = [entry.spec, entry.soft, entry.grade, entry.ungraded, entry.color, entry.status, entry.eta, entry.issueDescription].join('|');
             if (!byModel.has(unit.model)) byModel.set(unit.model, new Map());
             const units = byModel.get(unit.model);
             if (units.has(key)) units.get(key).qty += 1;
@@ -128,6 +131,34 @@
                 eta: null,
                 qty: u.qty
             };
+        });
+    }
+
+    function issueModelKey(name) {
+        return String(name || '')
+            .toLowerCase()
+            .replace(/^(google|motorola)\s+/, '')
+            .replace(/\s+-\s+.*$/, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    /** Lazada-sheet units don't come from Grist, so match their Issue descriptions by model, storage and color. */
+    function attachSheetIssueNotes(model, notes) {
+        model.stockUnits.forEach(function (unit) {
+            if (unit.grade !== 'Issue' || unit.issueDescription) return;
+            const color = String(unit.color || '').toLowerCase();
+            const spec = String(unit.spec || '').replace(/\s+/g, '').toUpperCase();
+            const matches = notes.filter(function (n) {
+                if (issueModelKey(n.model) !== issueModelKey(model.model)) return false;
+                const noteSpec = String(n.storage || '').replace(/\s+/g, '').toUpperCase();
+                if (spec && noteSpec && spec !== noteSpec) return false;
+                const noteColor = String(n.color || '').toLowerCase();
+                return !color || !noteColor || noteColor.indexOf(color) === 0 || color.indexOf(noteColor) === 0;
+            });
+            if (matches.length) {
+                unit.issueDescription = uniq(matches.map(function (n) { return n.description; })).join('\n\n');
+            }
         });
     }
 
@@ -338,11 +369,36 @@
         wrap.className = 'inst-tag-group';
         const isNew = option.grade === 'New';
         wrap.appendChild(createTag(isNew ? 'tag--condition-new' : 'tag--condition-used', isNew ? 'New' : 'Used'));
-        if (GRADE_TAG_CLASS[option.grade] && !(opts && opts.ungraded)) {
+        if (option.grade === 'Issue' && option.issueDescription) {
+            wrap.appendChild(createIssueChip(opts && opts.issueLabel, option.issueDescription));
+        } else if (GRADE_TAG_CLASS[option.grade] && !(opts && opts.ungraded)) {
             wrap.appendChild(createTag(GRADE_TAG_CLASS[option.grade], option.grade));
         }
         if (option.soft) wrap.appendChild(createSoftBadge('Soft'));
         return wrap;
+    }
+
+    function createIssueChip(label, description) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'tag tag--issue tag--issue-tappable';
+        chip.setAttribute('aria-haspopup', 'dialog');
+        chip.setAttribute('aria-label', 'Issue: see what is wrong with this unit');
+        chip.appendChild(document.createTextNode('Issue'));
+        const icon = document.createElement('span');
+        icon.className = 'tag-issue-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = '?';
+        chip.appendChild(icon);
+        chip.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openIssueOverlay(label || '', description);
+        });
+        chip.addEventListener('keydown', function (e) {
+            e.stopPropagation();
+        });
+        return chip;
     }
 
     function createSoftBadge(text) {
@@ -752,8 +808,12 @@
         return logos;
     }
 
-    function addOptionNotes(parent, option, ungraded) {
-        if (option.grade === 'Issue') {
+    function addOptionNotes(parent, option, ungraded, issueDescription) {
+        if (option.grade === 'Issue' && issueDescription) {
+            addNote(parent, '<strong>Issue:</strong> <span class="inst-issue-text"></span> ' +
+                '<a href="https://m.me/sulitzilla" target="_blank" rel="noopener noreferrer">Message us</a> for photos or a video before ordering.');
+            parent.lastChild.querySelector('.inst-issue-text').textContent = issueDescription;
+        } else if (option.grade === 'Issue') {
             addNote(parent, '<strong>Issue</strong> units have a known defect, priced lower. ' +
                 '<a href="https://m.me/sulitzilla" target="_blank" rel="noopener noreferrer">Message us</a> for details before ordering.');
         }
@@ -832,7 +892,10 @@
             if (showSpec) row.appendChild(createSpecCell(unit.spec || '—', category.key));
             row.appendChild(createColorCell(unit.color));
 
-            const condition = createConditionTags(unit, { ungraded: unit.ungraded });
+            const condition = createConditionTags(unit, {
+                ungraded: unit.ungraded,
+                issueLabel: [model.model, unit.spec, unit.color].filter(Boolean).join(' · ')
+            });
             condition.className = 'inventory-unit-condition-col';
             if (unit.qty > 1) {
                 const qty = document.createElement('span');
@@ -870,7 +933,7 @@
                     const plans = document.createElement('div');
                     plans.className = 'inst-unit-plans';
                     plans.appendChild(createPlansTable(unitOption.price, selectedBank));
-                    addOptionNotes(plans, unitOption, unit.ungraded);
+                    addOptionNotes(plans, unitOption, unit.ungraded, unit.issueDescription);
                     unitEl.appendChild(plans);
                 }
             }
@@ -1041,7 +1104,7 @@
     }
 
     /** Small explainer popups (Soft unlocked, grading) that open on top of the plans popup. */
-    const infoOverlays = [softOverlayEl, gradingOverlayEl];
+    const infoOverlays = [softOverlayEl, gradingOverlayEl, issueOverlayEl];
 
     function infoCloseButton(el) {
         return el.querySelector('.extracare-close, .good-vs-excellent-close');
@@ -1069,6 +1132,12 @@
 
     function openGradingOverlay() {
         openInfoOverlay(gradingOverlayEl);
+    }
+
+    function openIssueOverlay(label, description) {
+        issueOverlayEl.querySelector('.issue-overlay-unit').textContent = label;
+        issueOverlayEl.querySelector('.issue-overlay-text').textContent = description;
+        openInfoOverlay(issueOverlayEl);
     }
 
     overlayEl.addEventListener('click', function (e) {
@@ -1108,14 +1177,19 @@
         })
         .catch(function () { return null; });
 
+    const issueNotesPromise = fetch(ISSUE_NOTES_URL, { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (json) { return Array.isArray(json) ? json : []; })
+        .catch(function () { return []; });
+
     fetch(DATA_URL, { cache: 'no-cache' })
         .then(function (r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
         })
         .then(function (data) {
-            return Promise.all([inventoryPromise, cashPricesPromise]).then(function (extra) {
-                return { data: data, inventory: extra[0], cashPrices: extra[1] };
+            return Promise.all([inventoryPromise, cashPricesPromise, issueNotesPromise]).then(function (extra) {
+                return { data: data, inventory: extra[0], cashPrices: extra[1], issueNotes: extra[2] };
             });
         })
         .then(function (result) {
@@ -1138,6 +1212,7 @@
                 category.models.forEach(function (model) {
                     const useLive = liveByModel && category.key === 'phones' && /^Pixel /.test(model.model);
                     prepareModel(model, category.key, useLive ? liveByModel.get(model.model) || [] : null);
+                    if (!useLive) attachSheetIssueNotes(model, result.issueNotes);
                 });
             });
 

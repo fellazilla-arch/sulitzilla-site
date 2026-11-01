@@ -219,6 +219,37 @@ document.addEventListener('DOMContentLoaded', function() {
         if (softUnlockedClose) softUnlockedClose.addEventListener('click', closeSoftUnlockedOverlay);
     }
 
+    const issueOverlay = document.getElementById('issue-overlay');
+    const issueClose = issueOverlay && issueOverlay.querySelector('.extracare-close');
+    let issueLastFocus = null;
+    function openIssueOverlay(unitLabel, description) {
+        if (!issueOverlay) return;
+        issueLastFocus = document.activeElement;
+        issueOverlay.querySelector('.issue-overlay-unit').textContent = unitLabel;
+        issueOverlay.querySelector('.issue-overlay-text').textContent = description;
+        issueOverlay.hidden = false;
+        issueOverlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        if (issueClose) issueClose.focus();
+    }
+    function closeIssueOverlay() {
+        if (!issueOverlay) return;
+        issueOverlay.hidden = true;
+        issueOverlay.setAttribute('aria-hidden', 'true');
+        const stockOverlay = document.getElementById('stock-overlay');
+        if (!stockOverlay || stockOverlay.hidden) {
+            document.body.style.overflow = '';
+        }
+        if (issueLastFocus && document.contains(issueLastFocus)) issueLastFocus.focus();
+        issueLastFocus = null;
+    }
+    if (issueOverlay) {
+        issueOverlay.addEventListener('click', function (e) {
+            if (e.target === issueOverlay) closeIssueOverlay();
+        });
+        if (issueClose) issueClose.addEventListener('click', closeIssueOverlay);
+    }
+
     const fiveGCompatOverlay = document.getElementById('fiveg-compat-overlay');
     const fiveGCompatClose =
         fiveGCompatOverlay && fiveGCompatOverlay.querySelector('.extracare-close');
@@ -280,6 +311,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
+        if (issueOverlay && !issueOverlay.hidden) {
+            closeIssueOverlay();
+            return;
+        }
         if (softUnlockedOverlay && !softUnlockedOverlay.hidden) {
             closeSoftUnlockedOverlay();
             return;
@@ -618,9 +653,31 @@ document.addEventListener('DOMContentLoaded', function() {
         return badge;
     }
 
+    function createIssueChip(unit) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'tag tag--issue tag--issue-tappable';
+        chip.setAttribute('aria-haspopup', 'dialog');
+        chip.setAttribute('aria-label', 'Issue: see what is wrong with this unit');
+        chip.appendChild(document.createTextNode('Issue'));
+        const icon = document.createElement('span');
+        icon.className = 'tag-issue-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = '?';
+        chip.appendChild(icon);
+        chip.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const label = [unit.model, unit.storage, unit.color].filter(Boolean).join(' · ');
+            openIssueOverlay(label, unit.issueDescription);
+        });
+        return chip;
+    }
+
     function createGradeChip(unit) {
         const meta = getGradeChipMeta(unit);
         if (!meta) return null;
+        if (unit.hasIssue && unit.issueDescription) return createIssueChip(unit);
         const chip = document.createElement('span');
         chip.className = 'tag ' + meta.className;
         chip.textContent = meta.label;
@@ -713,7 +770,8 @@ document.addEventListener('DOMContentLoaded', function() {
             gradeKey,
             getUnitExtraLabel(unit, sectionType).toLowerCase(),
             priceKey,
-            String(unit.availability || '').trim()
+            String(unit.availability || '').trim(),
+            unit.hasIssue ? String(unit.issueDescription || '') : ''
         ].join('|');
     }
 

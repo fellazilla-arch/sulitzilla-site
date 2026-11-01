@@ -1,8 +1,10 @@
 /**
  * Prices API for sulitzilla.com (DigitalOcean or local).
  * GET /api/prices → fetches Grist table, returns [{ code, price }, ...].
- * GET /api/inventory → available Pixel units [{ model, storage, color, condition, grade, availability, hasIssue, video? }, ...].
- * Grist data is cached server-side and refreshed daily at 6pm (Asia/Manila) on the server.
+ * GET /api/inventory → available Pixel units [{ model, storage, color, condition, grade, availability, hasIssue, issueDescription, video? }, ...].
+ * GET /api/issue-notes → confirmed Issue descriptions for in-stock units of any category [{ category, model, storage, color, description }, ...].
+ * Grist data is cached server-side and refreshed daily at 6pm (Asia/Manila) on the server;
+ * confirmed Issue descriptions (ISSUE_CONFIRMED) are re-read every 5 minutes.
  * Manual sync: POST /api/admin/sync?key=YOUR_GRIST_SYNC_SECRET (set in server/.env).
  *
  * Env vars: GRIST_API_KEY, GRIST_DOC_ID, GRIST_TABLE. Optional: GRIST_BASE (default grist.sulitzilla.com/api).
@@ -234,7 +236,37 @@ function cleanModelName(name) {
   return s.replace(/^[A-Za-z],\s*/, '').replace(/^[A-Za-z],/, '');
 }
 
-function mapInventoryRecord(fields) {
+const ISSUE_NOTES_MAX_AGE_MS = 5 * 60 * 1000;
+const issueNotesCache = { byId: new Map(), fetchedAt: 0, inflight: null };
+
+/** Confirmed customer-facing defect descriptions (Grist ISSUE_DESCRIPTION), refreshed every few minutes. */
+async function getConfirmedIssueNotes() {
+  if (Date.now() - issueNotesCache.fetchedAt < ISSUE_NOTES_MAX_AGE_MS) return issueNotesCache.byId;
+  if (!issueNotesCache.inflight) {
+    issueNotesCache.inflight = fetchGristRecords({ ISSUE_CONFIRMED: [true] })
+      .then(function (records) {
+        const byId = new Map();
+        records.forEach(function (rec) {
+          const description = String(rec.fields?.ISSUE_DESCRIPTION ?? '').trim();
+          if (description) byId.set(rec.id, { fields: rec.fields, description });
+        });
+        issueNotesCache.byId = byId;
+        issueNotesCache.fetchedAt = Date.now();
+        return byId;
+      })
+      .finally(function () {
+        issueNotesCache.inflight = null;
+      });
+  }
+  try {
+    return await issueNotesCache.inflight;
+  } catch (err) {
+    console.error('[Grist] issue notes fetch failed', err.message);
+    return issueNotesCache.byId;
+  }
+}
+
+function mapInventoryRecord(fields, id, issueNotes) {
   const category = String(fields.CATEGORY ?? '').trim().toUpperCase();
   if (category !== 'PHONES') return null;
   if (fields.DO_NOT_COUNT) return null;
@@ -254,6 +286,7 @@ function mapInventoryRecord(fields) {
 
   const videoRaw = String(fields.VIDEO ?? '').trim();
   const video = /^https?:\/\//i.test(videoRaw) ? videoRaw : null;
+  const issueNote = hasIssue && issueNotes && issueNotes.get(id);
 
   return {
     model,
@@ -263,11 +296,28 @@ function mapInventoryRecord(fields) {
     grade: grade || null,
     availability: INVENTORY_STATUS_LABELS[statusRaw],
     hasIssue,
+    issueDescription: issueNote ? issueNote.description : null,
     video,
   };
 }
 
-async function fetchGristRecords() {
+/** Confirmed Issue descriptions for every in-stock unit (any category), for listings not fed by /api/inventory. */
+function mapIssueNote(note) {
+  const f = note.fields || {};
+  if (!/issue/i.test(String(f.GRADE ?? ''))) return null;
+  const statusRaw = String(f.STATUS ?? '').trim().toUpperCase();
+  if (statusRaw !== 'LIVE' && statusRaw !== 'ARRIVED') return null;
+  if (/reserve/i.test(String(f.NOTES ?? ''))) return null;
+  return {
+    category: String(f.CATEGORY ?? '').trim(),
+    model: cleanModelName(f.MODEL_PRODUCT ?? f.MODEL ?? ''),
+    storage: String(f.STORAGE ?? '').trim(),
+    color: String(f.COLOR_FLAVOR ?? '').trim(),
+    description: note.description,
+  };
+}
+
+async function fetchGristRecords(filter) {
   const apiKey = envTrim('GRIST_API_KEY');
   const docId = envTrim('GRIST_DOC_ID');
   const tableId = envTrim('GRIST_TABLE') || envTrim('GRIST_TABLE_ID');
@@ -278,7 +328,8 @@ async function fetchGristRecords() {
     throw err;
   }
 
-  const url = `${GRIST_BASE}/docs/${docId}/tables/${encodeURIComponent(tableId)}/records`;
+  let url = `${GRIST_BASE}/docs/${docId}/tables/${encodeURIComponent(tableId)}/records`;
+  if (filter) url += '?filter=' + encodeURIComponent(JSON.stringify(filter));
   const r = await fetch(url, {
     headers: { Authorization: `Bearer ${apiKey}` },
   });
@@ -343,9 +394,9 @@ app.get('/api/prices', async (req, res) => {
 app.get('/api/inventory', async (req, res) => {
   try {
     const force = wantsForceSync(req);
-    const records = await getGristRecords(force);
+    const [records, issueNotes] = await Promise.all([getGristRecords(force), getConfirmedIssueNotes()]);
     const list = records
-      .map((rec) => mapInventoryRecord(rec.fields || {}))
+      .map((rec) => mapInventoryRecord(rec.fields || {}, rec.id, issueNotes))
       .filter(Boolean);
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Cache-Control', 'no-store');
@@ -353,6 +404,13 @@ app.get('/api/inventory', async (req, res) => {
   } catch (err) {
     sendGristError(res, err, '/api/inventory');
   }
+});
+
+app.get('/api/issue-notes', async (req, res) => {
+  const issueNotes = await getConfirmedIssueNotes();
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Cache-Control', 'no-store');
+  res.json(Array.from(issueNotes.values()).map(mapIssueNote).filter(Boolean));
 });
 
 async function handleAdminSync(req, res) {
