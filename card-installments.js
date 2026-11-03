@@ -212,16 +212,47 @@
         return tag;
     }
 
-    function createGradePrice(label, className, price) {
-        const wrap = document.createElement('span');
-        wrap.className = 'card-inst-grade-price';
-        const tag = document.createElement('span');
-        tag.className = 'tag ' + className;
-        tag.textContent = label;
-        const strong = document.createElement('strong');
-        strong.textContent = formatPeso(price);
-        wrap.appendChild(tag);
-        wrap.appendChild(strong);
+    const GRADES = [
+        { id: 'good', label: 'Good', className: 'tag--good', extra: 0 },
+        { id: 'excellent', label: 'Excellent', className: 'tag--excellent', extra: EXCELLENT_EXTRA }
+    ];
+
+    /** Used prices are the Good price; the chosen grade may add to it. */
+    function variantCash(variant, grade) {
+        if (variant.condition === 'New') return variant.price;
+        return grade === 'excellent' ? variant.price + EXCELLENT_EXTRA : variant.price;
+    }
+
+    function createGradeSwitch(goodPrice, selected, onPick) {
+        const wrap = document.createElement('div');
+        wrap.className = 'card-inst-grade-switch';
+        wrap.setAttribute('role', 'radiogroup');
+        wrap.setAttribute('aria-label', 'Condition');
+
+        const label = document.createElement('span');
+        label.className = 'card-inst-note';
+        label.textContent = 'Regular price';
+        wrap.appendChild(label);
+
+        GRADES.forEach(function (grade) {
+            const isOn = grade.id === selected;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'card-inst-grade' + (isOn ? ' is-selected' : '');
+            btn.setAttribute('role', 'radio');
+            btn.setAttribute('aria-checked', String(isOn));
+            const tag = document.createElement('span');
+            tag.className = 'tag ' + grade.className;
+            tag.textContent = grade.label;
+            const price = document.createElement('strong');
+            price.textContent = formatPeso(goodPrice + grade.extra);
+            btn.appendChild(tag);
+            btn.appendChild(price);
+            btn.addEventListener('click', function () {
+                if (!isOn) onPick(grade.id);
+            });
+            wrap.appendChild(btn);
+        });
         return wrap;
     }
 
@@ -245,9 +276,11 @@
 
         const list = document.createElement('div');
         list.className = 'card-inst-variants';
+        const grade = state.grade || 'good';
         variants.forEach(function (variant, index) {
             const isOpen = state.openIndex === index;
-            const total = installmentTotal(variant.price, bank.fees[HEADLINE_MONTHS]);
+            const cash = variantCash(variant, grade);
+            const total = installmentTotal(cash, bank.fees[HEADLINE_MONTHS]);
             const isUsed = variant.condition !== 'New';
 
             const item = document.createElement('div');
@@ -266,24 +299,19 @@
             const info = document.createElement('span');
             info.className = 'card-inst-variant-info';
             info.appendChild(name);
-            if (isOpen) {
+            if (isOpen && !isUsed) {
                 const regular = document.createElement('span');
-                regular.className = 'card-inst-note card-inst-regular';
-                regular.appendChild(document.createTextNode('Regular price'));
-                if (isUsed) {
-                    regular.appendChild(createGradePrice('Good', 'tag--good', variant.price));
-                    regular.appendChild(createGradePrice('Excellent', 'tag--excellent', variant.price + EXCELLENT_EXTRA));
-                } else {
-                    const strong = document.createElement('strong');
-                    strong.textContent = formatPeso(variant.price);
-                    regular.appendChild(strong);
-                }
+                regular.className = 'card-inst-note';
+                regular.appendChild(document.createTextNode('Regular price '));
+                const strong = document.createElement('strong');
+                strong.textContent = formatPeso(variant.price);
+                regular.appendChild(strong);
                 info.appendChild(regular);
             }
 
             const monthly = document.createElement('span');
             monthly.className = 'card-inst-variant-monthly';
-            if (isUsed) {
+            if (isUsed && grade === 'good') {
                 const from = document.createElement('em');
                 from.textContent = 'from ';
                 monthly.appendChild(from);
@@ -304,7 +332,13 @@
             if (isOpen) {
                 const plans = document.createElement('div');
                 plans.className = 'card-inst-variant-plans';
-                plans.appendChild(createPlansTable(variant.price, bank));
+                if (isUsed) {
+                    plans.appendChild(createGradeSwitch(variant.price, grade, function (picked) {
+                        state.grade = picked;
+                        renderModelBody(variants, defaultBank, state);
+                    }));
+                }
+                plans.appendChild(createPlansTable(cash, bank));
                 const note = document.createElement('p');
                 note.className = 'card-inst-note';
                 note.textContent = 'BillEase, SPayLater and straight credit card payments follow our regular pricing.';

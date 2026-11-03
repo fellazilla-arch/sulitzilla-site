@@ -1768,17 +1768,46 @@ body {
     min-width: 0;
 }
 
-.card-inst-regular {
+.card-inst-grade-switch {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px 10px;
+    gap: 6px 8px;
 }
 
-.card-inst-grade-price {
+.card-inst-grade {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    padding: 3px 11px 3px 4px;
+    border: 1px solid #dbe4ef;
+    border-radius: 999px;
+    background: #fff;
+    font: inherit;
+    font-size: 0.82rem;
+    color: #6b7280;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.card-inst-grade:not(.is-selected) {
+    opacity: 0.6;
+}
+
+.card-inst-grade:not(.is-selected):hover {
+    opacity: 1;
+    border-color: #90b8e8;
+}
+
+.card-inst-grade.is-selected {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 1px #1976d2;
+    color: #0a1929;
+}
+
+.card-inst-grade:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
 }
 
 .card-inst-variant-name {
