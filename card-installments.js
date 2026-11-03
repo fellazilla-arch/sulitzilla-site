@@ -248,6 +248,20 @@
             name.appendChild(document.createTextNode(variant.storage + ' '));
             name.appendChild(createConditionTag(variant.condition));
 
+            const info = document.createElement('span');
+            info.className = 'card-inst-variant-info';
+            info.appendChild(name);
+            if (isOpen) {
+                const regular = document.createElement('span');
+                regular.className = 'card-inst-note';
+                regular.appendChild(document.createTextNode('Regular price '));
+                const strong = document.createElement('strong');
+                strong.textContent = formatPeso(variant.price);
+                regular.appendChild(strong);
+                if (isUsed) regular.appendChild(document.createTextNode(' for Good condition; Excellent costs a little more.'));
+                info.appendChild(regular);
+            }
+
             const monthly = document.createElement('span');
             monthly.className = 'card-inst-variant-monthly';
             if (isUsed) {
@@ -260,7 +274,7 @@
             monthly.appendChild(amount);
             monthly.appendChild(document.createTextNode('/mo × ' + HEADLINE_MONTHS));
 
-            row.appendChild(name);
+            row.appendChild(info);
             row.appendChild(monthly);
             row.addEventListener('click', function () {
                 state.openIndex = isOpen ? null : index;
@@ -272,15 +286,6 @@
                 const plans = document.createElement('div');
                 plans.className = 'card-inst-variant-plans';
                 plans.appendChild(createPlansTable(variant.price, bank));
-                const note = document.createElement('p');
-                note.className = 'card-inst-note';
-                note.appendChild(document.createTextNode('Regular price '));
-                const strong = document.createElement('strong');
-                strong.textContent = formatPeso(variant.price);
-                note.appendChild(strong);
-                if (isUsed) note.appendChild(document.createTextNode(' for Good condition; Excellent costs a little more.'));
-                else note.appendChild(document.createTextNode('.'));
-                plans.appendChild(note);
                 item.appendChild(plans);
             }
             list.appendChild(item);

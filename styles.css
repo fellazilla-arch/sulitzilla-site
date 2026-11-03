@@ -1761,6 +1761,13 @@ body {
     border-radius: 10px;
 }
 
+.card-inst-variant-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
 .card-inst-variant-name {
     display: inline-flex;
     align-items: center;
