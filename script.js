@@ -1122,14 +1122,26 @@ document.addEventListener('DOMContentLoaded', function() {
     function openUsedPricePopover(trigger, goodPrice) {
         const pop = ensureUsedPricePopover();
         pop.text.innerHTML = '';
-        const good = document.createElement('strong');
-        good.textContent = formatPesoPrice(goodPrice);
-        const excellent = document.createElement('strong');
-        excellent.textContent = formatPesoPrice(goodPrice + USED_EXCELLENT_ADDITION_PHP);
-        pop.text.appendChild(good);
-        pop.text.appendChild(document.createTextNode(' is for our Good condition units. Excellent condition is '));
-        pop.text.appendChild(excellent);
-        pop.text.appendChild(document.createTextNode('.'));
+        function el(tag, className, text) {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            node.textContent = text;
+            return node;
+        }
+        const goodLine = el('span', 'used-price-popover__line', '');
+        goodLine.appendChild(el('strong', '', formatPesoPrice(goodPrice)));
+        goodLine.appendChild(document.createTextNode(' is for our '));
+        goodLine.appendChild(el('span', 'tag tag--good', 'Good'));
+        goodLine.appendChild(document.createTextNode(' condition units.'));
+
+        const excellentLine = el('span', 'used-price-popover__line', '');
+        excellentLine.appendChild(el('span', 'tag tag--excellent', 'Excellent'));
+        excellentLine.appendChild(document.createTextNode(' condition is '));
+        excellentLine.appendChild(el('strong', '', formatPesoPrice(goodPrice + USED_EXCELLENT_ADDITION_PHP)));
+        excellentLine.appendChild(document.createTextNode('.'));
+
+        pop.text.appendChild(goodLine);
+        pop.text.appendChild(excellentLine);
 
         pop.el.hidden = false;
         pop.trigger = trigger;

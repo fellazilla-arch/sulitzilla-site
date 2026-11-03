@@ -2008,7 +2008,7 @@ body {
 .used-price-popover {
     position: absolute;
     z-index: 900;
-    width: min(260px, calc(100vw - 16px));
+    width: min(300px, calc(100vw - 16px));
     padding: 12px 14px;
     border: 1px solid #dbe4ef;
     border-radius: 10px;
@@ -2024,7 +2024,14 @@ body {
 }
 
 .used-price-popover__text {
-    margin: 0 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0 0 10px;
+}
+
+.used-price-popover__line .tag {
+    vertical-align: 1px;
 }
 
 .used-price-popover__text strong {
