@@ -1979,23 +1979,24 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 16px;
-    height: 16px;
-    margin-left: 6px;
+    margin-left: 5px;
     padding: 0;
-    border: 1.5px solid #8fb0d8;
-    border-radius: 50%;
-    background: #fff;
-    color: #5f7ea8;
-    font: italic 700 10px/1 Georgia, 'Times New Roman', serif;
-    vertical-align: 2px;
+    border: none;
+    background: none;
+    color: #7f9cc4;
+    line-height: 0;
+    vertical-align: -2px;
     cursor: pointer;
+}
+
+.used-price-info svg {
+    width: 15px;
+    height: 15px;
+    display: block;
 }
 
 .used-price-info:hover,
 .used-price-info[aria-expanded='true'] {
-    border-color: #1976d2;
-    background: #e8f1fc;
     color: #1976d2;
 }
 
