@@ -1074,6 +1074,94 @@ document.addEventListener('DOMContentLoaded', function() {
         return btn;
     }
 
+    let usedPricePopover = null;
+
+    function closeUsedPricePopover() {
+        if (!usedPricePopover || usedPricePopover.el.hidden) return;
+        usedPricePopover.el.hidden = true;
+        if (usedPricePopover.trigger) usedPricePopover.trigger.setAttribute('aria-expanded', 'false');
+        usedPricePopover.trigger = null;
+    }
+
+    function ensureUsedPricePopover() {
+        if (usedPricePopover) return usedPricePopover;
+        const el = document.createElement('div');
+        el.className = 'used-price-popover';
+        el.setAttribute('role', 'dialog');
+        el.hidden = true;
+
+        const text = document.createElement('p');
+        text.className = 'used-price-popover__text';
+        const gradeLink = document.createElement('button');
+        gradeLink.type = 'button';
+        gradeLink.className = 'used-price-popover__link';
+        gradeLink.textContent = 'How do we grade our units?';
+        gradeLink.addEventListener('click', function () {
+            closeUsedPricePopover();
+            openGoodVsExcellentOverlay();
+        });
+        el.appendChild(text);
+        el.appendChild(gradeLink);
+        document.body.appendChild(el);
+
+        document.addEventListener('click', function (e) {
+            if (el.hidden || el.contains(e.target)) return;
+            if (usedPricePopover.trigger && usedPricePopover.trigger.contains(e.target)) return;
+            closeUsedPricePopover();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeUsedPricePopover();
+        });
+        window.addEventListener('resize', closeUsedPricePopover);
+        window.addEventListener('scroll', closeUsedPricePopover, true);
+
+        usedPricePopover = { el: el, text: text, trigger: null };
+        return usedPricePopover;
+    }
+
+    function openUsedPricePopover(trigger, goodPrice) {
+        const pop = ensureUsedPricePopover();
+        pop.text.innerHTML = '';
+        const good = document.createElement('strong');
+        good.textContent = formatPesoPrice(goodPrice);
+        const excellent = document.createElement('strong');
+        excellent.textContent = formatPesoPrice(goodPrice + USED_EXCELLENT_ADDITION_PHP);
+        pop.text.appendChild(good);
+        pop.text.appendChild(document.createTextNode(' is for our Good condition units. Excellent condition is '));
+        pop.text.appendChild(excellent);
+        pop.text.appendChild(document.createTextNode('.'));
+
+        pop.el.hidden = false;
+        pop.trigger = trigger;
+        trigger.setAttribute('aria-expanded', 'true');
+
+        const rect = trigger.getBoundingClientRect();
+        const width = pop.el.offsetWidth;
+        const margin = 8;
+        let left = rect.right - width + 6;
+        left = Math.max(margin, Math.min(left, document.documentElement.clientWidth - width - margin));
+        pop.el.style.left = left + window.scrollX + 'px';
+        pop.el.style.top = rect.bottom + 8 + window.scrollY + 'px';
+    }
+
+    function createUsedPriceInfoButton(goodPrice) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'used-price-info';
+        btn.setAttribute('aria-haspopup', 'dialog');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-label', 'Good and Excellent condition prices');
+        btn.textContent = 'i';
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const isOpen = usedPricePopover && usedPricePopover.trigger === btn;
+            closeUsedPricePopover();
+            if (!isOpen) openUsedPricePopover(btn, goodPrice);
+        });
+        return btn;
+    }
+
     function createModelGroupElement(modelName, variants, inventoryUnits) {
         inventoryUnits = inventoryUnits || [];
 
@@ -1271,6 +1359,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 amount.textContent = formatPesoPrice(priceNum);
                 priceEl.appendChild(fromLabel);
                 priceEl.appendChild(amount);
+                priceEl.appendChild(createUsedPriceInfoButton(priceNum));
                 } else {
                 priceEl.textContent = formatPesoPrice(priceNum);
             }

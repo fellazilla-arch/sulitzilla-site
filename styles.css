@@ -1975,6 +1975,77 @@ body {
     color: #9aa0a6;
 }
 
+.used-price-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    padding: 0;
+    border: 1.5px solid #8fb0d8;
+    border-radius: 50%;
+    background: #fff;
+    color: #5f7ea8;
+    font: italic 700 10px/1 Georgia, 'Times New Roman', serif;
+    vertical-align: 2px;
+    cursor: pointer;
+}
+
+.used-price-info:hover,
+.used-price-info[aria-expanded='true'] {
+    border-color: #1976d2;
+    background: #e8f1fc;
+    color: #1976d2;
+}
+
+.used-price-info:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+}
+
+.used-price-popover {
+    position: absolute;
+    z-index: 900;
+    width: min(260px, calc(100vw - 16px));
+    padding: 12px 14px;
+    border: 1px solid #dbe4ef;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(10, 25, 41, 0.14);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: #374151;
+}
+
+.used-price-popover[hidden] {
+    display: none;
+}
+
+.used-price-popover__text {
+    margin: 0 0 8px;
+}
+
+.used-price-popover__text strong {
+    color: #0a1929;
+}
+
+.used-price-popover__link {
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    font-weight: 600;
+    color: #1976d2;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.used-price-popover__link:hover {
+    color: #0d47a1;
+}
+
 .variant-used-condition-note {
     margin: 4px 0 2px;
     padding: 10px 0 4px;
