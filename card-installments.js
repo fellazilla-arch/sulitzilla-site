@@ -286,6 +286,12 @@
             list.appendChild(item);
         });
         view.appendChild(list);
+
+        const note = document.createElement('p');
+        note.className = 'card-inst-note';
+        note.textContent = 'BillEase, SPayLater and straight credit card payments follow our regular pricing.';
+        view.appendChild(note);
+
         body.appendChild(view);
         body.scrollTop = scrollTop;
     }
