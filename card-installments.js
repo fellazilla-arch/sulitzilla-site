@@ -286,16 +286,15 @@
                 const plans = document.createElement('div');
                 plans.className = 'card-inst-variant-plans';
                 plans.appendChild(createPlansTable(variant.price, bank));
+                const note = document.createElement('p');
+                note.className = 'card-inst-note';
+                note.textContent = 'BillEase, SPayLater and straight credit card payments follow our regular pricing.';
+                plans.appendChild(note);
                 item.appendChild(plans);
             }
             list.appendChild(item);
         });
         view.appendChild(list);
-
-        const note = document.createElement('p');
-        note.className = 'card-inst-note';
-        note.textContent = 'BillEase, SPayLater and straight credit card payments follow our regular pricing.';
-        view.appendChild(note);
 
         body.appendChild(view);
         body.scrollTop = scrollTop;
