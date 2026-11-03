@@ -2267,10 +2267,10 @@ body {
     }
 }
 
-/* On wider modals, keep condition badges in one row. */
+/* On wider modals, condition badges stay in one row unless they'd run into the price. */
 @container stock-modal-body (min-width: 701px) {
     .stock-panel .inventory-table__body .inventory-unit-condition-col {
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         gap: 4px;
     }
 
