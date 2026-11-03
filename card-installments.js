@@ -286,12 +286,6 @@
             list.appendChild(item);
         });
         view.appendChild(list);
-
-        const note = document.createElement('p');
-        note.className = 'card-inst-note';
-        note.textContent = 'BillEase, SPayLater and straight credit card payments get the regular price on our price list.';
-        view.appendChild(note);
-
         body.appendChild(view);
         body.scrollTop = scrollTop;
     }
