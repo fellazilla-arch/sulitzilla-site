@@ -13,6 +13,8 @@
     ];
     // Every bank offers 12 months, so the headline compares like with like.
     const HEADLINE_MONTHS = 12;
+    // Used prices are the Good price; Excellent adds this (same as script.js).
+    const EXCELLENT_EXTRA = 1000;
 
     let selectedBank = null;
 
@@ -210,6 +212,19 @@
         return tag;
     }
 
+    function createGradePrice(label, className, price) {
+        const wrap = document.createElement('span');
+        wrap.className = 'card-inst-grade-price';
+        const tag = document.createElement('span');
+        tag.className = 'tag ' + className;
+        tag.textContent = label;
+        const strong = document.createElement('strong');
+        strong.textContent = formatPeso(price);
+        wrap.appendChild(tag);
+        wrap.appendChild(strong);
+        return wrap;
+    }
+
     function renderModelBody(variants, defaultBank, state) {
         const bank = selectedBank || defaultBank;
         const body = modal.body;
@@ -253,12 +268,16 @@
             info.appendChild(name);
             if (isOpen) {
                 const regular = document.createElement('span');
-                regular.className = 'card-inst-note';
-                regular.appendChild(document.createTextNode('Regular price '));
-                const strong = document.createElement('strong');
-                strong.textContent = formatPeso(variant.price);
-                regular.appendChild(strong);
-                if (isUsed) regular.appendChild(document.createTextNode(' for Good condition; Excellent costs a little more.'));
+                regular.className = 'card-inst-note card-inst-regular';
+                regular.appendChild(document.createTextNode('Regular price'));
+                if (isUsed) {
+                    regular.appendChild(createGradePrice('Good', 'tag--good', variant.price));
+                    regular.appendChild(createGradePrice('Excellent', 'tag--excellent', variant.price + EXCELLENT_EXTRA));
+                } else {
+                    const strong = document.createElement('strong');
+                    strong.textContent = formatPeso(variant.price);
+                    regular.appendChild(strong);
+                }
                 info.appendChild(regular);
             }
 

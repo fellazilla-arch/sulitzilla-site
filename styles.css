@@ -1768,6 +1768,19 @@ body {
     min-width: 0;
 }
 
+.card-inst-regular {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+}
+
+.card-inst-grade-price {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
 .card-inst-variant-name {
     display: inline-flex;
     align-items: center;
