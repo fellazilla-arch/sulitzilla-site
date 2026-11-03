@@ -1,6 +1,5 @@
 /**
  * Grist CODE for every Pixel model / storage / condition on the price list.
- * Shared by the main price list (script.js) and the installment page.
  * Used rows are the Good price; script.js applies the Excellent / Soft / MDM adjustments.
  */
 window.PIXEL_PRICE_CODES = [

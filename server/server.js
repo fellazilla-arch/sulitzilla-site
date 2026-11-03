@@ -1,7 +1,7 @@
 /**
  * Prices API for sulitzilla.com (DigitalOcean or local).
  * GET /api/prices → fetches Grist table, returns [{ code, price }, ...].
- * GET /api/inventory → available Pixel units [{ code, model, storage, color, condition, grade, availability, hasIssue, issueDescription, video? }, ...].
+ * GET /api/inventory → available Pixel units [{ code, model, storage, color, condition, grade, availability, hasIssue, issueDescription, price (Issue units only), video? }, ...].
  * GET /api/issue-notes → confirmed Issue descriptions for in-stock units of any category [{ category, model, storage, color, description }, ...].
  * Grist data is cached server-side and refreshed daily at 6pm (Asia/Manila) on the server;
  * confirmed Issue descriptions (ISSUE_CONFIRMED) are re-read every 5 minutes.
@@ -266,6 +266,11 @@ async function getConfirmedIssueNotes() {
   }
 }
 
+function positivePrice(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 function mapInventoryRecord(fields, id, issueNotes) {
   const category = String(fields.CATEGORY ?? '').trim().toUpperCase();
   if (category !== 'PHONES') return null;
@@ -287,6 +292,8 @@ function mapInventoryRecord(fields, id, issueNotes) {
   const videoRaw = String(fields.VIDEO ?? '').trim();
   const video = /^https?:\/\//i.test(videoRaw) ? videoRaw : null;
   const issueNote = hasIssue && issueNotes && issueNotes.get(id);
+  // Issue units carry their own price on the row; confirmed ones are re-read every few minutes.
+  const issuePrice = hasIssue ? positivePrice(issueNote ? issueNote.fields.PRICES : fields.PRICES) : null;
 
   return {
     code: String(fields.CODE ?? '').trim(),
@@ -298,6 +305,7 @@ function mapInventoryRecord(fields, id, issueNotes) {
     availability: INVENTORY_STATUS_LABELS[statusRaw],
     hasIssue,
     issueDescription: issueNote ? issueNote.description : null,
+    price: issuePrice,
     video,
   };
 }
@@ -471,6 +479,11 @@ app.use('/api/fazzio', require('./fazzio').createRouter());
 app.use('/fazzio', function (req, res, next) {
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   next();
+});
+
+// Installment prices now live on the main price list; old shared links still point here.
+app.use('/installment', function (req, res) {
+  res.redirect(301, '/');
 });
 
 // The static handler below serves the repo root; never expose server code or data.

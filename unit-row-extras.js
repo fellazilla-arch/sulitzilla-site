@@ -1,6 +1,5 @@
 /**
  * Per-unit extras on stock rows: the unit code and the video badge.
- * Shared by the main price list (script.js) and the installment page so both behave the same.
  * Expects units shaped like /api/inventory rows ({ code, condition, availability, video }).
  */
 (function () {
@@ -33,7 +32,6 @@
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.setAttribute('aria-label', 'View video of this unit (opens in new tab)');
-        // Rows on the installment page expand on click/Enter; opening the video should not toggle them.
         link.addEventListener('click', function (e) {
             e.stopPropagation();
         });

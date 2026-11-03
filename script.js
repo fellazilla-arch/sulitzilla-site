@@ -288,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const stockOverlayEl = document.getElementById('stock-overlay');
     const stockModalTitleEl = document.getElementById('stock-modal-title');
     const stockModalBodyEl = document.getElementById('stock-modal-body');
+    const stockModalInstallmentsEl = document.getElementById('stock-modal-installments');
     const stockModalCloseEl =
         stockOverlayEl && stockOverlayEl.querySelector('.stock-modal-close');
     function closeStockModal() {
@@ -725,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gradeKey = gradeMeta ? gradeMeta.label : '';
         let priceKey = 'no-price';
         if (unit.hasIssue) {
-            priceKey = 'issue';
+            priceKey = 'issue:' + (unit.price || '');
         } else if (
             basePrice != null &&
             (sectionType === 'used' || isSoftUnlocked(unit.condition))
@@ -846,13 +847,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const priceEl = document.createElement('div');
         priceEl.className = 'inventory-unit-price';
-        if (unit.hasIssue) {
+        const rowPrice = unit.hasIssue ? unit.price || null : getRowUnitPrice(basePrice, unit, sectionType);
+        if (rowPrice != null) {
+            priceEl.textContent = formatPesoPrice(rowPrice);
+        } else if (unit.hasIssue) {
             priceEl.appendChild(createInquireLink());
-        } else {
-            const rowPrice = getRowUnitPrice(basePrice, unit, sectionType);
-            if (rowPrice != null) {
-                priceEl.textContent = formatPesoPrice(rowPrice);
-            }
         }
         rowEl.appendChild(priceEl);
         rowEl.appendChild(createStatusPill(unit.availability));
@@ -918,6 +917,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!stockOverlayEl || !stockModalTitleEl || !stockModalBodyEl) return;
 
         stockModalTitleEl.textContent = modelName + ' — Available Stock';
+        if (stockModalInstallmentsEl) {
+            stockModalInstallmentsEl.innerHTML = '';
+            const installmentLink = window.CARD_INSTALLMENTS.createModelLink(modelName, variants);
+            if (installmentLink) stockModalInstallmentsEl.appendChild(installmentLink);
+        }
         stockModalBodyEl.innerHTML = '';
         stockModalBodyEl.appendChild(createStockPanelContent(modelName, variants, inventoryUnits));
 
@@ -1070,28 +1074,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return btn;
     }
 
-    function createInstallmentLink() {
-        const link = document.createElement('a');
-        link.className = 'model-installment-link';
-        link.href = '/installment/';
-
-        const icon = document.createElement('span');
-        icon.className = 'model-installment-link__icon';
-        icon.setAttribute('aria-hidden', 'true');
-        icon.innerHTML =
-            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-            '<rect x="2" y="5" width="20" height="14" rx="2"></rect>' +
-            '<line x1="2" y1="10" x2="22" y2="10"></line>' +
-            '<line x1="6" y1="15" x2="10" y2="15"></line>' +
-            '</svg>';
-        link.appendChild(icon);
-
-        const label = document.createElement('span');
-        label.textContent = 'Looking for installments?';
-        link.appendChild(label);
-        return link;
-    }
-
     function createModelGroupElement(modelName, variants, inventoryUnits) {
         inventoryUnits = inventoryUnits || [];
 
@@ -1238,6 +1220,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         headerEl.appendChild(imageEl);
         headerEl.appendChild(headerText);
+        const installmentLink = window.CARD_INSTALLMENTS.createModelLink(modelName, variants);
+        if (installmentLink) headerEl.appendChild(installmentLink);
 
         variants.forEach(function (variant) {
             const hasPrice =
@@ -1295,10 +1279,6 @@ document.addEventListener('DOMContentLoaded', function() {
             rowEl.appendChild(priceEl);
             bodyEl.appendChild(rowEl);
         });
-
-        if (bodyEl.querySelector('.variant-row')) {
-            bodyEl.appendChild(createInstallmentLink());
-        }
 
         groupEl.appendChild(headerEl);
         groupEl.appendChild(bodyEl);
@@ -1537,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const SYNC_CACHE_AT_KEY = 'sulitzilla_sync_at';
     const SERVER_SYNC_AT_KEY = 'sulitzilla_server_sync_at';
     const BROWSER_CACHE_VERSION_KEY = 'sulitzilla_cache_version';
-    const BROWSER_CACHE_VERSION = '4';
+    const BROWSER_CACHE_VERSION = '5';
 
     function ensureBrowserCacheVersion() {
         try {
