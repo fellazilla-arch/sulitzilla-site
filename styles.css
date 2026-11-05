@@ -1677,12 +1677,20 @@ body {
     flex-shrink: 0;
     gap: 1px;
     margin-left: auto;
-    padding: 2px 0;
+    padding: 4px 10px;
     font: inherit;
     text-align: right;
-    background: none;
-    border: none;
+    background: #f3f8ff;
+    border: 1px solid #b9d4f3;
+    border-radius: 10px;
     cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-inst-model-link:hover {
+    background: #e8f2fe;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 1px #1976d2;
 }
 
 .card-inst-model-link__label {
@@ -1710,7 +1718,6 @@ body {
 .card-inst-model-link:focus-visible {
     outline: 2px solid #0b72e7;
     outline-offset: 2px;
-    border-radius: 4px;
 }
 
 .card-inst-modal {
