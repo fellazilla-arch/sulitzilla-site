@@ -371,7 +371,7 @@
             bankRow.className = 'card-inst-bank-row';
             const bankLabel = document.createElement('span');
             bankLabel.className = 'card-inst-note';
-            bankLabel.textContent = 'Bank';
+            bankLabel.textContent = 'Credit Card:';
             bankRow.appendChild(bankLabel);
             bankRow.appendChild(createBankPicker(bank, function (picked) {
                 selectedBank = picked;
