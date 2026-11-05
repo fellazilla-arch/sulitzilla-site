@@ -1880,10 +1880,9 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
     min-width: 0;
-    min-height: 64px;
-    padding: 10px 6px 8px;
+    min-height: 48px;
+    padding: 10px 6px;
     border: 1px solid #e5e7eb;
     border-radius: 10px;
     background: #f7f9fc;
@@ -1931,18 +1930,6 @@ body {
 
 .card-inst-method-logos img[src$="mastercard.svg"] {
     height: 20px;
-}
-
-.card-inst-method-label {
-    font-size: 0.74rem;
-    line-height: 1.2;
-    color: #5f6368;
-    white-space: nowrap;
-}
-
-.card-inst-method.is-selected .card-inst-method-label {
-    font-weight: 600;
-    color: #1976d2;
 }
 
 .card-inst-bank-row {
@@ -2073,7 +2060,8 @@ body {
     }
 
     .card-inst-method {
-        padding: 9px 4px 7px;
+        min-height: 44px;
+        padding: 8px 4px;
     }
 
     .card-inst-method-logos img {

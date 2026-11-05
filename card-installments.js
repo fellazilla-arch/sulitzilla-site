@@ -130,12 +130,8 @@
                 img.height = logo.h;
                 logos.appendChild(img);
             });
-            const label = document.createElement('span');
-            label.className = 'card-inst-method-label';
-            label.textContent = method.label;
-
+            btn.setAttribute('aria-label', method.label);
             btn.appendChild(logos);
-            btn.appendChild(label);
             btn.addEventListener('click', function () {
                 if (!isOn) onPick(method.id);
             });
