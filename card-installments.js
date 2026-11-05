@@ -140,37 +140,41 @@
         return wrap;
     }
 
-    function createLaterSummary(cash, method) {
-        const table = document.createElement('div');
-        table.className = 'card-inst-table card-inst-table--later';
+    /** SPayLater / BillEase row: the price, with the regular price it comes from underneath. Used = Good price ("from"). */
+    function createLaterRow(variant) {
+        const isUsed = variant.condition !== 'New';
+        const item = document.createElement('div');
+        item.className = 'card-inst-variant';
+        const row = document.createElement('div');
+        row.className = 'card-inst-variant-row card-inst-variant-row--static';
 
-        const regular = document.createElement('div');
-        regular.className = 'card-inst-row';
-        const regularLabel = document.createElement('div');
-        regularLabel.textContent = 'Regular price';
-        const regularAmount = document.createElement('div');
-        regularAmount.textContent = formatPeso(cash);
-        regular.appendChild(regularLabel);
-        regular.appendChild(regularAmount);
+        const name = document.createElement('span');
+        name.className = 'card-inst-variant-name';
+        name.appendChild(document.createTextNode(variant.storage + ' '));
+        name.appendChild(createConditionTag(variant.condition));
 
-        const later = document.createElement('div');
-        later.className = 'card-inst-row';
-        const laterLabel = document.createElement('div');
-        laterLabel.className = 'card-inst-term';
-        laterLabel.appendChild(document.createTextNode(method.label + ' price '));
-        const rate = document.createElement('span');
-        rate.className = 'card-inst-rate';
-        rate.textContent = '+' + LATER_MARKUP_PCT + '%';
-        laterLabel.appendChild(rate);
-        const laterAmount = document.createElement('div');
-        laterAmount.className = 'card-inst-monthly';
-        laterAmount.textContent = formatPeso(laterPrice(cash));
-        later.appendChild(laterLabel);
-        later.appendChild(laterAmount);
+        const prices = document.createElement('span');
+        prices.className = 'card-inst-later-prices';
+        const main = document.createElement('span');
+        main.className = 'card-inst-variant-monthly';
+        if (isUsed) {
+            const from = document.createElement('em');
+            from.textContent = 'from ';
+            main.appendChild(from);
+        }
+        const amount = document.createElement('strong');
+        amount.textContent = formatPeso(laterPrice(variant.price));
+        main.appendChild(amount);
+        const regular = document.createElement('span');
+        regular.className = 'card-inst-later-regular';
+        regular.textContent = 'Regular ' + formatPeso(variant.price) + ' + ' + LATER_MARKUP_PCT + '%';
+        prices.appendChild(main);
+        prices.appendChild(regular);
 
-        table.appendChild(regular);
-        table.appendChild(later);
-        return table;
+        row.appendChild(name);
+        row.appendChild(prices);
+        item.appendChild(row);
+        return item;
     }
 
     function createPlansTable(cash, bank) {
@@ -384,6 +388,10 @@
         list.className = 'card-inst-variants';
         const grade = state.grade || 'good';
         variants.forEach(function (variant, index) {
+            if (!isCard) {
+                list.appendChild(createLaterRow(variant));
+                return;
+            }
             const isOpen = state.openIndex === index;
             const cash = variantCash(variant, grade);
             const isUsed = variant.condition !== 'New';
@@ -422,16 +430,10 @@
                 monthly.appendChild(from);
             }
             const amount = document.createElement('strong');
-            if (isCard) {
-                const total = installmentTotal(cash, bank.fees[HEADLINE_MONTHS]);
-                amount.textContent = formatMonthly(monthlyAmount(total, HEADLINE_MONTHS));
-                monthly.appendChild(amount);
-                monthly.appendChild(document.createTextNode('/mo × ' + HEADLINE_MONTHS));
-            } else {
-                amount.textContent = formatPeso(laterPrice(cash));
-                monthly.appendChild(amount);
-                monthly.appendChild(document.createTextNode('\u00a0total'));
-            }
+            const total = installmentTotal(cash, bank.fees[HEADLINE_MONTHS]);
+            amount.textContent = formatMonthly(monthlyAmount(total, HEADLINE_MONTHS));
+            monthly.appendChild(amount);
+            monthly.appendChild(document.createTextNode('/mo × ' + HEADLINE_MONTHS));
 
             row.appendChild(info);
             row.appendChild(monthly);
@@ -450,21 +452,23 @@
                         renderModelBody(variants, defaultBank, state);
                     }));
                 }
+                plans.appendChild(createPlansTable(cash, bank));
                 const note = document.createElement('p');
                 note.className = 'card-inst-note';
-                if (isCard) {
-                    plans.appendChild(createPlansTable(cash, bank));
-                    note.textContent = 'Straight (one-time) credit card payments follow our regular pricing.';
-                } else {
-                    plans.appendChild(createLaterSummary(cash, method));
-                    note.textContent = method.label + ' shows your monthly amount and terms, plus any interest it adds, when you pay.';
-                }
+                note.textContent = 'Straight (one-time) credit card payments follow our regular pricing.';
                 plans.appendChild(note);
                 item.appendChild(plans);
             }
             list.appendChild(item);
         });
         view.appendChild(list);
+
+        if (!isCard) {
+            const note = document.createElement('p');
+            note.className = 'card-inst-note';
+            note.textContent = method.label + ' shows your monthly amount and terms, plus any interest it adds, when you pay.';
+            view.appendChild(note);
+        }
 
         body.appendChild(view);
         body.scrollTop = scrollTop;

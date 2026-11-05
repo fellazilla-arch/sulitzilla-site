@@ -2008,8 +2008,26 @@ body {
     text-align: right;
 }
 
-.card-inst-table--later .card-inst-row {
-    grid-template-columns: minmax(0, 1fr) auto;
+.card-inst-variant-row--static {
+    cursor: default;
+}
+
+.card-inst-variant-row--static .card-inst-variant-monthly::after {
+    content: none;
+}
+
+.card-inst-later-prices {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    text-align: right;
+}
+
+.card-inst-later-regular {
+    font-size: 0.72rem;
+    color: #6b7280;
+    white-space: nowrap;
 }
 
 .card-inst-row--head {
