@@ -1869,6 +1869,89 @@ body {
     color: #5f6368;
 }
 
+.card-inst-methods {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.card-inst-method {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 64px;
+    padding: 10px 6px 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f7f9fc;
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.card-inst-method:not(.is-selected):hover {
+    border-color: #90b8e8;
+    background: #fff;
+}
+
+.card-inst-method.is-selected {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 1px #1976d2;
+    background: #fff;
+}
+
+.card-inst-method:focus-visible {
+    outline: 2px solid #0b72e7;
+    outline-offset: 2px;
+}
+
+.card-inst-method-logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 22px;
+    max-width: 100%;
+}
+
+.card-inst-method-logos img {
+    display: block;
+    width: auto;
+    height: 20px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.card-inst-method-logos img[src$="visa.svg"] {
+    height: 13px;
+}
+
+.card-inst-method-logos img[src$="mastercard.svg"] {
+    height: 20px;
+}
+
+.card-inst-method-label {
+    font-size: 0.74rem;
+    line-height: 1.2;
+    color: #5f6368;
+    white-space: nowrap;
+}
+
+.card-inst-method.is-selected .card-inst-method-label {
+    font-weight: 600;
+    color: #1976d2;
+}
+
+.card-inst-bank-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+}
+
 .card-inst-banks {
     display: flex;
     flex-wrap: wrap;
@@ -1931,6 +2014,10 @@ body {
     text-align: right;
 }
 
+.card-inst-table--later .card-inst-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .card-inst-row--head {
     padding-top: 7px;
     padding-bottom: 7px;
@@ -1979,6 +2066,26 @@ body {
         padding: 8px 10px;
         font-size: 0.8rem;
         gap: 6px;
+    }
+
+    .card-inst-methods {
+        gap: 6px;
+    }
+
+    .card-inst-method {
+        padding: 9px 4px 7px;
+    }
+
+    .card-inst-method-logos img {
+        height: 16px;
+    }
+
+    .card-inst-method-logos img[src$="visa.svg"] {
+        height: 11px;
+    }
+
+    .card-inst-method-logos img[src$="mastercard.svg"] {
+        height: 17px;
     }
 }
 
