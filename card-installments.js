@@ -363,7 +363,7 @@
 
         const pickerLabel = document.createElement('p');
         pickerLabel.className = 'card-inst-title';
-        pickerLabel.textContent = 'Choose payment option';
+        pickerLabel.textContent = 'Choose installment option';
         view.appendChild(pickerLabel);
         view.appendChild(createMethodPicker(method.id, function (picked) {
             state.method = picked;
@@ -455,7 +455,7 @@
                 plans.appendChild(createPlansTable(cash, bank));
                 const note = document.createElement('p');
                 note.className = 'card-inst-note';
-                note.textContent = 'Straight (one-time) credit card payments follow our regular pricing.';
+                note.textContent = 'Straight credit card payments, bank transfers, GCash and COD follow our regular pricing.';
                 plans.appendChild(note);
                 item.appendChild(plans);
             }
