@@ -24,7 +24,6 @@
     { key: 'mvFileNo', label: 'MV file no.' },
     { key: 'handoverDate', label: 'Handover date', type: 'date' },
     { key: 'dueDay', label: 'Payments due on', type: 'dueday' },
-    { key: 'venue', label: 'City for any court case' },
     { key: 'orcr', label: 'OR/CR', type: 'orcr' },
   ];
 
@@ -192,7 +191,7 @@
       { p: 'Both parties agree that this agreement may be signed electronically, and that their electronic signatures are valid and binding under Republic Act No. 8792 (Electronic Commerce Act of 2000), with the same effect as handwritten signatures. The signed electronic record, including each party’s signature, the time of signing and the fingerprint of the signed text, is the original of this agreement. Each party may download a copy of it.' },
 
       { h: '15. General.' },
-      { p: 'This is the whole agreement between the parties. Changes must be in writing and signed by both. Philippine law applies, and any case is filed in the courts of ' + v(d.venue, 'city') + '.' },
+      { p: 'This is the whole agreement between the parties. Changes must be in writing and signed by both. Philippine law applies.' },
 
       { p: 'Agreement version ' + VERSION + '.' },
     ];
