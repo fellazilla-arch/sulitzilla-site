@@ -21,6 +21,25 @@
     return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).toLocaleDateString('en-PH', { timeZone: 'UTC', dateStyle: 'medium' });
   }
 
+  /** Paying `extra` on top of each monthly: months until done and how much less he pays than the schedule left. */
+  function extraPlan(balance, monthly, ratio, extra) {
+    var left = balance;
+    var paid = 0;
+    var months = 0;
+    while (left > 0.5 && months < 600) {
+      months += 1;
+      var regular = Math.min(monthly, left);
+      left -= regular;
+      paid += regular;
+      if (left > 0.5) {
+        var x = Math.min(extra, left / ratio);
+        left -= x * ratio;
+        paid += x;
+      }
+    }
+    return { months: months, saved: balance - paid };
+  }
+
   function dealLedger() {
     var rows = [];
     var totalOfMonthly = DEAL.borrowed + DEAL.interest;
@@ -137,7 +156,15 @@
     }).join('');
 
     // extra payments
-    set('#x-rate', 'Every ' + peso(1000) + ' extra takes ' + peso(B ? (1000 * T) / B : 0) + ' off what you still owe.');
+    var perThousand = B ? (1000 * T) / B : 0;
+    set('#x-rate', 'Every ' + peso(1000) + ' extra takes ' + peso(perThousand) + ' off what you still owe.');
+    var withExtra = B && s.balance > 0 ? extraPlan(s.balance, monthly, T / B, 1000) : null;
+    $('#x-tip').hidden = !withExtra || perThousand <= 1000;
+    if (withExtra) {
+      set('#x-tip-text', 'Every ' + peso(1000) + ' you send on top of your monthly takes ' + peso(perThousand) + ' off what you owe, so ' +
+        peso(perThousand - 1000) + ' of interest you never pay. Adding ' + peso(1000) + ' a month, you’d be done in ' +
+        withExtra.months + ' months instead of ' + s.paymentsLeft + ' and save about ' + peso(Math.round(withExtra.saved / 100) * 100) + '.');
+    }
     set('#x-payoff', peso(s.payoff));
     var extras = ledger.extraPayments || [];
     $('#x-box').hidden = !extras.length;
