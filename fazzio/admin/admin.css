@@ -8,7 +8,7 @@ body.admin { background: var(--soft); }
 .save-state.bad { color: #fca5a5; }
 
 .admin .wrap { width: min(1240px, 100% - 32px); }
-.admin-main { padding: 24px 0 60px; }
+.admin-main { margin-top: 0; padding: 24px 0 60px; }
 .admin h1 { font-size: 1.6rem; }
 .login { max-width: 420px; margin: 60px auto; }
 .login form { display: flex; gap: 10px; margin-top: 12px; }
