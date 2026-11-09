@@ -2352,6 +2352,13 @@ body {
     height: 14px;
 }
 
+.site-legal {
+    padding: 20px 16px 28px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
 .navbar {
     width: 100%;
     background-color: #0a1929;
