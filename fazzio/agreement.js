@@ -24,7 +24,6 @@
     { key: 'mvFileNo', label: 'MV file no.' },
     { key: 'handoverDate', label: 'Handover date', type: 'date' },
     { key: 'dueDay', label: 'Payments due on', type: 'dueday' },
-    { key: 'paymentMethod', label: 'How he pays', placeholder: 'e.g. GCash or bank transfer' },
     { key: 'venue', label: 'City for any court case' },
     { key: 'orcr', label: 'OR/CR', type: 'orcr' },
   ];
@@ -108,7 +107,7 @@
         DEAL.months + ' monthly payments of ' + money(M) + ', due on the ' + dueDay + ' of each month, from ' +
           (longDate(dates[0]) || '[first due date]') + ' to ' + (longDate(dates[dates.length - 1]) || '[last due date]') + '.',
       ] },
-      { p: 'Payments are made by ' + v(d.paymentMethod, 'payment method') + '. A payment is on time if the Seller receives it by its due date.' },
+      { p: 'A payment is on time if the Seller receives it by its due date.' },
 
       { h: '3. Late payments.' },
       { ul: [
