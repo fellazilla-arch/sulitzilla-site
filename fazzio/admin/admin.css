@@ -1,5 +1,5 @@
 body.admin { background: var(--soft); }
-.bar { background: var(--ink); color: #fff; position: sticky; top: 0; z-index: 10; }
+.bar { background: var(--ink); color: #fff; }
 .bar-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; }
 .bar-right { display: flex; align-items: center; gap: 16px; font-size: 0.88rem; }
 .bar a, .link-btn { color: rgba(255, 255, 255, 0.8); text-decoration: none; background: none; border: 0; font: inherit; cursor: pointer; padding: 0; }
