@@ -2882,3 +2882,7 @@ body {
     }
 }
 
+
+.site-legal a {
+    color: inherit;
+}
