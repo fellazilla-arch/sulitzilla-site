@@ -24,9 +24,9 @@ window.PIXEL_PRICE_CODES = [
     { model: 'Pixel 3 XL', storage: '128GB', condition: 'Used', code: 'PL-PIXEL3XL-128GB-USED' },
 
     // Pixel 3a series – 64 GB
-    { model: 'Pixel 3a', storage: '64GB', condition: 'New', code: 'CODE: ' },
+    { model: 'Pixel 3a', storage: '64GB', condition: 'New', code: 'PL-PIXEL3A-64GB-NEW' },
     { model: 'Pixel 3a', storage: '64GB', condition: 'Used', code: 'PL-PIXEL3A-64GB-USED' },
-    { model: 'Pixel 3a XL', storage: '64GB', condition: 'New', code: 'CODE: ' },
+    { model: 'Pixel 3a XL', storage: '64GB', condition: 'New', code: 'PL-PIXEL3AXL-64GB-NEW' },
     { model: 'Pixel 3a XL', storage: '64GB', condition: 'Used', code: 'PL-PIXEL3AXL-64GB-USED' },
 
     // Pixel 4 series – 64 / 128 GB
