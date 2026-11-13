@@ -80,7 +80,7 @@ window.PIXEL_PRICE_CODES = [
     { model: 'Pixel 7a', storage: '128GB', condition: 'Used', code: 'PL-PIXEL7A-128GB-USED' },
 
     // Pixel Fold – 256 / 512 GB
-    { model: 'Pixel Fold', storage: '256GB', condition: 'New', code: 'CODE: ' },
+    { model: 'Pixel Fold', storage: '256GB', condition: 'New', code: 'PL-PIXELFOLD-256GB-NEW' },
     { model: 'Pixel Fold', storage: '256GB', condition: 'Used', code: 'PL-PIXELFOLD-256GB-USED' },
     { model: 'Pixel Fold', storage: '512GB', condition: 'New', code: 'CODE: ' },
     { model: 'Pixel Fold', storage: '512GB', condition: 'Used', code: 'PL-PIXELFOLD-512GB-USED' },
