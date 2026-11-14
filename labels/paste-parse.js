@@ -1020,6 +1020,7 @@ function looksLikeNoise(v) {
   }
   if (/^LIVE$|^ARRIVED$|^AIR KANGO$/i.test(s)) return true;
   if (/^(LIVE|ARRIVED)\s*\(/i.test(s)) return true;
+  if (/^(true|false)$/i.test(s)) return true;
   return false;
 }
 

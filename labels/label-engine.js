@@ -85,6 +85,8 @@ export function isMoneyValue(value) {
 export function labelField(value) {
   const s = normalizeField(value);
   if (!s || isMoneyValue(s)) return '';
+  // Grist checkbox / toggle columns paste as the words true / false.
+  if (/^(true|false)$/i.test(s)) return '';
   return s;
 }
 
