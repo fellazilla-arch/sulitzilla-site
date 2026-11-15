@@ -438,7 +438,7 @@ body {
 .stock-modal {
     position: relative;
     width: 100%;
-    max-width: 760px;
+    max-width: 880px;
     max-height: min(88vh, 900px);
     overflow: hidden;
     display: flex;
@@ -590,7 +590,8 @@ body {
 .stock-panel .inventory-unit-row {
     padding-inline: 18px 28px;
     gap: 14px;
-    grid-template-columns: 4.25rem minmax(6.5rem, 1.2fr) minmax(9.5rem, 1.5fr) 6.25rem minmax(7.25rem, 9.5rem);
+    /* Condition needs room for Used + Excellent + Video on one line. */
+    grid-template-columns: 4.25rem minmax(6.5rem, 1.1fr) minmax(13rem, 1.7fr) 6.25rem minmax(7.25rem, 9.5rem);
 }
 
 .stock-panel .inventory-unit-status {
@@ -2515,10 +2516,10 @@ body {
     }
 }
 
-/* On wider modals, condition badges stay in one row unless they'd run into the price. */
+/* On wider modals, Used + grade + Video stay on one line (popup is wide enough). */
 @container stock-modal-body (min-width: 701px) {
     .stock-panel .inventory-table__body .inventory-unit-condition-col {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 4px;
     }
 
